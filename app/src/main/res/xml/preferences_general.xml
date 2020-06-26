@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.takisoft.preferencex.EditTextPreference
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:defaultValue="-1"
+        android:icon="@drawable/ic_replay_black"
+        android:inputType="numberSigned"
+        android:key="@string/key_preference_repeat"
+        android:summary="@string/summary_repeat_preference"
+        android:title="@string/title_repeat_preference" />
+
+    <CheckBoxPreference
+        app:iconSpaceReserved="false"
+        android:defaultValue="false"
+        android:key="@string/key_preference_bounds_on"
+        android:title="@string/title_bounds_preference" />
+
+    <ListPreference
+        app:iconSpaceReserved="false"
+        android:defaultValue="40"
+        android:entries="@array/arr_size_control"
+        android:entryValues="@array/arr_size_point_values"
+        android:key="@string/key_preference_size_point"
+        android:title="@string/title_size_point_preference"
+        android:summary="@string/summary_size_point_preference"/>
+
+    <ListPreference
+        android:entries="@array/arr_size_control"
+        android:entryValues="@array/arr_size_control_panel_values"
+        android:key="@string/key_preference_size_control_panel"
+        android:summary="@string/summary_size_control_panel_preference"
+        android:title="@string/title_size_control_panel_preference"
+        android:defaultValue="40"
+        app:iconSpaceReserved="false" />
+
+
+</PreferenceScreen>

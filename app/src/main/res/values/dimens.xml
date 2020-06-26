@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="spacing_element">12dp</dimen>
+    <dimen name="paddingPage">12dp</dimen>
+
+    <dimen name="width_control_panel">36dp</dimen>
+
+
+</resources>

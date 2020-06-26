@@ -1,0 +1,46 @@
+package com.askerweb.autoclickerreplay;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+
+import com.askerweb.autoclickerreplay.services.AutoClickService;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+public class MainActivity extends AppCompatActivity {
+
+    @BindView(R.id.fab)
+    FloatingActionButton actionButton;
+
+
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Dimension.displayMetrics = getResources().getDisplayMetrics();
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        NavController navController = Navigation.findNavController(this, R.id.navigation_fragment);
+        navController.addOnDestinationChangedListener((c,d,arg)->{
+            actionButton.setVisibility(d.getId() == R.id.faq_fragment ? View.VISIBLE : View.GONE);
+        });
+
+        actionButton.setOnClickListener((v)->{
+            Intent service = new Intent(this, AutoClickService.class);
+            this.startService(service);
+        });
+    }
+
+
+}

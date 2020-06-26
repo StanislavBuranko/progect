@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/paddingPage">
+
+    <LinearLayout
+        android:id="@+id/block_permission_overlay"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_element"
+        android:visibility="gone">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/description_overlay_permission"
+            android:textSize="21sp"/>
+        <Button
+            android:id="@+id/btn_get_permission_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/allow_permission"
+            android:textSize="21sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/block_accessibility"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/accessibility_service_description"
+            android:textSize="21dp"/>
+
+        <Button
+            android:id="@+id/btn_add_accessibility_service"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_service_accessibility"
+            android:textSize="18dp"/>
+    </LinearLayout>
+
+
+</LinearLayout>

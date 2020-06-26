@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">AutoClickerReplay</string>
+    <string name="service_simulate_auto_click">AutoClickerTouchService</string>
+    <string name="service_simulate_auto_click_description">...</string> <!--TODO:write description-->
+    <string name="description_overlay_permission">
+        Разрешите пожалуйста нашему приложению отображаться по верх других приложений, это нужно
+        для работы приложения, приложение не как не пользуется уязвимостями и не использует данное
+        разрешение для получения ваших данных.
+    </string>
+    <string name="accessibility_service_description">
+        Так же пожалуйста добавьте наше приложение в сервисы специальных возможностей, это позволит
+        приложению имитировать нажатие на экран без рут прав. Приложение не как не пользуется данной
+        возможностью в вредоносных целях.
+    </string>
+    <string name="untitled">untitled</string>
+    <string name="allow_permission">Разрешить</string>
+    <string name="add_service_accessibility">Добавить</string>
+    <string name="setting_macro">Настройки сценария</string>
+    <string name="setting_point">Настройки цели</string>
+    <string name="save">Сохранить</string>
+    <string name="save_script">Сохранить сценарий</string>
+    <string name="title_save_script">Введите название файла</string>
+    <string name="load_script">Загрузить сценарий</string>
+    <string name="delete">Удалить</string>
+    <string name="duplicate">Дублировать</string>
+    <string name="ms">мс.</string>
+    <string name="times">раз</string>
+
+    <string name="title_repeat_preference_point">Количество повторений(мин. 1 раз)</string>
+    <string name="title_delay_preference_point">Задержка перед нажатием</string>
+    <string name="title_duration_preference_point">Продолжительность нажатия(мин. 1 мс)</string>
+
+    <string name="title_repeat_preference">Количество повторений(-1 бесконечно)</string>
+    <string name="summary_repeat_preference">(-1 бесконечно)</string>
+    <string name="key_preference_repeat">repeat</string>
+
+    <string name="title_size_point_preference">Размер целей</string>
+    <string name="summary_size_point_preference">Выберите размер цели</string>
+    <string name="key_preference_size_point">size_point</string>
+
+    <string name="title_size_control_panel_preference">Размер панили управления</string>
+    <string name="summary_size_control_panel_preference">Выберите размер панели управления</string>
+    <string name="key_preference_size_control_panel">size_control_panel</string>
+
+
+    <string name="title_bounds_preference">Вкл. границы для целей</string>
+    <string name="key_preference_bounds_on">bounds_on</string>
+
+</resources>

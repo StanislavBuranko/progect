@@ -1,0 +1,411 @@
+@file:JvmMultifileClass
+
+package com.askerweb.autoclickerreplay.point
+
+import android.app.AlertDialog
+import android.app.Dialog
+import android.content.Context
+import android.graphics.drawable.Drawable
+import android.os.Parcel
+import android.os.Parcelable
+import android.view.*
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.widget.doAfterTextChanged
+import androidx.recyclerview.widget.RecyclerView
+import com.askerweb.autoclickerreplay.*
+import com.askerweb.autoclickerreplay.services.AutoClickService
+import com.google.gson.JsonObject
+
+import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.parcel.IgnoredOnParcel
+import kotlinx.android.synthetic.main.dialog_setting_point.*
+import java.io.Serializable
+import kotlin.properties.Delegates
+
+abstract class Point : PointCommand, Parcelable, Serializable{
+    internal val params: WindowManager.LayoutParams =
+            getWindowsParameterLayout(32f,
+                    32f,
+                    Gravity.START or Gravity.TOP,
+                            standardOverlayFlags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+
+    val view: PointView = PointView(App.getContext())
+
+    val xTouch:Int
+        get() = params.x + (params.width / 2)
+
+    val yTouch:Int
+        get() = params.y + (params.height / 2)
+
+
+    var x:Int
+        get() = params.x
+        set(value){
+            params.x = value
+        }
+    var y:Int
+        get() = params.y
+        set(value){
+            params.y = value
+        }
+
+    var width:Int
+        get() = params.width
+        set(value){
+            params.width = if (value < 0) value else Dimension.DP.convert(value.toFloat()).toInt()
+        }
+
+    var height:Int
+        get() = params.height
+        set(value){
+            params.height = if(value < 0) value else Dimension.DP.convert(value.toFloat()).toInt()
+        }
+
+    open var text:String
+        get() = view.text
+        set(value){
+            view.text = value
+        }
+
+    var delay by Delegates.notNull<Long>()
+    var duration by Delegates.notNull<Long>()
+    var repeat by Delegates.notNull<Int>()
+
+    @IgnoredOnParcel
+    var counterRepeat:Int = 0
+
+    open val drawableViewDefault: Drawable = ContextCompat.getDrawable(App.getContext(), R.drawable.point_click)!!
+
+    init{
+        view.setOnLongClickListener {
+            this.showEditDialog()
+            true
+        }
+    }
+
+    constructor(parcel: Parcel?){
+        repeat = parcel?.readInt()!!
+        delay = parcel.readLong()
+        duration = parcel.readLong()
+        val _params =
+                parcel.readParcelable<WindowManager.LayoutParams>(WindowManager.LayoutParams::class.java.classLoader)
+        params.width = _params?.width!!
+        params.height = _params.height
+        params.x = _params.x
+        params.y = _params.y
+        text = parcel.readString()!!
+    }
+
+    constructor(json: JsonObject){
+        repeat = json.get("repeat").asInt
+        delay = json.get("delay").asLong
+        duration = json.get("duration").asLong
+        val _params =
+                AutoClickService.getGson().fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
+        params.width = _params.width
+        params.height = _params.height
+        params.x = _params.x
+        params.y = _params.y
+        text = json.get("text").asString
+    }
+
+    constructor(builder: PointBuilder) : this(builder.x, builder.y, builder.width,
+            builder.height, builder.text, builder.delay, builder.duration, builder.repeat)
+
+    constructor(x: Int, y: Int, width: Int, height: Int, text: String, delay: Long, duration: Long, repeat: Int){
+        this.x = x
+        this.y = y
+        this.width = width
+        this.height = height
+        this.text = text
+        this.delay = delay
+        this.duration = duration
+        this.repeat = repeat
+    }
+
+
+
+    private fun showEditDialog(){
+        val viewContent: View = LayoutInflater.from(view.context).inflate(R.layout.dialog_setting_point, null)
+        val holder = ViewHolderDialogEdit(viewContent, this)
+        holder.updateViewDialogParam()
+        val dialog = AlertDialog.Builder(view.context)
+                .setTitle(view.context.getString(R.string.setting_point))
+                .setView(viewContent)
+                .setPositiveButton(R.string.save) { _, _ ->
+                        holder.saveEditDialog()
+                }.create()
+        holder.dialog = dialog;
+        dialog.window?.setType(getWindowsTypeApplicationOverlay())
+        dialog.show()
+        holder.saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+    }
+
+
+    open fun updateListener(wm:WindowManager, canvas:PointCanvasView, bounds: Boolean){
+        val l = PointOnTouchListener.create(this, wm, canvas, bounds);
+        view.setOnTouchListener(l);
+    }
+
+    open fun updateViewLayout(wm: WindowManager, size:Float){
+        params.width = Dimension.DP.convert(size).toInt()
+        params.height = params.width
+        wm.updateViewLayout(view, params)
+    }
+
+    open fun attachToWindow(wm: WindowManager, canvas: PointCanvasView){
+        wm.addView(view, params)
+        canvas.invalidate()
+    }
+
+    open fun detachToWindow(wm: WindowManager, canvas: PointCanvasView){
+        wm.removeView(view)
+        canvas.invalidate()
+    }
+
+    open fun setTouchable(touchable: Boolean, wm:WindowManager){
+        if(touchable){
+            params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+            view.isClickable = true
+        }
+        else{
+            params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            view.isClickable = false
+        }
+        wm.updateViewLayout(view, params)
+    }
+
+    fun isTouchable() =
+            (params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE) != WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+
+
+    fun toJson(): String {
+        val obj = toJsonObject()
+        return AutoClickService.getGson().toJson(obj)
+    }
+
+    open fun toJsonObject():JsonObject{
+        val obj = JsonObject()
+        obj.addProperty("class", this::class.java.name)
+        obj.addProperty("text", text)
+        obj.addProperty("params", AutoClickService.getGson().toJson(params))
+        obj.addProperty("delay", delay)
+        obj.addProperty("duration", duration)
+        obj.addProperty("repeat", repeat)
+        return obj
+    }
+
+    class ViewHolderDialogEdit(override val containerView:View, private val point: Point) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+
+
+        var saveButton: Button? = null
+        var dialog: Dialog? = null
+
+        init{
+            btn_duplicate.setOnClickListener{
+                AutoClickService.requestAction(AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, point)
+                dialog?.cancel()
+            }
+            btn_delete.setOnClickListener{
+                AutoClickService.requestAction(AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, point)
+                dialog?.cancel()
+            }
+            editDelay.doAfterTextChanged{
+                "changed".logd()
+                requireSettingEdit()
+            }
+            editDuration.doAfterTextChanged{
+                requireSettingEdit()
+            }
+            editRepeat.doAfterTextChanged{
+                requireSettingEdit()
+            }
+        }
+
+        fun updateViewDialogParam(){
+            editDelay.setText("${point.delay}")
+            editDuration.setText("${point.duration}")
+            editRepeat.setText("${point.repeat}")
+        }
+
+        fun saveEditDialog(){
+            point.delay = editDelay.text.toString().toLong()
+            point.duration = editDuration.text.toString().toLong()
+            point.repeat = editRepeat.text.toString().toInt()
+        }
+
+        fun requireSettingEdit(){
+            val delayRequire = editDelay.text.isNotEmpty() &&
+                    Integer.parseInt(editDelay.text.toString()) > 0
+            val durationRequire = editDuration.text.isNotEmpty() &&
+                    Integer.parseInt(editDuration.text.toString()) > 0
+            val repeatRequire = editRepeat.text.isNotEmpty() &&
+                    Integer.parseInt(editRepeat.text.toString()) > 0
+            saveButton?.isEnabled = delayRequire && durationRequire && repeatRequire
+        }
+
+    }
+
+    companion object Factory{
+
+        @JvmStatic fun <T:Point> newPoint(clazz:Class<out T>): T{
+            return clazz.newInstance()
+        }
+        @JvmStatic fun <T:Point> newPoint(clazz:Class<out T>, builder: PointBuilder): T{
+            return clazz.getConstructor(PointBuilder::class.java).newInstance(builder)
+        }
+        @JvmStatic fun <T:Point> newPoint(clazz:Class<out T>, json:JsonObject): T{
+            return clazz.getConstructor(JsonObject::class.java).newInstance(json)
+        }
+        @JvmStatic fun <T:Point> newPoint(clazz:Class<out T>, parcel: Parcel?): T{
+            return clazz.getConstructor(Parcel::class.java).newInstance(parcel)
+        }
+    }
+
+    open class PointOnTouchListener protected constructor(private val point: Point,
+                                                        wm: WindowManager,
+                                                        canvas: PointCanvasView,
+                                                        screenWidth:Int = canvas.measuredWidth,
+                                                        screenHeight:Int = canvas.measuredHeight) :
+            OnTouchListener(wm, screenWidth, screenHeight){
+        override var updateView = {
+                wm.updateViewLayout(point.view, point.params)
+                canvas.invalidate()
+        }
+        override var x: Int
+            get() = point.x
+            set(value) {
+                point.x = value
+            }
+        override var y: Int
+            get() = point.y
+            set(value) {
+                point.y = value
+            }
+
+        companion object{
+            @JvmStatic fun create(point: Point, wm:WindowManager, canvas:PointCanvasView, bounds:Boolean):PointOnTouchListener{
+                return if (bounds)
+                    PointOnTouchListener(point, wm,canvas)
+                else PointOnTouchListener(point, wm, canvas, -1, -1)
+            }
+        }
+    }
+
+    override fun writeToParcel(dest: Parcel?, flags: Int) {
+        dest?.writeInt(repeat)
+        dest?.writeLong(delay)
+        dest?.writeLong(duration)
+        dest?.writeParcelable(params, flags)
+        dest?.writeString(text)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    class PointBuilder private constructor(var factory:(Class<out Point>, PointBuilder)->Point){
+        var x:Int = 0;
+        var y:Int = 0;
+        var width:Int = getSetting(KEY_SIZE_POINT, defaultSizePoint)?:defaultSizePoint
+        var height:Int = width
+        var text:String = ""
+        var delay:Long = 0L
+        var duration:Long = 10L
+        var repeat:Int = 1
+        var drawable: Drawable? = null
+
+        var doAfter = { p:Point ->
+            p.view.background = if (drawable != null) drawable else p.drawableViewDefault
+        }
+
+        fun position(x:Int, y:Int):PointBuilder{
+            this.x = x
+            this.y = y
+            return this
+        }
+
+        fun text(text:String):PointBuilder {
+            this.text = text
+            return this
+        }
+
+        fun delay(delay:Long):PointBuilder{
+            this.delay = delay
+            return this
+        }
+
+        fun duration(duration:Long):PointBuilder{
+            this.duration = duration
+            return this
+        }
+
+        fun repeat(repeat:Int):PointBuilder{
+            this.repeat = repeat
+            return this
+        }
+
+        fun size(width:Int, height:Int){
+            this.width = width
+            this.height = height
+        }
+
+        fun drawable(drawable: Drawable):PointBuilder{
+            this.drawable = drawable
+            return this
+        }
+
+        fun build(clazz: Class<out Point>):Point {
+            return with(factory(clazz, this))
+            {
+                doAfter(this)
+
+                this
+            }
+        }
+
+        fun buildFrom(clazz: Class<out Point>, parcel: Parcel?):Point{
+            return with(newPoint(clazz, parcel)){
+                doAfter(this)
+                this
+            }
+        }
+
+        fun buildFrom(clazz: Class<out Point>, json: JsonObject):Point{
+            return with(newPoint(clazz, json)){
+                doAfter(this)
+                this
+            }
+        }
+
+        companion object {
+           @JvmStatic fun invoke() = PointBuilder(Factory::newPoint)
+        }
+    }
+
+    class PointView constructor(context: Context) : FrameLayout(context) {
+        private var textV: TextView = TextView(context)
+        var text: String
+            get() = textV.text as String
+            set(value){
+                textV.text = value
+            }
+
+        init {
+            systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+            textV.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+            addView(textV)
+        }
+
+        override fun performClick(): Boolean {
+            return super.performClick()
+        }
+
+
+    }
+}
