@@ -12,6 +12,8 @@ class SimplePoint:Point{
         view.setOnLongClickListener { false }
     }
 
+    constructor(parcel: Parcel):super(parcel)
+
     constructor(builder: PointBuilder):super(builder)
 
     constructor(json:JsonObject):super(json)

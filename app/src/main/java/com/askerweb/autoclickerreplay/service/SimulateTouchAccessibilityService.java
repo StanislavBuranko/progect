@@ -1,4 +1,4 @@
-package com.askerweb.autoclickerreplay.services;
+package com.askerweb.autoclickerreplay.service;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;

@@ -1,9 +1,9 @@
-package com.askerweb.autoclickerreplay.point
+package com.askerweb.autoclickerreplay.point.view
 
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import com.askerweb.autoclickerreplay.logd
+import com.askerweb.autoclickerreplay.ktExt.logd
 import java.util.*
 import kotlin.concurrent.schedule
 import kotlin.math.pow

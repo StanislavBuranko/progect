@@ -17,7 +17,7 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.askerweb.autoclickerreplay.services.SimulateTouchAccessibilityService;
+import com.askerweb.autoclickerreplay.service.SimulateTouchAccessibilityService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

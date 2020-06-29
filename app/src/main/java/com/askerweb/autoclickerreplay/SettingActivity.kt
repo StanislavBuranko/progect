@@ -5,7 +5,8 @@ import android.os.Bundle
 import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import com.askerweb.autoclickerreplay.services.AutoClickService
+import com.askerweb.autoclickerreplay.ktExt.logd
+import com.askerweb.autoclickerreplay.service.AutoClickService
 import kotlinx.android.synthetic.main.setting_layout.*;
 
 class SettingActivity : AppCompatActivity() {
@@ -31,7 +32,7 @@ class SettingActivity : AppCompatActivity() {
         }
         load_btn.setOnClickListener {
             AutoClickService.getListPoint().forEach{
-                AutoClickService.getWM().removeView(it.view)
+                it.detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
             }
             AutoClickService.getListPoint().clear()
             loadMacroFromJson(AutoClickService.getListPoint(), "untitled")

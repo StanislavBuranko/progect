@@ -23,12 +23,14 @@
     <string name="load_script">Загрузить сценарий</string>
     <string name="delete">Удалить</string>
     <string name="duplicate">Дублировать</string>
+    <string name="swap">Инвертировать</string>
     <string name="ms">мс.</string>
     <string name="times">раз</string>
 
     <string name="title_repeat_preference_point">Количество повторений(мин. 1 раз)</string>
     <string name="title_delay_preference_point">Задержка перед нажатием</string>
     <string name="title_duration_preference_point">Продолжительность нажатия(мин. 1 мс)</string>
+    <string name="title_direction_preference_point">Направеление</string>
 
     <string name="title_repeat_preference">Количество повторений(-1 бесконечно)</string>
     <string name="summary_repeat_preference">(-1 бесконечно)</string>

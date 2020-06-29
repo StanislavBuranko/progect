@@ -14,7 +14,7 @@
         android:theme="@style/AppTheme">
 
         <service
-            android:name=".services.AutoClickService"
+            android:name=".service.AutoClickService"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -23,7 +23,7 @@
         </service>
 
         <service
-            android:name=".services.SimulateTouchAccessibilityService"
+            android:name=".service.SimulateTouchAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:label="@string/service_simulate_auto_click">
 

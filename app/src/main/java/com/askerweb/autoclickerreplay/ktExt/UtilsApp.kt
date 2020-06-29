@@ -1,6 +1,6 @@
 @file:JvmName("UtilsApp")
 
-package com.askerweb.autoclickerreplay
+package com.askerweb.autoclickerreplay.ktExt
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
@@ -19,8 +19,8 @@ import android.view.Gravity
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityManager
 import com.askerweb.autoclickerreplay.point.Point
-import com.askerweb.autoclickerreplay.services.AutoClickService
-import com.askerweb.autoclickerreplay.services.SimulateTouchAccessibilityService
+import com.askerweb.autoclickerreplay.service.AutoClickService
+import com.askerweb.autoclickerreplay.service.SimulateTouchAccessibilityService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser

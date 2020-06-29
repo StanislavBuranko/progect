@@ -10,7 +10,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.askerweb.autoclickerreplay.services.AutoClickService;
+import com.askerweb.autoclickerreplay.service.AutoClickService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import butterknife.BindView;

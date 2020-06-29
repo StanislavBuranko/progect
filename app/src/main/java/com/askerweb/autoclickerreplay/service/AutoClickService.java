@@ -1,4 +1,4 @@
-package com.askerweb.autoclickerreplay.services;
+package com.askerweb.autoclickerreplay.service;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
@@ -7,7 +7,6 @@ import android.app.Dialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
@@ -30,16 +29,14 @@ import androidx.core.content.ContextCompat;
 
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.Dimension;
-import com.askerweb.autoclickerreplay.LogExt;
 import com.askerweb.autoclickerreplay.R;
-import com.askerweb.autoclickerreplay.SettingExt;
 import com.askerweb.autoclickerreplay.UtilsApp;
 import com.askerweb.autoclickerreplay.point.ClickPoint;
 import com.askerweb.autoclickerreplay.point.PinchPoint;
 import com.askerweb.autoclickerreplay.point.Point;
-import com.askerweb.autoclickerreplay.point.PointCanvasView;
+import com.askerweb.autoclickerreplay.point.view.PointCanvasView;
 import com.askerweb.autoclickerreplay.point.SwipePoint;
-import com.askerweb.autoclickerreplay.point.ViewOverlayOnTouchListener;
+import com.askerweb.autoclickerreplay.point.view.ViewOverlayOnTouchListener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -123,7 +120,8 @@ public class AutoClickService extends Service {
         controlPanel.setOnTouchListener(new ViewOverlayOnTouchListener(controlPanel, wm));
         wm.addView(controlPanel, params);
 
-        canvasView = new PointCanvasView(this, listCommando);
+        canvasView = new PointCanvasView(this);
+        canvasView.points = listCommando;
         paramsCanvas.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
         canvasView.setLayoutParams(paramsCanvas);
         // update listener after change orientation
