@@ -48,4 +48,6 @@
     <string name="title_bounds_preference">Вкл. границы для целей</string>
     <string name="key_preference_bounds_on">bounds_on</string>
 
+    <string name="toast_empty_script">В сценарии ничего нету</string>
+
 </resources>

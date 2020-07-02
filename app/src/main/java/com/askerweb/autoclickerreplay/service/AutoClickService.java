@@ -28,14 +28,16 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.askerweb.autoclickerreplay.App;
-import com.askerweb.autoclickerreplay.Dimension;
 import com.askerweb.autoclickerreplay.R;
-import com.askerweb.autoclickerreplay.UtilsApp;
+import com.askerweb.autoclickerreplay.ktExt.Dimension;
+import com.askerweb.autoclickerreplay.ktExt.LogExt;
+import com.askerweb.autoclickerreplay.ktExt.SettingExt;
+import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
 import com.askerweb.autoclickerreplay.point.ClickPoint;
 import com.askerweb.autoclickerreplay.point.PinchPoint;
 import com.askerweb.autoclickerreplay.point.Point;
-import com.askerweb.autoclickerreplay.point.view.PointCanvasView;
 import com.askerweb.autoclickerreplay.point.SwipePoint;
+import com.askerweb.autoclickerreplay.point.view.PointCanvasView;
 import com.askerweb.autoclickerreplay.point.view.ViewOverlayOnTouchListener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -50,6 +52,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
@@ -60,6 +64,9 @@ import butterknife.ViewCollections;
 
 @SuppressLint("ClickableViewAccessibility")
 public class AutoClickService extends Service {
+
+    @Inject
+    public Gson gson;
 
     public static AutoClickService service = null;
 
@@ -74,7 +81,6 @@ public class AutoClickService extends Service {
     List<View> controls;
 
     public LinkedList<Point> listCommando = new LinkedList<>();
-    public Gson gson = new GsonBuilder().create();
 
     public Boolean paramBoundsOn;
     public Integer paramRepeatMacro;
@@ -111,7 +117,6 @@ public class AutoClickService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        LogExt.logd("OnCreate", "AutoClickUpdateListener");
         updateSetting();
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 
@@ -161,9 +166,20 @@ public class AutoClickService extends Service {
     }
 
 
+    public static void start(){
+        if(service != null) return;
+        Intent service = new Intent(App.getContext(), AutoClickService.class);
+        App.getContext().startService(service);
+    }
+
+    public static boolean isRunning(){
+        return service != null;
+    }
+
 
     @Override
     public void onDestroy() {
+        service = null;
         unregisterReceiver(receiver);
         unbindControlPanel.unbind();
         for (Point a : listCommando) {
@@ -251,7 +267,7 @@ public class AutoClickService extends Service {
         return true;
     }
 
-    class TypePointAdapter extends ArrayAdapter<String> {
+    static class TypePointAdapter extends ArrayAdapter<String> {
 
         List<Class<? extends Point>> listTypes;
         LayoutInflater inflater;
@@ -339,7 +355,6 @@ public class AutoClickService extends Service {
 
     @OnClick(R.id.close)
     public void closeService() {
-        Log.v("appAutoClicker", "destroy");
         if(SimulateTouchAccessibilityService.isPlaying()){
             requestAction(ACTION_STOP);
         }
@@ -363,7 +378,6 @@ public class AutoClickService extends Service {
                         .setBackground(ContextCompat.getDrawable(App.getContext(), android.R.drawable.ic_media_pause));
                 group_control.setVisibility(View.GONE);
                 SimulateTouchAccessibilityService.requestStart(listCommando);
-                LogExt.logd("after start");
                 break;
             case ACTION_UPDATE_SETTING: //update after change setting
                 updateSetting();

@@ -1,8 +1,12 @@
-package com.askerweb.autoclickerreplay.point
+package com.askerweb.autoclickerreplay.point.view
 
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 
 open class ExtendedViewHolder(private val dialogHolder: AbstractViewHolderDialog) : AbstractViewHolderDialog(){
+
+    override var dialog
+        get() = dialogHolder.dialog
+        set(value) { dialogHolder.dialog = value}
 
     open val expandableSave = {
 

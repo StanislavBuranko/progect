@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
 import com.askerweb.autoclickerreplay.App;
-import com.askerweb.autoclickerreplay.LogExt;
+import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.point.Point;
 import com.askerweb.autoclickerreplay.point.PointCommand;
 
@@ -71,7 +71,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
         }
     }
 
-    public synchronized static void execCommand(PointCommand command){//TODO:"refactor, do callback for onComplete/onCancelled"
+    public synchronized static void execCommand(PointCommand command){
         execCommand(command,  new GestureResultCallback() {
             @Override
             public void onCompleted(GestureDescription gestureDescription) {

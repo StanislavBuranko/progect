@@ -6,7 +6,7 @@ import android.os.Parcelable
 import com.google.gson.JsonObject
 import kotlinx.android.parcel.Parcelize
 
-class SimplePoint:Point{
+class SimplePoint : Point{
 
     init{
         view.setOnLongClickListener { false }

@@ -37,7 +37,7 @@
                 />
         </service>
 
-        <activity android:name=".MainActivity"
+        <activity android:name=".activity.MainActivity"
             android:label="AutoClicker"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -45,7 +45,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".SettingActivity"
+        <activity android:name=".activity.SettingActivity"
             android:label="Setting">
             <intent-filter>
                 <action android:name="com.askerweb.autoclicker.setting"/>

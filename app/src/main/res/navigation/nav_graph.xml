@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/faq_fragment"
-        android:name="com.askerweb.autoclickerreplay.FaqFragment"
+        android:name="com.askerweb.autoclickerreplay.fragment.FaqFragment"
         android:label="F.A.Q"
         tools:layout="@layout/faq"
         >
@@ -17,7 +17,7 @@
 
     <fragment
         android:id="@+id/permission_and_accessibility"
-        android:name="com.askerweb.autoclickerreplay.FragmentPermission"
+        android:name="com.askerweb.autoclickerreplay.fragment.FragmentPermission"
         android:label="Permission and Accessibility">
         <action android:id="@+id/to_faq"
             app:destination="@id/faq_fragment"/>

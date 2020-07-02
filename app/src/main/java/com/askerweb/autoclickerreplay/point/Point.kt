@@ -10,13 +10,8 @@ import android.view.*
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import com.askerweb.autoclickerreplay.*
-import com.askerweb.autoclickerreplay.ktExt.KEY_SIZE_POINT
-import com.askerweb.autoclickerreplay.ktExt.defaultSizePoint
-import com.askerweb.autoclickerreplay.ktExt.getSetting
-import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
-import com.askerweb.autoclickerreplay.point.view.OnTouchListener
-import com.askerweb.autoclickerreplay.point.view.PointCanvasView
-import com.askerweb.autoclickerreplay.point.view.PointView
+import com.askerweb.autoclickerreplay.ktExt.*
+import com.askerweb.autoclickerreplay.point.view.*
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
 
@@ -210,25 +205,31 @@ abstract class Point : PointCommand, Parcelable, Serializable{
             AbstractViewHolderDialog(), LayoutContainer {
 
         init{
+
             btn_duplicate.setOnClickListener{
                 // Duplicate this point
                 AutoClickService.requestAction(AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, point)
                 dialog?.cancel()
             }
+
             btn_delete.setOnClickListener{
                 // Delete this point
                 AutoClickService.requestAction(AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, point)
                 dialog?.cancel()
             }
+
             editDelay.doAfterTextChanged{
                 requireSettingEdit()
             }
+
             editDuration.doAfterTextChanged{
                 requireSettingEdit()
             }
+
             editRepeat.doAfterTextChanged{
                 requireSettingEdit()
             }
+
         }
 
         override fun updateViewDialogParam(){
@@ -249,7 +250,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
 
         override fun isRequire():Boolean{
             val delayRequire = editDelay.text.isNotEmpty() &&
-                    Integer.parseInt(editDelay.text.toString()) > 0
+                    Integer.parseInt(editDelay.text.toString()) >= 0
             val durationRequire = editDuration.text.isNotEmpty() &&
                     Integer.parseInt(editDuration.text.toString()) > 0
             val repeatRequire = editRepeat.text.isNotEmpty() &&
@@ -271,39 +272,6 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         }
         @JvmStatic fun <T:Point> newPoint(clazz:Class<out T>, parcel: Parcel?): T{
             return clazz.getConstructor(Parcel::class.java).newInstance(parcel)
-        }
-    }
-
-    open class PointOnTouchListener protected constructor(private val point: Point,
-                                                          wm: WindowManager,
-                                                          canvas: PointCanvasView,
-                                                          screenWidth:Int = canvas.measuredWidth,
-                                                          screenHeight:Int = canvas.measuredHeight) :
-            OnTouchListener(wm, screenWidth, screenHeight){
-
-        override var updateView = {
-                wm.updateViewLayout(point.view, point.params)
-                canvas.invalidate()
-        }
-
-        override var x: Int
-            get() = point.x
-            set(value) {
-                point.x = value
-            }
-
-        override var y: Int
-            get() = point.y
-            set(value) {
-                point.y = value
-            }
-
-        companion object{
-            @JvmStatic fun create(point: Point, wm:WindowManager, canvas: PointCanvasView, bounds:Boolean):PointOnTouchListener{
-                return if (bounds)
-                    PointOnTouchListener(point, wm,canvas)
-                else PointOnTouchListener(point, wm, canvas, -1, -1)
-            }
         }
     }
 

@@ -33,11 +33,15 @@ abstract class OnTouchListener(private val wm: WindowManager,
         val newX = initialX + xDiff
         val newY = initialY + yDiff
 
-        x = if((screenWidth < 0 && screenHeight < 0) || ((screenWidth > -1 && screenHeight > -1) && (newX >= 0  && newX <= screenWidth - v.width)))
-            newX else x
-        y = if((screenWidth < 0 && screenHeight < 0) || ((screenWidth > -1 && screenHeight > -1) && (newY >= 0  && newY <= screenHeight - v.height)))
-            newY else y
+        x = if(canMoveX(newX, v.width)) newX else x
+        y = if(canMoveY(newY, v.height)) newY else y
     }
+
+    open fun canMoveX(newX:Int, size:Int) =
+            ((screenWidth < 0 && screenHeight < 0) || ((screenWidth > -1 && screenHeight > -1) && (newX >= 0  && newX <= screenWidth - size)))
+
+    open fun canMoveY(newY:Int, size:Int) =
+            ((screenWidth < 0 && screenHeight < 0) || ((screenWidth > -1 && screenHeight > -1) && (newY >= 0  && newY <= screenHeight - size)))
 
     open var initPositionTouch = { x:Float, y:Float ->
         initialTouchX = x
@@ -50,7 +54,6 @@ abstract class OnTouchListener(private val wm: WindowManager,
                     > startDragDistance * startDragDistance)
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
-        "event point onTouch ${event.action} $x $y".logd()
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
                 //remember the initial position.
@@ -69,11 +72,9 @@ abstract class OnTouchListener(private val wm: WindowManager,
                 return true
             }
             MotionEvent.ACTION_POINTER_DOWN ->{
-                "another touch".logd()
                 return true
             }
             MotionEvent.ACTION_POINTER_UP ->{
-                "another touch".logd()
                 return true
             }
             MotionEvent.ACTION_UP -> {
