@@ -1,4 +1,4 @@
-package com.askerweb.autoclickerreplay.activity;
+package com.askerweb.autoclickerreplay;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,9 +10,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.askerweb.autoclickerreplay.R;
-import com.askerweb.autoclickerreplay.ktExt.Dimension;
-import com.askerweb.autoclickerreplay.service.AutoClickService;
+import com.askerweb.autoclickerreplay.services.AutoClickService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import butterknife.BindView;
@@ -22,6 +20,10 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.fab)
     FloatingActionButton actionButton;
+
+
+
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,9 +39,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         actionButton.setOnClickListener((v)->{
-            AutoClickService.start();
-        });
-    }
 
+
+            Intent service = new Intent(this, AutoClickService.class);
+            this.startService(service);
+
+
+        });
+
+
+    }
 
 }

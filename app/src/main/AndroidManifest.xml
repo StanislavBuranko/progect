@@ -14,7 +14,7 @@
         android:theme="@style/AppTheme">
 
         <service
-            android:name=".service.AutoClickService"
+            android:name=".services.AutoClickService"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -23,7 +23,7 @@
         </service>
 
         <service
-            android:name=".service.SimulateTouchAccessibilityService"
+            android:name=".services.SimulateTouchAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:label="@string/service_simulate_auto_click">
 
@@ -37,7 +37,7 @@
                 />
         </service>
 
-        <activity android:name=".activity.MainActivity"
+        <activity android:name=".MainActivity"
             android:label="AutoClicker"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -45,7 +45,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activity.SettingActivity"
+        <activity android:name=".SettingActivity"
             android:label="Setting">
             <intent-filter>
                 <action android:name="com.askerweb.autoclicker.setting"/>

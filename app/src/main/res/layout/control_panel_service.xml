@@ -54,12 +54,19 @@
     <!--                android:layout_height="wrap_content"-->
     <!--                android:background="@android:drawable/star_on"/>-->
 
-                <Button
+            <Button
                     android:id="@+id/setting"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/ic_settings" />
-            </LinearLayout>
+
+            <Button
+                android:id="@+id/record_points"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/ic_remove" />
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/close"

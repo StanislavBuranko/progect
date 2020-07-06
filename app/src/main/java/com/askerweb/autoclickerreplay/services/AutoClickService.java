@@ -1,4 +1,4 @@
-package com.askerweb.autoclickerreplay.service;
+package com.askerweb.autoclickerreplay.services;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
@@ -28,17 +29,18 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.askerweb.autoclickerreplay.App;
+import com.askerweb.autoclickerreplay.Dimension;
+import com.askerweb.autoclickerreplay.LogExt;
+import com.askerweb.autoclickerreplay.MainActivity;
 import com.askerweb.autoclickerreplay.R;
-import com.askerweb.autoclickerreplay.ktExt.Dimension;
-import com.askerweb.autoclickerreplay.ktExt.LogExt;
-import com.askerweb.autoclickerreplay.ktExt.SettingExt;
-import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
+import com.askerweb.autoclickerreplay.SettingExt;
+import com.askerweb.autoclickerreplay.UtilsApp;
 import com.askerweb.autoclickerreplay.point.ClickPoint;
 import com.askerweb.autoclickerreplay.point.PinchPoint;
 import com.askerweb.autoclickerreplay.point.Point;
+import com.askerweb.autoclickerreplay.point.PointCanvasView;
 import com.askerweb.autoclickerreplay.point.SwipePoint;
-import com.askerweb.autoclickerreplay.point.view.PointCanvasView;
-import com.askerweb.autoclickerreplay.point.view.ViewOverlayOnTouchListener;
+import com.askerweb.autoclickerreplay.point.ViewOverlayOnTouchListener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -52,8 +54,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
@@ -62,17 +62,17 @@ import butterknife.OnLongClick;
 import butterknife.Unbinder;
 import butterknife.ViewCollections;
 
-@SuppressLint("ClickableViewAccessibility")
-public class AutoClickService extends Service {
+import static java.lang.Thread.sleep;
 
-    @Inject
-    public Gson gson;
+@SuppressLint("ClickableViewAccessibility")
+public class AutoClickService extends Service implements View.OnTouchListener {
 
     public static AutoClickService service = null;
 
     WindowManager wm = null;
     Unbinder unbindControlPanel = null;
     View controlPanel;
+    View recordPanel;
     PointCanvasView canvasView;
 
     @BindView(R.id.group_control)
@@ -81,6 +81,7 @@ public class AutoClickService extends Service {
     List<View> controls;
 
     public LinkedList<Point> listCommando = new LinkedList<>();
+    public Gson gson = new GsonBuilder().create();
 
     public Boolean paramBoundsOn;
     public Integer paramRepeatMacro;
@@ -88,8 +89,10 @@ public class AutoClickService extends Service {
     public Integer paramSizeControl;
 
 
-    public static final WindowManager.LayoutParams params =
+    public static final WindowManager.LayoutParams paramsControlPanel =
             UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+    public static final WindowManager.LayoutParams paramsRecordPanel =
+            UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
     public static final WindowManager.LayoutParams paramsCanvas =
             UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, Gravity.CENTER);
 
@@ -117,16 +120,16 @@ public class AutoClickService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        LogExt.logd("OnCreate", "AutoClickUpdateListener");
         updateSetting();
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         controlPanel = LayoutInflater.from(this).inflate(R.layout.control_panel_service, null);
-        controlPanel.setLayoutParams(params);
+        controlPanel.setLayoutParams(paramsControlPanel);
         controlPanel.setOnTouchListener(new ViewOverlayOnTouchListener(controlPanel, wm));
-        wm.addView(controlPanel, params);
+        wm.addView(controlPanel, paramsControlPanel);
 
-        canvasView = new PointCanvasView(this);
-        canvasView.points = listCommando;
+        canvasView = new PointCanvasView(this, listCommando);
         paramsCanvas.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
         canvasView.setLayoutParams(paramsCanvas);
         // update listener after change orientation
@@ -166,20 +169,9 @@ public class AutoClickService extends Service {
     }
 
 
-    public static void start(){
-        if(service != null) return;
-        Intent service = new Intent(App.getContext(), AutoClickService.class);
-        App.getContext().startService(service);
-    }
-
-    public static boolean isRunning(){
-        return service != null;
-    }
-
 
     @Override
     public void onDestroy() {
-        service = null;
         unregisterReceiver(receiver);
         unbindControlPanel.unbind();
         for (Point a : listCommando) {
@@ -267,7 +259,10 @@ public class AutoClickService extends Service {
         return true;
     }
 
-    static class TypePointAdapter extends ArrayAdapter<String> {
+
+
+
+    class TypePointAdapter extends ArrayAdapter<String> {
 
         List<Class<? extends Point>> listTypes;
         LayoutInflater inflater;
@@ -349,12 +344,13 @@ public class AutoClickService extends Service {
             layoutParams.height = value;
             layoutParams.width = value;
         }, paramSizeControl);
-        wm.updateViewLayout(controlPanel, params);
+        wm.updateViewLayout(controlPanel, paramsControlPanel);
     }
 
 
     @OnClick(R.id.close)
     public void closeService() {
+        Log.v("appAutoClicker", "destroy");
         if(SimulateTouchAccessibilityService.isPlaying()){
             requestAction(ACTION_STOP);
         }
@@ -378,6 +374,7 @@ public class AutoClickService extends Service {
                         .setBackground(ContextCompat.getDrawable(App.getContext(), android.R.drawable.ic_media_pause));
                 group_control.setVisibility(View.GONE);
                 SimulateTouchAccessibilityService.requestStart(listCommando);
+                LogExt.logd("after start");
                 break;
             case ACTION_UPDATE_SETTING: //update after change setting
                 updateSetting();
@@ -468,8 +465,78 @@ public class AutoClickService extends Service {
         App.getContext().startService(intent);
     }
 
+    @OnClick(R.id.record_points)
+    public void recordPoints(){
+        /* Intent service = new Intent(this, RecordService.class);
+        this.startService(service);
+
+       */
 
 
+        recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
+        wm.addView(recordPanel, paramsRecordPanel);
+        recordPanel.setOnTouchListener(this);
+
+        wm.removeView(controlPanel);
+        wm.removeView(canvasView);
+        wm.addView(controlPanel, paramsControlPanel);
+        wm.addView(canvasView, paramsCanvas);
+
+
+    }
+
+    float xDown, yDown;
+
+    boolean actionUp = false;
+    boolean actionMove = false;
+    boolean actionDown = false;
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        switch (event.getAction()) {
+        case MotionEvent.ACTION_UP:
+            if(actionUp != true) {
+                actionUp = true;
+                ClassInfoForUpTouch.yUp = (int) Math.round(event.getY());
+                ClassInfoForUpTouch.xUp = (int) Math.round(event.getX());
+
+            }
+            break;
+        case MotionEvent.ACTION_MOVE:
+            actionMove = true;
+            actionUp = false;
+            break;
+        case MotionEvent.ACTION_DOWN:
+            actionDown = true;
+            actionUp = false;
+            actionMove = false;
+            xDown = Math.round(event.getX());
+            yDown = Math.round(event.getY());
+            break;
+    }
+
+        if (actionUp == true && actionMove == false && actionDown == true) {
+            Point point = Point.PointBuilder.invoke()
+                    .position((int) xDown, (int) yDown)
+                    .text(String.format("%s", listCommando.size() + 1))
+                    .build(ClickPoint.class);
+            point.attachToWindow(wm, canvasView);
+            updateTouchListenerPoint(point);
+            listCommando.add(point);
+            actionUp = false;
+            actionDown = false;
+        }
+        else if (actionMove == true && actionUp == true && actionUp == true) {
+            Point point = Point.PointBuilder.invoke()
+                    .position((int)xDown,(int)yDown)
+                    .text(String.format("%s", listCommando.size() + 1))
+                    .build(SwipePoint.class);
+            point.attachToWindow(wm, canvasView);
+            updateTouchListenerPoint(point);
+            listCommando.add(point);
+
+        }
+        return false;
+    }
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {

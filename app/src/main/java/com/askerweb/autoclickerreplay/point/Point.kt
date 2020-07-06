@@ -3,16 +3,20 @@
 package com.askerweb.autoclickerreplay.point
 
 import android.app.AlertDialog
+import android.app.Dialog
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
 import android.view.*
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
+import androidx.recyclerview.widget.RecyclerView
 import com.askerweb.autoclickerreplay.*
-import com.askerweb.autoclickerreplay.ktExt.*
-import com.askerweb.autoclickerreplay.point.view.*
-import com.askerweb.autoclickerreplay.service.AutoClickService
+import com.askerweb.autoclickerreplay.services.AutoClickService
 import com.google.gson.JsonObject
 
 import kotlinx.android.extensions.LayoutContainer
@@ -20,6 +24,8 @@ import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.synthetic.main.dialog_setting_point.*
 import java.io.Serializable
 import kotlin.properties.Delegates
+
+
 
 abstract class Point : PointCommand, Parcelable, Serializable{
     internal val params: WindowManager.LayoutParams =
@@ -36,18 +42,18 @@ abstract class Point : PointCommand, Parcelable, Serializable{
     val yTouch:Int
         get() = params.y + (params.height / 2)
 
-
     var x:Int
         get() = params.x
         set(value){
             params.x = value
         }
-
     var y:Int
         get() = params.y
         set(value){
             params.y = value
         }
+
+
 
     var width:Int
         get() = params.width
@@ -123,7 +129,26 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         this.repeat = repeat
     }
 
-    open fun updateListener(wm:WindowManager, canvas: PointCanvasView, bounds: Boolean){
+
+
+    private fun showEditDialog(){
+        val viewContent: View = LayoutInflater.from(view.context).inflate(R.layout.dialog_setting_point, null)
+        val holder = ViewHolderDialogEdit(viewContent, this)
+        holder.updateViewDialogParam()
+        val dialog = AlertDialog.Builder(view.context)
+                .setTitle(view.context.getString(R.string.setting_point))
+                .setView(viewContent)
+                .setPositiveButton(R.string.save) { _, _ ->
+                        holder.saveEditDialog()
+                }.create()
+        holder.dialog = dialog;
+        dialog.window?.setType(getWindowsTypeApplicationOverlay())
+        dialog.show()
+        holder.saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+    }
+
+
+    open fun updateListener(wm:WindowManager, canvas:PointCanvasView, bounds: Boolean){
         val l = PointOnTouchListener.create(this, wm, canvas, bounds);
         view.setOnTouchListener(l);
     }
@@ -176,87 +201,55 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         return obj
     }
 
-    private fun showEditDialog(){
-        val viewContent: View = createViewDialog()
-        val holder = createHolderDialog(viewContent)
-        holder.updateViewDialogParam()
-        val dialog = AlertDialog.Builder(view.context)
-                .setTitle(view.context.getString(R.string.setting_point))
-                .setView(viewContent)
-                .setPositiveButton(R.string.save) { _, _ ->
-                    holder.saveEditDialog()
-                    AutoClickService.getCanvas()?.invalidate()
-                }.create()
-        holder.dialog = dialog;
-        dialog.window?.setType(getWindowsTypeApplicationOverlay())
-        dialog.show()
-        holder.saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-    }
+    class ViewHolderDialogEdit(override val containerView:View, private val point: Point) : RecyclerView.ViewHolder(containerView), LayoutContainer {
 
-    protected open fun createHolderDialog(viewContent:View): AbstractViewHolderDialog {
-        return PointHolderDialogEdit(viewContent, this)
-    }
 
-    protected open fun createViewDialog():View{
-        return LayoutInflater.from(view.context).inflate(R.layout.dialog_setting_point, null)
-    }
-
-    class PointHolderDialogEdit(override val containerView:View, private val point: Point) :
-            AbstractViewHolderDialog(), LayoutContainer {
+        var saveButton: Button? = null
+        var dialog: Dialog? = null
 
         init{
-
             btn_duplicate.setOnClickListener{
-                // Duplicate this point
                 AutoClickService.requestAction(AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, point)
                 dialog?.cancel()
             }
-
             btn_delete.setOnClickListener{
-                // Delete this point
                 AutoClickService.requestAction(AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, point)
                 dialog?.cancel()
             }
-
             editDelay.doAfterTextChanged{
+                "changed".logd()
                 requireSettingEdit()
             }
-
             editDuration.doAfterTextChanged{
                 requireSettingEdit()
             }
-
             editRepeat.doAfterTextChanged{
                 requireSettingEdit()
             }
-
         }
 
-        override fun updateViewDialogParam(){
+        fun updateViewDialogParam(){
             editDelay.setText("${point.delay}")
             editDuration.setText("${point.duration}")
             editRepeat.setText("${point.repeat}")
         }
 
-        override fun saveEditDialog(){
+        fun saveEditDialog(){
             point.delay = editDelay.text.toString().toLong()
             point.duration = editDuration.text.toString().toLong()
             point.repeat = editRepeat.text.toString().toInt()
         }
 
-        override fun requireSettingEdit(){
-            saveButton?.isEnabled = isRequire()
-        }
-
-        override fun isRequire():Boolean{
+        fun requireSettingEdit(){
             val delayRequire = editDelay.text.isNotEmpty() &&
-                    Integer.parseInt(editDelay.text.toString()) >= 0
+                    Integer.parseInt(editDelay.text.toString()) > 0
             val durationRequire = editDuration.text.isNotEmpty() &&
                     Integer.parseInt(editDuration.text.toString()) > 0
             val repeatRequire = editRepeat.text.isNotEmpty() &&
                     Integer.parseInt(editRepeat.text.toString()) > 0
-            return delayRequire && durationRequire && repeatRequire
+            saveButton?.isEnabled = delayRequire && durationRequire && repeatRequire
         }
+
     }
 
     companion object Factory{
@@ -275,6 +268,36 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         }
     }
 
+    open class PointOnTouchListener protected constructor(private val point: Point,
+                                                        wm: WindowManager,
+                                                        canvas: PointCanvasView,
+                                                        screenWidth:Int = canvas.measuredWidth,
+                                                        screenHeight:Int = canvas.measuredHeight) :
+            OnTouchListener(wm, screenWidth, screenHeight){
+        override var updateView = {
+                wm.updateViewLayout(point.view, point.params)
+                canvas.invalidate()
+        }
+        override var x: Int
+            get() = point.x
+            set(value) {
+                point.x = value
+            }
+        override var y: Int
+            get() = point.y
+            set(value) {
+                point.y = value
+            }
+
+        companion object{
+            @JvmStatic fun create(point: Point, wm:WindowManager, canvas:PointCanvasView, bounds:Boolean):PointOnTouchListener{
+                return if (bounds)
+                    PointOnTouchListener(point, wm,canvas)
+                else PointOnTouchListener(point, wm, canvas, -1, -1)
+            }
+        }
+    }
+
     override fun writeToParcel(dest: Parcel?, flags: Int) {
         dest?.writeInt(repeat)
         dest?.writeLong(delay)
@@ -290,8 +313,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
     class PointBuilder private constructor(var factory:(Class<out Point>, PointBuilder)->Point){
         var x:Int = 0;
         var y:Int = 0;
-        var width:Int = getSetting(KEY_SIZE_POINT, defaultSizePoint)
-                ?: defaultSizePoint
+        var width:Int = getSetting(KEY_SIZE_POINT, defaultSizePoint)?:defaultSizePoint
         var height:Int = width
         var text:String = ""
         var delay:Long = 0L
@@ -308,6 +330,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
             this.y = y
             return this
         }
+
 
         fun text(text:String):PointBuilder {
             this.text = text
@@ -367,4 +390,26 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         }
     }
 
+    class PointView constructor(context: Context) : FrameLayout(context) {
+        private var textV: TextView = TextView(context)
+        var text: String
+            get() = textV.text as String
+            set(value){
+                textV.text = value
+            }
+
+        init {
+            systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+            textV.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+            addView(textV)
+        }
+
+        override fun performClick(): Boolean {
+            return super.performClick()
+        }
+
+
+    }
 }
