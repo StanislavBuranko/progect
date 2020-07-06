@@ -1,4 +1,4 @@
-package com.askerweb.autoclickerreplay.fragment;
+package com.askerweb.autoclickerreplay;
 
 import android.content.Intent;
 import android.os.Build;
@@ -12,9 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
-
-import com.askerweb.autoclickerreplay.R;
-import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
 
 import java.util.Objects;
 

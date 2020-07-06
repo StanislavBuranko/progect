@@ -1,10 +1,8 @@
 @file: JvmName("SettingExt")
 
-package com.askerweb.autoclickerreplay.ktExt
+package com.askerweb.autoclickerreplay
 
 import androidx.preference.PreferenceManager
-import com.askerweb.autoclickerreplay.App
-import com.askerweb.autoclickerreplay.R
 
 @JvmField val KEY_SIZE_POINT = App.getContext().resources.getString(R.string.key_preference_size_point)
 @JvmField val KEY_REPEAT = App.getContext().resources.getString(R.string.key_preference_repeat)

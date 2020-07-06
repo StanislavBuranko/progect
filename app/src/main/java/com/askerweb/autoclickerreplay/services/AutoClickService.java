@@ -66,7 +66,7 @@ import butterknife.ViewCollections;
 public class AutoClickService extends Service {
 
     @Inject
-    public Gson gson = new GsonBuilder().create();
+    public Gson gson;
 
     public static AutoClickService service = null;
 

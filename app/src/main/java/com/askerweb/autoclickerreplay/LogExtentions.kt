@@ -1,10 +1,9 @@
 @file:JvmName("LogExt")
 
-package com.askerweb.autoclickerreplay.ktExt
+package com.askerweb.autoclickerreplay
 
 import android.content.ContentValues
 import android.util.Log
-import com.askerweb.autoclickerreplay.BuildConfig
 
 const val TAG = "AutoClick"
 
