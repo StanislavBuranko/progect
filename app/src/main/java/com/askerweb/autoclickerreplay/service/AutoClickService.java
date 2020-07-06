@@ -66,7 +66,7 @@ import butterknife.ViewCollections;
 public class AutoClickService extends Service implements View.OnTouchListener {
 
     @Inject
-    public Gson gson;
+    public Gson gson = new GsonBuilder().create();
 
     public static AutoClickService service = null;
 
