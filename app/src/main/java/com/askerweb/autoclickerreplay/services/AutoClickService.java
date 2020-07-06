@@ -465,6 +465,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         App.getContext().startService(intent);
     }
 
+    boolean openPanel = false;
     @OnClick(R.id.record_points)
     public void recordPoints(){
         /* Intent service = new Intent(this, RecordService.class);
@@ -472,15 +473,21 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 
        */
 
+        if(!openPanel) {
+            recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
+            wm.addView(recordPanel, paramsRecordPanel);
+            recordPanel.setOnTouchListener(this);
 
-        recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
-        wm.addView(recordPanel, paramsRecordPanel);
-        recordPanel.setOnTouchListener(this);
-
-        wm.removeView(controlPanel);
-        wm.removeView(canvasView);
-        wm.addView(controlPanel, paramsControlPanel);
-        wm.addView(canvasView, paramsCanvas);
+            wm.removeView(controlPanel);
+            wm.removeView(canvasView);
+            wm.addView(controlPanel, paramsControlPanel);
+            wm.addView(canvasView, paramsCanvas);
+            openPanel = true;
+        }
+        else {
+            openPanel = false;
+            wm.removeView(recordPanel);
+        }
 
 
     }
