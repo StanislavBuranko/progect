@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.util.Log;
@@ -20,6 +21,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
+import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -50,6 +52,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Timer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
@@ -61,6 +64,7 @@ import butterknife.OnClick;
 import butterknife.OnLongClick;
 import butterknife.Unbinder;
 import butterknife.ViewCollections;
+import butterknife.internal.Utils;
 
 @SuppressLint("ClickableViewAccessibility")
 public class AutoClickService extends Service implements View.OnTouchListener {
@@ -88,13 +92,24 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     public Integer paramSizePoint;
     public Integer paramSizeControl;
 
+    Timer timer;
+    Integer i;
+    Boolean openRecordPanel = false;
+    float xDown, yDown;
+    Integer nMs = 0;
+    Boolean actionUp = false;
+    Boolean actionMove = false;
+    Boolean actionDown = false;
+
 
     public static final WindowManager.LayoutParams paramsControlPanel =
             UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
-    public static final WindowManager.LayoutParams paramsRecordPanel =
-            UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+    public static final WindowManager.LayoutParams paramsRecordPanelFlagsOff =
+            UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, Gravity.CENTER);
     public static final WindowManager.LayoutParams paramsCanvas =
             UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, Gravity.CENTER);
+    public static final WindowManager.LayoutParams paramsRecordPanelFlagsOn =
+            UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, Gravity.CENTER, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
 
     // update listener after change orientation
@@ -122,6 +137,10 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         super.onCreate();
         updateSetting();
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+
+        recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
+        recordPanel.setOnTouchListener(this);
+        wm.addView(recordPanel, paramsRecordPanelFlagsOn);
 
         controlPanel = LayoutInflater.from(this).inflate(R.layout.control_panel_service, null);
         controlPanel.setLayoutParams(paramsControlPanel);
@@ -471,38 +490,33 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         App.getContext().startService(intent);
     }
 
-    boolean openRecordPanel = false;
+
+
     @OnClick(R.id.record_points)
     public void recordPoints(){
-        /* Intent service = new Intent(this, RecordService.class);
-        this.startService(service);
-
-       */
-
+        nMs = 0;
         if(!openRecordPanel) {
-            recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
-            wm.addView(recordPanel, paramsRecordPanel);
-            recordPanel.setOnTouchListener(this);
 
-            wm.removeView(controlPanel);
-            wm.removeView(canvasView);
-            wm.addView(controlPanel, paramsControlPanel);
-            wm.addView(canvasView, paramsCanvas);
             openRecordPanel = true;
+            wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
         }
         else {
-            wm.removeView(recordPanel);
+            wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
             openRecordPanel = false;
         }
+        CountDownTimer timer = new CountDownTimer(9999 * 1000, 10){
+            @Override
+            public void onTick(long l) {
+               nMs += 10;
+            }
+            @Override
+            public void onFinish(){
 
-
+            }
+        }.start();
     }
 
-    float xDown, yDown;
 
-    boolean actionUp = false;
-    boolean actionMove = false;
-    boolean actionDown = false;
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction()) {
@@ -511,7 +525,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                     actionUp = true;
                     ClassInfoForUpTouch.yUp = (int) Math.round(event.getY());
                     ClassInfoForUpTouch.xUp = (int) Math.round(event.getX());
-
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -526,31 +539,45 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 yDown = Math.round(event.getY());
                 break;
         }
-
         if (actionUp == true && actionMove == false && actionDown == true) {
             Point point = Point.PointBuilder.invoke()
                     .position((int) xDown, (int) yDown)
                     .text(String.format("%s", listCommando.size() + 1))
                     .build(ClickPoint.class);
+            point.setDelay((long)nMs);
+            point.setRepeat(1);
             point.attachToWindow(wm, canvasView);
+            nMs=0;
             updateTouchListenerPoint(point);
             listCommando.add(point);
             actionUp = false;
             actionDown = false;
+            listCommandoNow.add(point);
+            wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
+            SimulateTouchAccessibilityService.requestStart(listCommandoNow);
         }
         else if (actionMove == true && actionUp == true && actionUp == true) {
             Point point = Point.PointBuilder.invoke()
                     .position((int)xDown,(int)yDown)
                     .text(String.format("%s", listCommando.size() + 1))
                     .build(SwipePoint.class);
+            point.setDelay((long)nMs);
+            point.setRepeat(1);
             point.attachToWindow(wm, canvasView);
+            nMs=0;
             updateTouchListenerPoint(point);
             listCommando.add(point);
-
+            listCommandoNow.add(point);
+            wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
+            SimulateTouchAccessibilityService.requestStart(listCommandoNow);
         }
+        openRecordPanel = false;
+        listCommandoNow.clear();
+        wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
         return false;
     }
 
+    LinkedList<Point> listCommandoNow = new LinkedList<>();
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
