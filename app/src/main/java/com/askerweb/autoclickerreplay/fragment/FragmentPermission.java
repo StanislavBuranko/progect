@@ -1,4 +1,4 @@
-package com.askerweb.autoclickerreplay;
+package com.askerweb.autoclickerreplay.fragment;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -17,7 +17,9 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.askerweb.autoclickerreplay.services.SimulateTouchAccessibilityService;
+import com.askerweb.autoclickerreplay.R;
+import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
+import com.askerweb.autoclickerreplay.service.SimulateTouchAccessibilityService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

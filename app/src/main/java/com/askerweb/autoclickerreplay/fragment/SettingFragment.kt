@@ -1,9 +1,11 @@
-package com.askerweb.autoclickerreplay
+package com.askerweb.autoclickerreplay.fragment
 
 import android.os.Bundle
 
 import androidx.preference.PreferenceManager
-import com.askerweb.autoclickerreplay.services.AutoClickService
+import com.askerweb.autoclickerreplay.App
+import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.takisoft.preferencex.PreferenceFragmentCompat
 
 class SettingFragment : PreferenceFragmentCompat() {

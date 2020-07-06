@@ -1,6 +1,6 @@
 @file:JvmName("UtilsApp")
 
-package com.askerweb.autoclickerreplay
+package com.askerweb.autoclickerreplay.ktExt
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
@@ -18,9 +18,10 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityManager
+import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.point.Point
-import com.askerweb.autoclickerreplay.services.AutoClickService
-import com.askerweb.autoclickerreplay.services.SimulateTouchAccessibilityService
+import com.askerweb.autoclickerreplay.service.AutoClickService
+import com.askerweb.autoclickerreplay.service.SimulateTouchAccessibilityService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -102,7 +103,6 @@ const val standardOverlayFlags =
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 WindowManager.LayoutParams.FLAG_FULLSCREEN or
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-//                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED //TODO "check dependency version mobile, and other problem
 
 @JvmOverloads
 fun getWindowsParameterLayout(_width:Float,
@@ -142,10 +142,10 @@ fun saveMacroToJson(points: List<Point>, nameMacro: String = "untitle.json"){
 
 fun loadMacroFromJson(points: LinkedList<Point>, nameMacro: String){
     var jsonObj:JsonObject? = null
-    val jsonParser = JsonParser()
     FileReader("${App.getContext().filesDir}/$nameMacro.json").use {
-        val text = it.readText().trim().replace("\\[", "").replace("\\]", "")
-        text.logd()
+        val text = it.readText().trim()
+                .replace("\\[", "")
+                .replace("\\]", "")
         jsonObj = AutoClickService.getGson().fromJson(text, JsonObject::class.java)
     }
     val jsonArrayPoints =  jsonObj?.getAsJsonArray("points")

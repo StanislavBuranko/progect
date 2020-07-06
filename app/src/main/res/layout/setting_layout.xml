@@ -5,7 +5,7 @@
 
     <fragment
         android:id="@+id/fragment_setting"
-        class="com.askerweb.autoclickerreplay.SettingFragment"
+        class="com.askerweb.autoclickerreplay.fragment.SettingFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

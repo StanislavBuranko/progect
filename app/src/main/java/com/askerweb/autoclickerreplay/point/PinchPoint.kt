@@ -5,15 +5,19 @@ import android.graphics.Path
 import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.logd
-import com.askerweb.autoclickerreplay.services.AutoClickService
+import com.askerweb.autoclickerreplay.point.view.*
+import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
+import kotlinx.android.extensions.LayoutContainer
 import kotlin.math.ceil
+import kotlinx.android.synthetic.main.pinch_dialog_elements.*
 
 class PinchPoint:Point {
 
@@ -33,11 +37,25 @@ class PinchPoint:Point {
 
     constructor(builder: PointBuilder):super(builder)
 
-    constructor(parcel: Parcel):super(parcel)
+    constructor(parcel: Parcel):super(parcel){
+        typePinch = parcel.readSerializable() as PinchDirection
+        val firstPoint:SimplePoint = parcel.readParcelable(SimplePoint::class.java.classLoader)!!
+        this.firstPoint.x = firstPoint.x
+        this.firstPoint.y = firstPoint.y
+        this.firstPoint.height = ceil(firstPoint.height / AutoClickService.getService().resources.displayMetrics.density).toInt()
+        this.firstPoint.width = ceil(firstPoint.width / AutoClickService.getService().resources.displayMetrics.density).toInt()
+        val secondPoint:SimplePoint = parcel.readParcelable(SimplePoint::class.java.classLoader)!!
+        this.secondPoint.x = secondPoint.x
+        this.secondPoint.y = secondPoint.y
+        this.secondPoint.height = ceil(secondPoint.height / AutoClickService.getService().resources.displayMetrics.density).toInt()
+        this.secondPoint.width = ceil(secondPoint.width / AutoClickService.getService().resources.displayMetrics.density).toInt()
+    }
 
     constructor(json: JsonObject):super(json){
+        typePinch = if(json.get("type").asString == PinchDirection.IN.name) PinchDirection.IN
+                else PinchDirection.OUT
         val firstPointJson =
-                AutoClickService.getGson().fromJson(json.get("nextPoint").asString, JsonObject::class.java)
+                AutoClickService.getGson().fromJson(json.get("firstPoint").asString, JsonObject::class.java)
         val firstPoint =
                 PointBuilder.invoke().buildFrom(SimplePoint::class.java, firstPointJson)
         this.firstPoint.x = firstPoint.x
@@ -45,7 +63,7 @@ class PinchPoint:Point {
         this.firstPoint.height = ceil(firstPoint.height / AutoClickService.getService().resources.displayMetrics.density).toInt()
         this.firstPoint.width = ceil(firstPoint.width / AutoClickService.getService().resources.displayMetrics.density).toInt()
         val secondPointJson =
-                AutoClickService.getGson().fromJson(json.get("nextPoint").asString, JsonObject::class.java)
+                AutoClickService.getGson().fromJson(json.get("secondPoint").asString, JsonObject::class.java)
         val secondPoint =
                 PointBuilder.invoke().buildFrom(SimplePoint::class.java, secondPointJson)
         this.secondPoint.x = secondPoint.x
@@ -107,17 +125,57 @@ class PinchPoint:Point {
 
     override fun toJsonObject(): JsonObject {
         val obj = super.toJsonObject()
+        obj.addProperty("type", typePinch.name)
         obj.addProperty("firstPoint", firstPoint.toJson())
         obj.addProperty("secondPoint", secondPoint.toJson())
         return obj
+    }
+
+    override fun writeToParcel(dest: Parcel?, flags: Int) {
+        super.writeToParcel(dest, flags)
+        dest?.writeSerializable(typePinch)
+        dest?.writeParcelable(firstPoint, flags)
+        dest?.writeParcelable(secondPoint, flags)
     }
 
     override fun getCommand(): GestureDescription? {
         return typePinch.getCommand(xTouch.toFloat(), yTouch.toFloat(), firstPoint, secondPoint, delay, duration)
     }
 
+    override fun createViewDialog(): View {
+        val vContent: ViewGroup = super.createViewDialog() as ViewGroup
+        val vContentPinch = LayoutInflater.from(vContent.context)
+                .inflate(R.layout.pinch_dialog_elements, null)
+        vContent.addView(vContentPinch)
+        return vContent
+    }
+
+    override fun createHolderDialog(viewContent: View): AbstractViewHolderDialog {
+        val holder = super.createHolderDialog(viewContent)
+        return ExtendedPinchDialog(holder, viewContent, this)
+    }
+
+    /**
+     * Decorator for AbstractViewHolderDialog for PinchPoint
+     * add new control for change direction PinchPoint
+     */
+    class ExtendedPinchDialog(dialogHolder: AbstractViewHolderDialog, override val containerView:View,
+                              val point: PinchPoint) : ExtendedViewHolder(dialogHolder), LayoutContainer{
+
+        override val expandableSave = {
+            point.typePinch = if(directionPinch.isChecked) PinchDirection.IN else PinchDirection.OUT
+        }
+
+        override val expandableUpdate = {
+            directionPinch.isChecked = when(point.typePinch){
+                PinchDirection.IN -> true
+                PinchDirection.OUT -> false
+            }
+        }
+    }
+
     enum class PinchDirection{
-        IN {
+        IN{
             override fun getCommand(xTouch:Float, yTouch:Float, firstPoint:Point, secondPoint:Point, delay:Long, duration:Long): GestureDescription? {
                 val path = Path()
                 path.moveTo(firstPoint.xTouch.toFloat(), firstPoint.yTouch.toFloat())
@@ -151,102 +209,4 @@ class PinchPoint:Point {
     }
 
 
-    class PinchOnTouchListener private constructor(point: PinchPoint,
-                                                  wm: WindowManager,
-                                                  canvas: PointCanvasView,
-                                                  screenWidth:Int = canvas.measuredWidth,
-                                                  screenHeight:Int = canvas.measuredHeight)
-        : Point.PointOnTouchListener(point, wm, canvas, screenWidth, screenHeight){
-
-
-        private var initialFirstX: Int = 0
-        private var initialFirstY: Int = 0
-        private var initialSecondX: Int = 0
-        private var initialSecondY: Int = 0
-
-        override var initPositionTouch = { x:Float, y:Float ->
-            super.initPositionTouch(x,y)
-            initialFirstX = point.firstPoint.x
-            initialFirstY = point.firstPoint.y
-            initialSecondX = point.secondPoint.x
-            initialSecondY = point.secondPoint.y
-        }
-
-        override var updateView = {
-            wm.updateViewLayout(point.view, point.params)
-            wm.updateViewLayout(point.firstPoint.view, point.firstPoint.params)
-            wm.updateViewLayout(point.secondPoint.view, point.secondPoint.params)
-            canvas.invalidate()
-        }
-
-        override var calcNewPositionAndSet = { xDiff:Int, yDiff:Int, v:View ->
-            super.calcNewPositionAndSet(xDiff, yDiff, v)
-            val paramFirstPoint = point.firstPoint.params
-            val newXFirst = initialFirstX + xDiff
-            val newYFirst = initialFirstY + yDiff
-            paramFirstPoint.x = if((screenWidth < 0 && screenHeight < 0) || ((screenWidth > -1 && screenHeight > -1) && (newXFirst >= 0  && newXFirst <= screenWidth - point.firstPoint.view.width)))
-                newXFirst else paramFirstPoint.x
-            paramFirstPoint.y = if((screenWidth < 0 && screenHeight < 0) || ((screenWidth > -1 && screenHeight > -1) && (newYFirst >= 0  && newYFirst <= screenHeight - point.firstPoint.view.height)))
-                newYFirst else paramFirstPoint.y
-            val paramSecondPoint = point.secondPoint.params
-            val newXSecond = initialSecondX + xDiff
-            val newYSecond = initialSecondY + yDiff
-            paramSecondPoint.x = if((screenWidth < 0 && screenHeight < 0) || ((screenWidth > -1 && screenHeight > -1) && (newXSecond >= 0  && newXSecond <= screenWidth - point.secondPoint.view.width)))
-                newXSecond else paramSecondPoint.x
-            paramSecondPoint.y = if((screenWidth < 0 && screenHeight < 0) || ((screenWidth > -1 && screenHeight > -1) && (newYSecond >= 0  && newYSecond <= screenHeight - point.secondPoint.view.height)))
-                newYSecond else paramSecondPoint.y
-        }
-
-        companion object{
-            @JvmStatic fun create(point: PinchPoint, wm:WindowManager, canvas:PointCanvasView, bounds:Boolean):PointOnTouchListener{
-                return if (bounds)
-                    PinchOnTouchListener(point, wm,canvas)
-                else PinchOnTouchListener(point, wm, canvas, -1, -1)
-            }
-        }
-    }
-
-    class ConnectMirrorTouchListener private constructor(private val mirrorPoint: Point,
-                                                        point: Point,
-                                                        wm: WindowManager,
-                                                        canvas: PointCanvasView,
-                                                        screenWidth:Int = canvas.measuredWidth,
-                                                        screenHeight:Int = canvas.measuredHeight)
-        : PointOnTouchListener(point, wm, canvas, screenWidth, screenHeight){
-
-        var initialMirrorX = 0
-        var initialMirrorY = 0
-
-        override var initPositionTouch = { x:Float, y:Float ->
-            super.initPositionTouch(x,y)
-            initialMirrorX = mirrorPoint.x
-            initialMirrorY = mirrorPoint.y
-        }
-
-        override var updateView = {
-            wm.updateViewLayout(point.view, point.params);
-            wm.updateViewLayout(mirrorPoint.view, mirrorPoint.params);
-            canvas.invalidate()
-        }
-
-        override var calcNewPositionAndSet= { xDiff:Int, yDiff: Int, v:View ->
-            super.calcNewPositionAndSet(xDiff, yDiff, v)
-            val newMirrorX = initialMirrorX + (-xDiff)
-            val newMirrorY = initialMirrorY + (-yDiff)
-            mirrorPoint.x = if((screenWidth < 0 && screenHeight < 0) || ((screenWidth > -1 && screenHeight > -1) && (newMirrorX >= 0  && newMirrorX <= screenWidth - mirrorPoint.view.width)))
-                newMirrorX else mirrorPoint.x
-            mirrorPoint.y = if((screenWidth < 0 && screenHeight < 0) || ((screenWidth > -1 && screenHeight > -1) && (newMirrorY >= 0  && newMirrorY <= screenHeight - mirrorPoint.view.height)))
-                newMirrorY else mirrorPoint.y
-        }
-
-        companion object{
-            @JvmStatic fun create(point: Point, mirrorPoint: Point, wm:WindowManager, canvas:PointCanvasView, bounds:Boolean):PointOnTouchListener{
-                return if (bounds)
-                    ConnectMirrorTouchListener(mirrorPoint, point, wm,canvas)
-                else ConnectMirrorTouchListener(mirrorPoint, point, wm, canvas, -1, -1)
-            }
-        }
-
-
-    }
 }

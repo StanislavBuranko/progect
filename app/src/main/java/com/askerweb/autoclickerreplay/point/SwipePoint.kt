@@ -5,20 +5,26 @@ import android.graphics.Path
 import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.logd
-import com.askerweb.autoclickerreplay.services.AutoClickService
-import com.askerweb.autoclickerreplay.services.ClassInfoForUpTouch
+import com.askerweb.autoclickerreplay.ktExt.logd
+import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
+import com.askerweb.autoclickerreplay.point.view.ExtendedViewHolder
+import com.askerweb.autoclickerreplay.point.view.PointCanvasView
+import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
+import kotlinx.android.extensions.LayoutContainer
 import kotlin.math.ceil
+import kotlinx.android.synthetic.main.swipe_dialog_elements.*
 
 class SwipePoint : Point {
-
    val nextPoint: Point =  PointBuilder.invoke()
-            .position(ClassInfoForUpTouch.xUp, ClassInfoForUpTouch.yUp)
+            .position(this.x + 200, this.y)
             .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.point_swap)!!)
             .build(SimplePoint::class.java)
 
@@ -36,17 +42,21 @@ class SwipePoint : Point {
         text = text
     }
 
-    constructor(builder: PointBuilder ): super(builder)
+    constructor(builder: PointBuilder): super(builder)
 
-
-    constructor(parcel: Parcel):super(parcel)
+    constructor(parcel: Parcel):super(parcel){
+        val nextPoint:SimplePoint = parcel.readParcelable(SimplePoint::class.java.classLoader)!!
+        this.nextPoint.x = nextPoint.x
+        this.nextPoint.y = nextPoint.y
+        this.nextPoint.height = ceil(nextPoint.height / AutoClickService.getService().resources.displayMetrics.density).toInt()
+        this.nextPoint.width = ceil(nextPoint.width / AutoClickService.getService().resources.displayMetrics.density).toInt()
+    }
 
     constructor(json: JsonObject):super(json){
         val nextPointJson =
                 AutoClickService.getGson().fromJson(json.get("nextPoint").asString, JsonObject::class.java)
         val nextPoint =
                 PointBuilder.invoke().buildFrom(SimplePoint::class.java, nextPointJson)
-        "$nextPoint".logd()
         this.nextPoint.x = nextPoint.x
         this.nextPoint.y = nextPoint.y
         this.nextPoint.height = ceil(nextPoint.height / AutoClickService.getService().resources.displayMetrics.density).toInt()
@@ -92,6 +102,11 @@ class SwipePoint : Point {
         return obj
     }
 
+    override fun writeToParcel(dest: Parcel?, flags: Int) {
+        super.writeToParcel(dest, flags)
+        dest?.writeParcelable(nextPoint, flags)
+    }
+
     override fun getCommand() : GestureDescription {
         "swipe from $xTouch $yTouch to ${nextPoint.xTouch} ${nextPoint.yTouch}".logd()
         val path = Path()
@@ -103,7 +118,38 @@ class SwipePoint : Point {
                 .build()
     }
 
+    override fun createHolderDialog(viewContent: View): AbstractViewHolderDialog {
+        val holder = super.createHolderDialog(viewContent)
+        return ExtendedSwipeDialog(holder, viewContent, this)
+    }
 
+    override fun createViewDialog(): View {
+        val vContent = super.createViewDialog() as ViewGroup
+        val vSwipePoint = LayoutInflater.from(vContent.context)
+                .inflate(R.layout.swipe_dialog_elements, null)
+        vContent.addView(vSwipePoint)
+        return vContent
+    }
 
+    /**
+     * Decorator for AbstractViewHolderDialog for SwipePoint
+     * add new button to swipe SwipePoint
+     */
+    class ExtendedSwipeDialog(dialogHolder: AbstractViewHolderDialog, override val containerView: View,
+                              val point: SwipePoint) : ExtendedViewHolder(dialogHolder), LayoutContainer {
 
+        init{
+            swipeBtn.setOnClickListener { //change position nextPoint and this point
+                val xTemp = point.nextPoint.x
+                val yTemp = point.nextPoint.y
+                point.nextPoint.x = point.x
+                point.nextPoint.y = point.y
+                point.x = xTemp
+                point.y = yTemp
+                AutoClickService.getWM().updateViewLayout(point.view, point.params)
+                AutoClickService.getWM().updateViewLayout(point.nextPoint.view, point.nextPoint.params)
+                dialogHolder.dialog?.cancel()
+            }
+        }
+    }
 }
