@@ -65,9 +65,6 @@ import butterknife.ViewCollections;
 @SuppressLint("ClickableViewAccessibility")
 public class AutoClickService extends Service implements View.OnTouchListener {
 
-    @Inject
-    public Gson gson = new GsonBuilder().create();
-
     public static AutoClickService service = null;
 
     WindowManager wm = null;
@@ -191,10 +188,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         wm.removeView(controlPanel);
         wm.removeView(canvasView);
         super.onDestroy();
-    }
-
-    public static Gson getGson(){
-        return service.gson;
     }
 
     public static boolean getParamBound(){

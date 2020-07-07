@@ -11,7 +11,7 @@ class JsonModule {
 
     @Provides
     @Singleton
-    fun provideGson(): Gson? {
+    fun provideGson(): Gson {
         return GsonBuilder().create()
     }
 

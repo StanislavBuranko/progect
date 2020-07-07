@@ -2,16 +2,17 @@ package com.askerweb.autoclickerreplay.activity
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.Toast
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.loadMacroFromJson
 import com.askerweb.autoclickerreplay.ktExt.saveMacroToJson
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import kotlinx.android.synthetic.main.setting_layout.*;
+import java.io.File
 
 class SettingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,11 +44,8 @@ class SettingActivity : AppCompatActivity() {
         }
         load_btn.setOnClickListener { //TODO "refactor code here", comment code here
             AutoClickService.start()
-            val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1)
-            val dir = filesDir.listFiles()
-            dir?.forEach {
-                adapter.add(it.name.removeRange(it.name.indexOf('.') until it.name.length))
-            }
+            val dir = filesDir.listFiles()?.toList()
+            val adapter = FilesAdapterList(dir!! as MutableList<File>, LayoutInflater.from(this))
             val dialog = AlertDialog.Builder(this)
                     .setTitle(resources.getString(R.string.load_script))
                     .setAdapter(adapter) { d, w->
@@ -67,6 +65,30 @@ class SettingActivity : AppCompatActivity() {
             dialog.show()
 
         }
+    }
+
+    class FilesAdapterList constructor(var listFiles:MutableList<File>, var inflater: LayoutInflater)
+        : BaseAdapter() {
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+            val v = inflater.inflate(R.layout.list_files, parent, false)
+            val vT = v.findViewById<TextView>(R.id.text)
+            vT.text = getItem(position)
+            val btn = v.findViewById<Button>(R.id.btn_delete)
+            btn.setOnClickListener{
+                val f = File("${inflater.context.filesDir}/${getItem(position)}")
+                f.delete()
+                listFiles.removeAt(position)
+                notifyDataSetChanged()
+            }
+            return v
+        }
+
+        override fun getCount() = listFiles.size
+
+        override fun getItem(position: Int) = listFiles[position].name
+
+        override fun getItemId(position: Int) = position.toLong()
     }
 }
 

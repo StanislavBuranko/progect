@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="x_medium_size">32dp</dimen>
+
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="spacing_element">12dp</dimen>
     <dimen name="paddingPage">12dp</dimen>
