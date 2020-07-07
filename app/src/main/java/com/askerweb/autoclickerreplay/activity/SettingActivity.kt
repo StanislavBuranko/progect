@@ -45,30 +45,18 @@ class SettingActivity : AppCompatActivity() {
         load_btn.setOnClickListener { //TODO "refactor code here", comment code here
             AutoClickService.start()
             val dir = filesDir.listFiles()?.toList()
-            val adapter = FilesAdapterList(dir!! as MutableList<File>, LayoutInflater.from(this))
+            val adapter = ScriptSavedAdapterFiles(dir!! as MutableList<File>, LayoutInflater.from(this))
             val dialog = AlertDialog.Builder(this)
                     .setTitle(resources.getString(R.string.load_script))
-                    .setAdapter(adapter) { d, w->
-                        AutoClickService.getListPoint().forEach{
-                            it.detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
-                        }
-                        AutoClickService.getListPoint().clear()
-                        adapter.getItem(w)?.let {
-                            it1 -> loadMacroFromJson(AutoClickService.getListPoint(), it1)
-                        }
-                        AutoClickService.getListPoint().forEach{
-                            it.attachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
-                            AutoClickService.service.updateTouchListenerPoint(it)
-                        }
-                    }
+                    .setAdapter(adapter){_,_->}
                     .create()
             dialog.show()
 
         }
     }
 
-    class FilesAdapterList constructor(var listFiles:MutableList<File>, var inflater: LayoutInflater)
-        : BaseAdapter() {
+    class ScriptSavedAdapterFiles constructor(var listFiles:MutableList<File>,
+                                              var inflater: LayoutInflater) : BaseAdapter() {
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val v = inflater.inflate(R.layout.list_files, parent, false)
@@ -80,6 +68,17 @@ class SettingActivity : AppCompatActivity() {
                 f.delete()
                 listFiles.removeAt(position)
                 notifyDataSetChanged()
+            }
+            v.setOnClickListener{
+                AutoClickService.getListPoint().forEach{
+                    it.detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
+                }
+                AutoClickService.getListPoint().clear()
+                loadMacroFromJson(AutoClickService.getListPoint(), getItem(position))
+                AutoClickService.getListPoint().forEach{
+                    it.attachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
+                    AutoClickService.service.updateTouchListenerPoint(it)
+                }
             }
             return v
         }

@@ -40,8 +40,6 @@ import com.askerweb.autoclickerreplay.point.Point;
 import com.askerweb.autoclickerreplay.point.SwipePoint;
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView;
 import com.askerweb.autoclickerreplay.point.view.ViewOverlayOnTouchListener;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -52,8 +50,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.BindViews;
