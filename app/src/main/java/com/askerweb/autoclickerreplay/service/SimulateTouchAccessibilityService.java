@@ -106,7 +106,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
     public static void requestStop(){
         requestAction(AutoClickService.ACTION_STOP);
     }
-    public static void requestContinue(){
+    public static void requestContinue() {
         requestAction(ACTION_COMPLETE);
     }
 
