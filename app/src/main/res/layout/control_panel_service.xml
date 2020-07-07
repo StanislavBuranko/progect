@@ -64,7 +64,7 @@
                 android:id="@+id/record_points"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/ic_remove" />
+                android:background="@android:drawable/btn_star_big_on" />
         </LinearLayout>
 
         <Button
