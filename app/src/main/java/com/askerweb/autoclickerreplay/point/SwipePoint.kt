@@ -55,7 +55,7 @@ class SwipePoint : Point {
 
     constructor(json: JsonObject):super(json){
         val nextPointJson =
-                AutoClickService.getGson().fromJson(json.get("nextPoint").asString, JsonObject::class.java)
+                App.getGson().fromJson(json.get("nextPoint").asString, JsonObject::class.java)
         val nextPoint =
                 PointBuilder.invoke().buildFrom(SimplePoint::class.java, nextPointJson)
         this.nextPoint.x = nextPoint.x

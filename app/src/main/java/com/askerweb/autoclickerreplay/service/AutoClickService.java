@@ -30,7 +30,6 @@ import androidx.core.content.ContextCompat;
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
-import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
 import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
 import com.askerweb.autoclickerreplay.point.ClickPoint;
@@ -39,8 +38,6 @@ import com.askerweb.autoclickerreplay.point.Point;
 import com.askerweb.autoclickerreplay.point.SwipePoint;
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView;
 import com.askerweb.autoclickerreplay.point.view.ViewOverlayOnTouchListener;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -52,8 +49,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
@@ -64,9 +59,6 @@ import butterknife.ViewCollections;
 
 @SuppressLint("ClickableViewAccessibility")
 public class AutoClickService extends Service implements View.OnTouchListener {
-
-    @Inject
-    public Gson gson = new GsonBuilder().create();
 
     public static AutoClickService service = null;
 
@@ -191,10 +183,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         wm.removeView(controlPanel);
         wm.removeView(canvasView);
         super.onDestroy();
-    }
-
-    public static Gson getGson(){
-        return service.gson;
     }
 
     public static boolean getParamBound(){

@@ -101,7 +101,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         delay = json.get("delay").asLong
         duration = json.get("duration").asLong
         val _params =
-                AutoClickService.getGson().fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
+                App.getGson().fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
         params.width = _params.width
         params.height = _params.height
         params.x = _params.x
@@ -162,14 +162,14 @@ abstract class Point : PointCommand, Parcelable, Serializable{
 
     fun toJson(): String {
         val obj = toJsonObject()
-        return AutoClickService.getGson().toJson(obj)
+        return App.getGson().toJson(obj)
     }
 
     open fun toJsonObject():JsonObject{
         val obj = JsonObject()
         obj.addProperty("class", this::class.java.name)
         obj.addProperty("text", text)
-        obj.addProperty("params", AutoClickService.getGson().toJson(params))
+        obj.addProperty("params", App.getGson().toJson(params))
         obj.addProperty("delay", delay)
         obj.addProperty("duration", duration)
         obj.addProperty("repeat", repeat)

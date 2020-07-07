@@ -55,7 +55,7 @@ class PinchPoint:Point {
         typePinch = if(json.get("type").asString == PinchDirection.IN.name) PinchDirection.IN
                 else PinchDirection.OUT
         val firstPointJson =
-                AutoClickService.getGson().fromJson(json.get("firstPoint").asString, JsonObject::class.java)
+                App.getGson().fromJson(json.get("firstPoint").asString, JsonObject::class.java)
         val firstPoint =
                 PointBuilder.invoke().buildFrom(SimplePoint::class.java, firstPointJson)
         this.firstPoint.x = firstPoint.x
@@ -63,7 +63,7 @@ class PinchPoint:Point {
         this.firstPoint.height = ceil(firstPoint.height / AutoClickService.getService().resources.displayMetrics.density).toInt()
         this.firstPoint.width = ceil(firstPoint.width / AutoClickService.getService().resources.displayMetrics.density).toInt()
         val secondPointJson =
-                AutoClickService.getGson().fromJson(json.get("secondPoint").asString, JsonObject::class.java)
+                App.getGson().fromJson(json.get("secondPoint").asString, JsonObject::class.java)
         val secondPoint =
                 PointBuilder.invoke().buildFrom(SimplePoint::class.java, secondPointJson)
         this.secondPoint.x = secondPoint.x

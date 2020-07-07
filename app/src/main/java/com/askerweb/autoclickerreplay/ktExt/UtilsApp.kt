@@ -136,7 +136,7 @@ fun saveMacroToJson(points: List<Point>, nameMacro: String = "untitle.json"){
     val saveJson = JsonObject()
     saveJson.add("points", pointsJson)
     FileWriter("${App.getContext().filesDir}/$nameMacro.json").use{writer ->
-        AutoClickService.getGson().toJson(saveJson, writer)
+        App.getGson().toJson(saveJson, writer)
     }
 }
 
@@ -146,11 +146,11 @@ fun loadMacroFromJson(points: LinkedList<Point>, nameMacro: String){
         val text = it.readText().trim()
                 .replace("\\[", "")
                 .replace("\\]", "")
-        jsonObj = AutoClickService.getGson().fromJson(text, JsonObject::class.java)
+        jsonObj = App.getGson().fromJson(text, JsonObject::class.java)
     }
     val jsonArrayPoints =  jsonObj?.getAsJsonArray("points")
     jsonArrayPoints?.forEach {
-        val jsonPoint = AutoClickService.getGson().fromJson(it.asString, JsonObject::class.java)
+        val jsonPoint = App.getGson().fromJson(it.asString, JsonObject::class.java)
         val clazz = Class.forName(jsonPoint.get("class").asString) as Class<Point>
         val point:Point = Point.PointBuilder.invoke().buildFrom(clazz, jsonPoint)
         points.add(point)

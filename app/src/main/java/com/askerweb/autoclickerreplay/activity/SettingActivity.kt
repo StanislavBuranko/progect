@@ -55,7 +55,9 @@ class SettingActivity : AppCompatActivity() {
                             it.detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
                         }
                         AutoClickService.getListPoint().clear()
-                        adapter.getItem(w)?.let { it1 -> loadMacroFromJson(AutoClickService.getListPoint(), it1) }
+                        adapter.getItem(w)?.let {
+                            it1 -> loadMacroFromJson(AutoClickService.getListPoint(), it1)
+                        }
                         AutoClickService.getListPoint().forEach{
                             it.attachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
                             AutoClickService.service.updateTouchListenerPoint(it)
