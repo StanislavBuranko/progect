@@ -106,6 +106,8 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     Boolean actionUp = false;
     Boolean actionMove = false;
     Boolean actionDown = false;
+    public static Integer xUp = 200;
+    public static Integer yUp = 200;
 
 
     public static final WindowManager.LayoutParams paramsControlPanel =
@@ -227,6 +229,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         }
         wm.removeView(controlPanel);
         wm.removeView(canvasView);
+        wm.removeView(recordPanel);
         super.onDestroy();
     }
 
@@ -531,22 +534,26 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     }
     Point point;
     long nMsNow = 0;
+    Integer xMove = 0;
+    Integer yMove = 0;
+    boolean pointMicroMove = false;
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if(!work) {
             work = true;
-            wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
             switch (event.getAction()) {
                 case MotionEvent.ACTION_UP:
                     if (actionUp != true) {
                         actionUp = true;
-                        ClassInfoForUpTouch.yUp = (int) Math.round(event.getY());
-                        ClassInfoForUpTouch.xUp = (int) Math.round(event.getX());
+                        yUp = (int) Math.round(event.getY());
+                        xUp = (int) Math.round(event.getX());
                     }
                     break;
                 case MotionEvent.ACTION_MOVE:
                     actionMove = true;
                     actionUp = false;
+                    xMove = Math.round(event.getX());
+                    yMove = Math.round(event.getY());
                     break;
                 case MotionEvent.ACTION_DOWN:
                     actionDown = true;
@@ -583,42 +590,71 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                     public void run() {
                         wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
                     }
-                }, 350);
+                }, 500);
                 point.setDelay(nMs);
                 nMs = 0;
-            } else if (actionMove == true && actionUp == true && actionUp == true) {
-                nMsNow = nMs;
-                point = Point.PointBuilder.invoke()
-                        .position((int) xDown, (int) yDown)
-                        .delay(nMsNow)
-                        .text(String.format("%s", listCommando.size() + 1))
-                        .build(SwipePoint.class);
+            }
+            else if (actionMove == true && actionUp == true && actionUp == true) {
+                if (xDown - 75 <= xMove && xMove <= xDown + 75 && yDown - 75 <= yMove && yMove <= yDown + 75) {
+                    Log.d("pointCAl", "xDown:" + xDown + " xMove:" + xMove + " yDown:" + yDown + " yMove:" + yMove);
+                    nMsNow = nMs;
+                    point = Point.PointBuilder.invoke()
+                            .position((int) xMove, (int) yMove)
+                            .delay(nMsNow)
+                            .text(String.format("%s", listCommando.size() + 1))
+                            .build(ClickPoint.class);
 
+                    point.attachToWindow(wm, canvasView);
+                    listCommando.add(point);
 
-                point.attachToWindow(wm, canvasView);
-                listCommando.add(point);
+                    point.setDelay((long) 1);
+                    listCommandoNow.add(point);
 
-                point.setDelay((long) 1);
-                listCommandoNow.add(point);
+                    listCommando.forEach((c) -> c.setTouchable(false, wm));
+                    wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
+                    SimulateTouchAccessibilityService.requestStart(listCommandoNow);
+                    listCommandoNow.clear();
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
+                        }
+                    }, 500);
+                    point.setDelay(nMs);
+                    nMs = 0;
+                    pointMicroMove = true;
+                }
+                else {
+                    nMsNow = nMs;
+                    point = Point.PointBuilder.invoke()
+                            .position((int) xDown, (int) yDown)
+                            .delay(nMsNow)
+                            .text(String.format("%s", listCommando.size() + 1))
+                            .build(SwipePoint.class);
 
+                    point.attachToWindow(wm, canvasView);
+                    listCommando.add(point);
 
-                listCommando.forEach((c) -> c.setTouchable(false, wm));
-                wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
-                SimulateTouchAccessibilityService.requestStart(listCommandoNow);
-                listCommandoNow.clear();
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
-                    }
-                }, 350);
-                point.setDelay(nMs);
-                nMs = 0;
+                    point.setDelay((long) 1);
+                    listCommandoNow.add(point);
 
+                    listCommando.forEach((c) -> c.setTouchable(false, wm));
+                    wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
+                    SimulateTouchAccessibilityService.requestStart(listCommandoNow);
+                    listCommandoNow.clear();
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
+                        }
+                    }, 500);
+                    point.setDelay(nMs);
+                    nMs = 0;
+                }
             }
         }
         else {}
-        work = false;
+            work = false;
         return true;
     }
 
