@@ -82,7 +82,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     WindowManager wm = null;
     Unbinder unbindControlPanel = null;
     View controlPanel;
-    View recordPanel;
+
     PointCanvasView canvasView;
 
     @BindView(R.id.group_control)
@@ -91,7 +91,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     List<View> controls;
 
     public LinkedList<Point> listCommando = new LinkedList<>();
-    public LinkedList<Point> listCommandoNow = new LinkedList<>();
+
 
     public Boolean paramBoundsOn;
     public Integer paramRepeatMacro;
@@ -108,6 +108,14 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     Boolean actionDown = false;
     public static Integer xUp = 200;
     public static Integer yUp = 200;
+    Boolean work = false;
+    Point point;
+    long nMsNow = 0;
+    Integer xMove = 0;
+    Integer yMove = 0;
+    Boolean pointMicroMove = false;
+    View recordPanel;
+    public LinkedList<Point> listCommandoNow = new LinkedList<>();
 
 
     public static final WindowManager.LayoutParams paramsControlPanel =
@@ -422,6 +430,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 controlPanel.findViewById(R.id.start_pause)
                         .setBackground(ContextCompat.getDrawable(App.getContext(), android.R.drawable.ic_media_pause));
                 group_control.setVisibility(View.GONE);
+                wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
                 SimulateTouchAccessibilityService.requestStart(listCommando);
                 break;
             case ACTION_UPDATE_SETTING: //update after change setting
@@ -513,7 +522,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         App.getContext().startService(intent);
     }
 
-    boolean work = false;
+
     @OnClick(R.id.record_points)
     public void recordPoints(){
         nMs = 0;
@@ -532,11 +541,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         }
 
     }
-    Point point;
-    long nMsNow = 0;
-    Integer xMove = 0;
-    Integer yMove = 0;
-    boolean pointMicroMove = false;
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if(!work) {
