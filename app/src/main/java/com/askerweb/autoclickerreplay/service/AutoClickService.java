@@ -1,9 +1,7 @@
 package com.askerweb.autoclickerreplay.service;
 
-import android.accessibilityservice.GestureDescription;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Service;
@@ -24,7 +22,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
-import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -35,7 +32,6 @@ import androidx.core.content.ContextCompat;
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
-import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
 import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
 import com.askerweb.autoclickerreplay.point.ClickPoint;
@@ -46,7 +42,6 @@ import com.askerweb.autoclickerreplay.point.view.PointCanvasView;
 import com.askerweb.autoclickerreplay.point.view.ViewOverlayOnTouchListener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Until;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -56,8 +51,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Timer;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
@@ -69,13 +62,9 @@ import butterknife.OnClick;
 import butterknife.OnLongClick;
 import butterknife.Unbinder;
 import butterknife.ViewCollections;
-import butterknife.internal.Utils;
 
 @SuppressLint("ClickableViewAccessibility")
 public class AutoClickService extends Service implements View.OnTouchListener {
-
-    @Inject
-    public Gson gson = new GsonBuilder().create();
 
     public static AutoClickService service = null;
 
@@ -228,10 +217,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         wm.removeView(controlPanel);
         wm.removeView(canvasView);
         super.onDestroy();
-    }
-
-    public static Gson getGson(){
-        return service.gson;
     }
 
     public static boolean getParamBound(){
@@ -593,7 +578,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                         .delay(nMsNow)
                         .text(String.format("%s", listCommando.size() + 1))
                         .build(SwipePoint.class);
-
 
                 point.attachToWindow(wm, canvasView);
                 listCommando.add(point);
