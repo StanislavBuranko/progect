@@ -108,7 +108,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         @Override
         public void onReceive(Context context, Intent intent) {
             listCommando.forEach(AutoClickService.this::swipePointOrientation);
-
         }
     };
 
@@ -163,7 +162,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         unbindControlPanel = ButterKnife.bind(this, controlPanel);
 
         setControlSize();
-
+        //on start button
         controlPanel.findViewById(R.id.start_pause).setOnTouchListener((v, event)->{
             switch (event.getAction() & MotionEvent.ACTION_MASK){
                 case MotionEvent.ACTION_UP:
@@ -173,6 +172,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             }
             return true;
         });
+        //on close button
         controlPanel.findViewById(R.id.close).setOnTouchListener((v, event)->{
             switch (event.getAction() & MotionEvent.ACTION_MASK){
                 case MotionEvent.ACTION_UP:
