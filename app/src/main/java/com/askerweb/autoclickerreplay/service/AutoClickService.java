@@ -362,6 +362,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         if(SimulateTouchAccessibilityService.isPlaying()){
             requestAction(ACTION_STOP);
         }
+        wm.removeView(recordPanel);
         stopSelf();
     }
 
