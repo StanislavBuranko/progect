@@ -14,6 +14,7 @@ import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
+import com.askerweb.autoclickerreplay.point.view.DataTouch
 import com.askerweb.autoclickerreplay.point.view.ExtendedViewHolder
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView
 import com.askerweb.autoclickerreplay.service.AutoClickService
@@ -24,7 +25,7 @@ import kotlinx.android.synthetic.main.swipe_dialog_elements.*
 
 class SwipePoint : Point {
    val nextPoint: Point =  PointBuilder.invoke()
-            .position(AutoClickService.xUp, AutoClickService.yUp)
+            .position(DataTouch.xUp, DataTouch.yUp)
             .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.point_swap)!!)
             .build(SimplePoint::class.java)
 

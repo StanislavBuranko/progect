@@ -37,6 +37,7 @@ import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
 import com.askerweb.autoclickerreplay.point.ClickPoint;
 import com.askerweb.autoclickerreplay.point.PinchPoint;
 import com.askerweb.autoclickerreplay.point.Point;
+import com.askerweb.autoclickerreplay.point.RecordPoints;
 import com.askerweb.autoclickerreplay.point.SwipePoint;
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView;
 import com.askerweb.autoclickerreplay.point.view.ViewOverlayOnTouchListener;
@@ -64,18 +65,18 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 
     public static AutoClickService service = null;
 
-    WindowManager wm = null;
+    static WindowManager wm = null;
     Unbinder unbindControlPanel = null;
     View controlPanel;
-    View recordPanel;
-    PointCanvasView canvasView;
+    static View recordPanel;
+    static PointCanvasView canvasView;
 
     @BindView(R.id.group_control)
     View group_control;
     @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.setting, R.id.close})
     List<View> controls;
 
-    public LinkedList<Point> listCommando = new LinkedList<>();
+    public static LinkedList<Point> listCommando = new LinkedList<>();
     public LinkedList<Point> listCommandoNow = new LinkedList<>();
 
     public Boolean paramBoundsOn;
@@ -514,92 +515,15 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     long nMsNow = 0;
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if(!work) {
-            work = true;
-            wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_UP:
-                    if (actionUp != true) {
-                        actionUp = true;
-                        ClassInfoForUpTouch.yUp = (int) Math.round(event.getY());
-                        ClassInfoForUpTouch.xUp = (int) Math.round(event.getX());
-                    }
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    actionMove = true;
-                    actionUp = false;
-                    break;
-                case MotionEvent.ACTION_DOWN:
-                    actionDown = true;
-                    actionUp = false;
-                    actionMove = false;
-                    xDown = Math.round(event.getX());
-                    yDown = Math.round(event.getY());
-                    break;
-            }
-            if (actionUp == true && actionMove == false && actionDown == true) {
-
-                actionUp = false;
-                actionDown = false;
-
-                nMsNow = nMs;
-                point = Point.PointBuilder.invoke()
-                        .position((int) xDown, (int) yDown)
-                        .delay(nMsNow)
-                        .text(String.format("%s", listCommando.size() + 1))
-                        .build(ClickPoint.class);
-
-                point.attachToWindow(wm, canvasView);
-                listCommando.add(point);
-
-                point.setDelay((long) 1);
-                listCommandoNow.add(point);
-
-                listCommando.forEach((c) -> c.setTouchable(false, wm));
-                wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
-                SimulateTouchAccessibilityService.requestStart(listCommandoNow);
-                listCommandoNow.clear();
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
-                    }
-                }, 350);
-                point.setDelay(nMs);
-                nMs = 0;
-            } else if (actionMove == true && actionUp == true && actionUp == true) {
-                nMsNow = nMs;
-                point = Point.PointBuilder.invoke()
-                        .position((int) xDown, (int) yDown)
-                        .delay(nMsNow)
-                        .text(String.format("%s", listCommando.size() + 1))
-                        .build(SwipePoint.class);
-
-                point.attachToWindow(wm, canvasView);
-                listCommando.add(point);
-
-                point.setDelay((long) 1);
-                listCommandoNow.add(point);
-
-
-                listCommando.forEach((c) -> c.setTouchable(false, wm));
-                wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
-                SimulateTouchAccessibilityService.requestStart(listCommandoNow);
-                listCommandoNow.clear();
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
-                    }
-                }, 350);
-                point.setDelay(nMs);
-                nMs = 0;
-
-            }
-        }
-        else {}
-        work = false;
+        RecordPoints.onTouch(event,wm,listCommando,canvasView);
         return true;
+    }
+
+    public static void updateLayoutFlagsOn(){
+        wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
+    }
+    public static void updateLayoutFlagsOff(){
+        wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
     }
 
     @Nullable
