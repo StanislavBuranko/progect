@@ -9,6 +9,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.loadMacroFromJson
+import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.ktExt.saveMacroToJson
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import kotlinx.android.synthetic.main.setting_layout.*;
@@ -85,7 +86,7 @@ class SettingActivity : AppCompatActivity() {
 
         override fun getCount() = listFiles.size
 
-        override fun getItem(position: Int) = listFiles[position].name
+        override fun getItem(position: Int) = listFiles[position].nameWithoutExtension
 
         override fun getItemId(position: Int) = position.toLong()
     }

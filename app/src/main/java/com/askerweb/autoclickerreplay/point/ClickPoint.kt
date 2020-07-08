@@ -2,12 +2,9 @@ package com.askerweb.autoclickerreplay.point
 
 import android.accessibilityservice.GestureDescription
 import android.graphics.Path
-import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
-import com.askerweb.autoclickerreplay.ktExt.logd
 import com.google.gson.JsonObject
-import kotlinx.android.parcel.Parcelize
 
 class ClickPoint : Point {
 

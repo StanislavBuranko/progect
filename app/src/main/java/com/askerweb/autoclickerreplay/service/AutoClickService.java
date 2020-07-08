@@ -9,8 +9,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.CountDownTimer;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.util.Log;
@@ -35,6 +33,7 @@ import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
 import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
 import com.askerweb.autoclickerreplay.point.ClickPoint;
+import com.askerweb.autoclickerreplay.point.PathPoint;
 import com.askerweb.autoclickerreplay.point.PinchPoint;
 import com.askerweb.autoclickerreplay.point.Point;
 import com.askerweb.autoclickerreplay.point.RecordPoints;
@@ -77,7 +76,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     List<View> controls;
 
     public static LinkedList<Point> listCommando = new LinkedList<>();
-    public LinkedList<Point> listCommandoNow = new LinkedList<>();
 
     public Boolean paramBoundsOn;
     public Integer paramRepeatMacro;
@@ -100,7 +98,10 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     public final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            listCommando.forEach(AutoClickService.this::swipePointOrientation);
+            if(isRunning() && SimulateTouchAccessibilityService.isPlaying()){
+                startPauseCommand();
+            }
+            listCommando.forEach(AutoClickService.this::swapPointOrientation);
         }
     };
 
@@ -251,6 +252,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         listTypes.add(ClickPoint.class);
         listTypes.add(SwipePoint.class);
         listTypes.add(PinchPoint.class);
+        listTypes.add(PathPoint.class);
         TypePointAdapter adapter = new TypePointAdapter(App.getContext(), listTypes);
         AlertDialog.Builder builder = new AlertDialog.Builder(App.getContext())
                 .setAdapter(adapter, (dialog, which) -> {
@@ -309,6 +311,9 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             }
             else if(clazz.isAssignableFrom(PinchPoint.class)){
                 img.setImageResource(R.drawable.ic_pinch_point);
+            }
+            else if(clazz.isAssignableFrom(PathPoint.class)){
+                img.setImageResource(R.drawable.ic_path_point);
             }
             return v;
         }
@@ -446,14 +451,10 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         canvasView.invalidate();
     }
 
-    void swipePointOrientation(Point p){
-        View v = p.getView();
-        WindowManager.LayoutParams params =
-                (WindowManager.LayoutParams)v.getLayoutParams();
-        int temp = params.x;
-        params.x = (params.y);
-        params.y = temp;
-        wm.updateViewLayout(v, params);
+    void swapPointOrientation(Point p){
+        p.swapPointOrientation();
+        p.updateViewLayout(wm, paramSizePoint);
+        canvasView.invalidate();
     }
 
     public void updateTouchListenerPoint(@NotNull Point point){

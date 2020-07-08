@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.util.Log
 import android.widget.FrameLayout
+import com.askerweb.autoclickerreplay.point.PathPoint
 import com.askerweb.autoclickerreplay.point.PinchPoint
 import com.askerweb.autoclickerreplay.point.Point
 import com.askerweb.autoclickerreplay.point.SwipePoint
@@ -32,6 +33,7 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
             strokeCap = Paint.Cap.ROUND
             strokeJoin = Paint.Join.ROUND
             pathEffect = DashPathEffect(floatArrayOf(27f, 37f), 0f)
+            style = Paint.Style.STROKE
         }
         with(paintStandard){
             color = Color.RED
@@ -51,8 +53,13 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
             when(a::class){
                 PinchPoint::class -> drawPinch(a as PinchPoint, canvas)
                 SwipePoint::class -> drawSwipe(a as SwipePoint, canvas)
+                PathPoint::class -> drawPath(a as PathPoint, canvas)
             }
         }
+    }
+
+    open fun drawPath(pathPoint: PathPoint, canvas: Canvas?){
+        canvas?.drawPath(pathPoint.path, paintLineToSwipePoint)
     }
 
     open fun drawSwipe(swipePoint: SwipePoint, canvas: Canvas?){

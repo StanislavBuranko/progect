@@ -6,15 +6,21 @@ import android.app.AlertDialog
 import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
-import android.view.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
-import com.askerweb.autoclickerreplay.*
+import com.askerweb.autoclickerreplay.App
+import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.*
-import com.askerweb.autoclickerreplay.point.view.*
+import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
+import com.askerweb.autoclickerreplay.point.view.PointCanvasView
+import com.askerweb.autoclickerreplay.point.view.PointOnTouchListener
+import com.askerweb.autoclickerreplay.point.view.PointView
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
-
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.synthetic.main.dialog_setting_point.*
@@ -285,6 +291,12 @@ abstract class Point : PointCommand, Parcelable, Serializable{
 
     override fun describeContents(): Int {
         return 0
+    }
+
+    open fun swapPointOrientation() {
+        val temp = params.x
+        x = params.y
+        y = temp
     }
 
     class PointBuilder private constructor(var factory:(Class<out Point>, PointBuilder)->Point){
