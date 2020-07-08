@@ -54,7 +54,7 @@ public class RecordPoints {
         return  true;
     }
 
-    public static   boolean timerStart(){
+    public static void timerStart(){
         timer = new CountDownTimer(9999 * 1000, 10) {
             @Override
             public void onTick(long l) {
@@ -66,12 +66,14 @@ public class RecordPoints {
             public void onFinish() {
 
             }
-        };
+        }.start();
         timerStart = true;
-        return true;
+    }
+    public static void timerCancel(){
+        timer.cancel();
     }
 
-    public static boolean onTouch(MotionEvent event, WindowManager wm, LinkedList<Point> listCommando, PointCanvasView canvasView) {
+    public static void onTouch(MotionEvent event, WindowManager wm, LinkedList<Point> listCommando, PointCanvasView canvasView) {
         if(!recordPanelInitialization)
             recordPanelInitialization();
         if(!timerStart)
@@ -106,6 +108,7 @@ public class RecordPoints {
                 actionDown = false;
 
                 nMsNow = nMs;
+                Log.d("123",""+nMs);
                 point = Point.PointBuilder.invoke()
                         .position((int) xDown, (int) yDown)
                         .delay(nMsNow)
@@ -128,13 +131,14 @@ public class RecordPoints {
                         AutoClickService.updateLayoutFlagsOff();
                     }
                 }, 500);
-                point.setDelay(nMs);
+                point.setDelay(nMsNow);
                 nMs = 0;
             }
             else if (actionMove == true && actionUp == true && actionUp == true) {
                 if (xDown - 75 <= xMove && xMove <= xDown + 75 && yDown - 75 <= yMove && yMove <= yDown + 75) {
                     Log.d("pointCAl", "xDown:" + xDown + " xMove:" + xMove + " yDown:" + yDown + " yMove:" + yMove);
                     nMsNow = nMs;
+                    Log.d("123",""+nMs);
                     point = Point.PointBuilder.invoke()
                             .position((int) xMove, (int) yMove)
                             .delay(nMsNow)
@@ -157,12 +161,13 @@ public class RecordPoints {
                             AutoClickService.updateLayoutFlagsOff();
                         }
                     }, 500);
-                    point.setDelay(nMs);
+                    point.setDelay(nMsNow);
                     nMs = 0;
                     pointMicroMove = true;
                 }
                 else {
                     nMsNow = nMs;
+                    Log.d("123",""+nMs);
                     point = Point.PointBuilder.invoke()
                             .position((int) xDown, (int) yDown)
                             .delay(nMsNow)
@@ -185,14 +190,13 @@ public class RecordPoints {
                             AutoClickService.updateLayoutFlagsOff();
                         }
                     }, 500);
-                    point.setDelay(nMs);
+                    point.setDelay(nMsNow);
                     nMs = 0;
                 }
             }
         }
         else {}
             work = false;
-        return false;
     }
 
 }

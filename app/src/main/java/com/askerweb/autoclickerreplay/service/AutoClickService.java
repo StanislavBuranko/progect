@@ -83,15 +83,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     public Integer paramRepeatMacro;
     public Integer paramSizePoint;
     public Integer paramSizeControl;
-
-    CountDownTimer timer;
-    Integer i;
     Boolean openRecordPanel = false;
-    float xDown, yDown;
-    Integer nMs = 0;
-    Boolean actionUp = false;
-    Boolean actionMove = false;
-    Boolean actionDown = false;
 
 
     public static final WindowManager.LayoutParams paramsControlPanel =
@@ -129,18 +121,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         super.onCreate();
         updateSetting();
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-        timer = new CountDownTimer(9999 * 1000, 10) {
-            @Override
-            public void onTick(long l) {
-                nMs += 10;
-                Log.d("" + nMs, "");
-            }
-
-            @Override
-            public void onFinish() {
-
-            }
-        };
         recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
         recordPanel.setOnTouchListener(this);
         wm.addView(recordPanel, paramsRecordPanelFlagsOn);
@@ -492,27 +472,27 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         App.getContext().startService(intent);
     }
 
-    boolean work = false;
     @OnClick(R.id.record_points)
     public void recordPoints(){
-        nMs = 0;
         if(!openRecordPanel) {
-            nMs = 0;
-            timer.start();
+            RecordPoints.timerStart();
             openRecordPanel = true;
             wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
+            paramRepeatMacro = Optional
+                    .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, 1))
+                    .orElse(1);
 
         }
         else {
-            timer.cancel();
-
+            RecordPoints.timerCancel();
+            paramRepeatMacro = Optional
+                    .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, SettingExt.defaultRepeat))
+                    .orElse(SettingExt.defaultRepeat);
             wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
             openRecordPanel = false;
         }
 
     }
-    Point point;
-    long nMsNow = 0;
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         RecordPoints.onTouch(event,wm,listCommando,canvasView);
