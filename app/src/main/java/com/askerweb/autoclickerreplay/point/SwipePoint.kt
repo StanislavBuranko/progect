@@ -132,6 +132,11 @@ class SwipePoint : Point {
         return vContent
     }
 
+    override fun swapPointOrientation() {
+        super.swapPointOrientation()
+        nextPoint.swapPointOrientation()
+    }
+
     /**
      * Decorator for AbstractViewHolderDialog for SwipePoint
      * add new button to swipe SwipePoint

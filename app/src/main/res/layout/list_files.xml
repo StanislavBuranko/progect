@@ -7,7 +7,7 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -17,7 +17,7 @@
         app:layout_constraintVertical_bias="0.538" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btn_delete"
         android:background="@drawable/ic_remove"
         android:layout_width="@dimen/x_medium_size"
         android:layout_height="@dimen/x_medium_size"

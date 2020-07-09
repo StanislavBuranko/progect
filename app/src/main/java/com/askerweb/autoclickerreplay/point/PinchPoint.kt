@@ -94,6 +94,8 @@ class PinchPoint:Point {
         super.updateViewLayout(wm, size)
     }
 
+
+
     override fun attachToWindow(wm: WindowManager, canvas: PointCanvasView) {
         super.attachToWindow(wm, canvas)
         firstPoint.attachToWindow(wm, canvas)
@@ -153,6 +155,12 @@ class PinchPoint:Point {
     override fun createHolderDialog(viewContent: View): AbstractViewHolderDialog {
         val holder = super.createHolderDialog(viewContent)
         return ExtendedPinchDialog(holder, viewContent, this)
+    }
+
+    override fun swapPointOrientation() {
+        super.swapPointOrientation()
+        firstPoint.swapPointOrientation()
+        secondPoint.swapPointOrientation()
     }
 
     /**
