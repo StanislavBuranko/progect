@@ -33,6 +33,7 @@ import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
 import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
 import com.askerweb.autoclickerreplay.point.ClickPoint;
+import com.askerweb.autoclickerreplay.point.MultiPoint;
 import com.askerweb.autoclickerreplay.point.PathPoint;
 import com.askerweb.autoclickerreplay.point.PinchPoint;
 import com.askerweb.autoclickerreplay.point.Point;
@@ -244,6 +245,8 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         point.attachToWindow(wm,canvasView);
         updateTouchListenerPoint(point);
         listCommando.add(point);
+
+
     }
 
     @OnLongClick(R.id.add_point)
@@ -253,6 +256,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         listTypes.add(SwipePoint.class);
         listTypes.add(PinchPoint.class);
         listTypes.add(PathPoint.class);
+        listTypes.add(MultiPoint.class);
         TypePointAdapter adapter = new TypePointAdapter(App.getContext(), listTypes);
         AlertDialog.Builder builder = new AlertDialog.Builder(App.getContext())
                 .setAdapter(adapter, (dialog, which) -> {
@@ -314,6 +318,9 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             }
             else if(clazz.isAssignableFrom(PathPoint.class)){
                 img.setImageResource(R.drawable.ic_path_point);
+            }
+            else if(clazz.isAssignableFrom(MultiPoint.class)){
+                img.setImageResource(R.drawable.ic_click_point);
             }
             return v;
         }
