@@ -23,20 +23,25 @@ import java.util.LinkedList;
 public class RecordPoints {
 
     static CountDownTimer timer;
+    static CountDownTimer timerForSwipe;
     static Integer i;
     static Boolean openRecordPanel = false;
     static float xDown, yDown;
     static Integer nMs = 0;
+    static Integer nForSwipeMs = 0;
     static Boolean actionUp = false;
     static Boolean actionMove = false;
     static Boolean actionDown = false;
     static Boolean work = false;
     static Point point;
     static long nMsNow = 0;
+    static long nForSwipeMsNow = 0;
     static Integer xMove = 0;
     static Integer yMove = 0;
     static Boolean pointMicroMove = false;
     static View recordPanel;
+    static Boolean timerForSwipeisStart = false;
+    static int delayHollder = 250;
 
     static public LinkedList<Point> listCommandoNow = new LinkedList<>();
 
@@ -59,7 +64,6 @@ public class RecordPoints {
             @Override
             public void onTick(long l) {
                 nMs += 10;
-                Log.d("" + nMs, "");
             }
 
             @Override
@@ -71,6 +75,25 @@ public class RecordPoints {
     }
     public static void timerCancel(){
         timer.cancel();
+    }
+
+    public static void timerForSwipeStart(){
+        timerForSwipe = new CountDownTimer(9999 * 1000, 10) {
+            @Override
+            public void onTick(long l) {
+                nForSwipeMs += 10;
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        }.start();
+        timerStart = true;
+    }
+    public static void timerForSwipeCancel(){
+        timerForSwipe.cancel();
+        nForSwipeMs = 0;
     }
 
     public static void onTouch(MotionEvent event, WindowManager wm, LinkedList<Point> listCommando, PointCanvasView canvasView) {
@@ -95,20 +118,21 @@ public class RecordPoints {
                     yMove = Math.round(event.getY());
                     break;
                 case MotionEvent.ACTION_DOWN:
+                    if(timerForSwipeisStart)
+                        timerForSwipe.cancel();
+
                     actionDown = true;
                     actionUp = false;
                     actionMove = false;
                     xDown = Math.round(event.getX());
                     yDown = Math.round(event.getY());
+                    timerForSwipeStart();
                     break;
             }
             if (actionUp == true && actionMove == false && actionDown == true) {
-
                 actionUp = false;
                 actionDown = false;
-
                 nMsNow = nMs;
-                Log.d("123",""+nMs);
                 point = Point.PointBuilder.invoke()
                         .position((int) xDown, (int) yDown)
                         .delay(nMsNow)
@@ -130,18 +154,16 @@ public class RecordPoints {
                     public void run() {
                         AutoClickService.updateLayoutFlagsOff();
                     }
-                }, 500);
+                }, delayHollder);
                 point.setDelay(nMsNow);
                 nMs = 0;
             }
             else if (actionMove == true && actionUp == true && actionUp == true) {
                 if (xDown - 75 <= xMove && xMove <= xDown + 75 && yDown - 75 <= yMove && yMove <= yDown + 75) {
-                    Log.d("pointCAl", "xDown:" + xDown + " xMove:" + xMove + " yDown:" + yDown + " yMove:" + yMove);
                     nMsNow = nMs;
-                    Log.d("123",""+nMs);
                     point = Point.PointBuilder.invoke()
                             .position((int) xMove, (int) yMove)
-                            .delay(nMsNow)
+                            .delay(nMsNow).duration(nForSwipeMs)
                             .text(String.format("%s", listCommando.size() + 1))
                             .build(ClickPoint.class);
 
@@ -160,17 +182,21 @@ public class RecordPoints {
                         public void run() {
                             AutoClickService.updateLayoutFlagsOff();
                         }
-                    }, 500);
+                    }, delayHollder);
                     point.setDelay(nMsNow);
                     nMs = 0;
                     pointMicroMove = true;
                 }
                 else {
                     nMsNow = nMs;
-                    Log.d("123",""+nMs);
+                    nForSwipeMsNow = nMsNow;
+                    /*if(nForSwipeMs < 150)
+                        nForSwipeMsNow = nForSwipeMs / 2;
+                    else if (nForSwipeMs > 200 && nForSwipeMs <700)
+                        nForSwipeMsNow = nForSwipeMs * 2;*/
                     point = Point.PointBuilder.invoke()
                             .position((int) xDown, (int) yDown)
-                            .delay(nMsNow)
+                            .delay(nMsNow).duration(nForSwipeMsNow)
                             .text(String.format("%s", listCommando.size() + 1))
                             .build(SwipePoint.class);
 
@@ -189,9 +215,10 @@ public class RecordPoints {
                         public void run() {
                             AutoClickService.updateLayoutFlagsOff();
                         }
-                    }, 500);
+                    }, delayHollder);
                     point.setDelay(nMsNow);
                     nMs = 0;
+                    timerForSwipeCancel();
                 }
             }
         }
