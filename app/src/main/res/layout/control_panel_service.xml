@@ -7,13 +7,13 @@
         android:id="@+id/control_panel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="24dp"
-        android:paddingBottom="24dp"
-        android:paddingLeft="2dp"
-        android:paddingRight="2dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         android:orientation="vertical"
         android:animateLayoutChanges="true"
-        android:background="@color/cardview_dark_background">
+        android:background="@drawable/draw_control_panel">
 
 <!--        <Button-->
 <!--            android:visibility="gone"-->
@@ -27,7 +27,8 @@
             android:id="@+id/start_pause"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:drawable/ic_media_play" />
+            android:background="@drawable/ic_play"
+            android:layout_marginBottom="16dp"/>
 
 
         <LinearLayout
@@ -40,13 +41,15 @@
                     android:id="@+id/add_point"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@android:drawable/ic_input_add" />
+                    android:background="@drawable/ic_add"
+                    android:layout_marginBottom="16dp"/>
 
                 <Button
                     android:id="@+id/remove_point"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/ic_remove" />
+                    android:background="@drawable/ic_remove"
+                    android:layout_marginBottom="16dp"/>
 
     <!--            <Button-->
     <!--                android:id="@+id/macros"-->
@@ -58,12 +61,14 @@
                     android:id="@+id/setting"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/ic_settings" />
+                    android:background="@drawable/ic_settings"
+                    android:layout_marginBottom="16dp"/>
 
             <Button
                 android:id="@+id/record_points"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:visibility="gone"
                 android:background="@android:drawable/btn_star_big_on" />
         </LinearLayout>
 
@@ -71,6 +76,6 @@
             android:id="@+id/close"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:drawable/ic_menu_close_clear_cancel" />
+            android:background="@drawable/ic_close" />
 
 </LinearLayout>
