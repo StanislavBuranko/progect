@@ -6,7 +6,7 @@
     android:id="@+id/record_panel"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:alpha="0.3"
+    android:alpha="0"
     android:animateLayoutChanges="true"
     android:background="@drawable/ic_launcher_background"
     android:orientation="vertical"
