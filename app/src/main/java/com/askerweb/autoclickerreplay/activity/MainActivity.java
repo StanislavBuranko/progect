@@ -29,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
         Dimension.displayMetrics = getResources().getDisplayMetrics();
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        Toolbar toolbar = findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
         NavController navController = Navigation.findNavController(this, R.id.navigation_fragment);
         navController.addOnDestinationChangedListener((c,d,arg)->{
             actionButton.setVisibility(d.getId() == R.id.faq_fragment ? View.VISIBLE : View.GONE);

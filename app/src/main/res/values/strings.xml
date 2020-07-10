@@ -50,4 +50,12 @@
 
     <string name="toast_empty_script">В сценарии ничего нету</string>
 
+    <string name="direction_title">Рекомендуем ознакомиться!!!</string>
+    <string name="direction_first">После запуска AutoClick настройте под себя программу, нажав на шестеренку слева в панели управления.</string>
+    <string name="direction_second">Чтобы добавить цель клика, нажмите на плюс в панели управления.
+        В приложении есть возможность добавить swipe и pinch.
+        Для этого нажмите и удерживайте плюс в панели управления.</string>
+    <string name="direction_third">После добавления цели клика, можно изменить его свойства.
+        Для этого нажмите и удерживайте цель клика.</string>
+
 </resources>

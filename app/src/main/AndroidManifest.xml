@@ -38,8 +38,7 @@
         </service>
 
         <activity android:name=".activity.MainActivity"
-            android:label="AutoClicker"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:label="AutoClicker">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

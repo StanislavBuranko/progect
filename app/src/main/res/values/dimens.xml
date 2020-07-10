@@ -2,6 +2,9 @@
 <resources>
     <dimen name="x_medium_size">32dp</dimen>
 
+    <dimen name="x_large_size">64dp</dimen>
+
+
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="spacing_element">12dp</dimen>
     <dimen name="paddingPage">12dp</dimen>
