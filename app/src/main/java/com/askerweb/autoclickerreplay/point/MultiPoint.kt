@@ -53,7 +53,7 @@ class MultiPoint : Point {
                 .setView(viewContent)
                 .setPositiveButton(R.string.save) { _, _ ->
                     val countListCommand: Int = listCommando.size;
-                    val countEditText: Int? = viewContent.findViewById<EditText>(R.id.editNumbMultiPoint).text.toString().toInt()
+                    val countEditText: Int? = view.findViewById<EditText>(R.id.editNumbMultiPoint).text.toString().toInt()
                     for(n in 1..countEditText!!) {
                         var point:Point? = null;
                         point = invoke()
