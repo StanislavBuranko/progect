@@ -2,40 +2,20 @@ package com.askerweb.autoclickerreplay.point
 
 import android.accessibilityservice.GestureDescription
 import android.app.AlertDialog
-import android.graphics.Path
-import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
-import android.util.Log
-import android.view.*
-import android.widget.LinearLayout
-import androidx.core.content.ContextCompat
-import com.askerweb.autoclickerreplay.App
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.widget.EditText
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.ktExt.getWindowsParameterLayout
-import com.askerweb.autoclickerreplay.point.view.PointCanvasView
+import com.askerweb.autoclickerreplay.ktExt.getWindowsTypeApplicationOverlay
+import com.askerweb.autoclickerreplay.point.Point.PointBuilder.Companion.invoke
+import com.askerweb.autoclickerreplay.service.AutoClickService
+import com.askerweb.autoclickerreplay.service.AutoClickService.listCommando
 import com.google.gson.JsonObject
 
 class MultiPoint : Point {
-
-    var wasDraw = false
-
-    val path = Path()
-    val points = arrayOf( PointBuilder.invoke()
-            .position(x,y)
-            .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click)!!)
-            .build(SimplePoint::class.java));
-
-
-
-    val panel = LinearLayout(App.getContext())
-    val panelParam = getWindowsParameterLayout(
-            WindowManager.LayoutParams.MATCH_PARENT.toFloat(),
-            WindowManager.LayoutParams.MATCH_PARENT.toFloat(),
-            Gravity.CENTER)
-
-    override var drawableViewDefault: Drawable = ContextCompat.getDrawable(App.getContext(), R.drawable.point_solid)!!
-
 
     constructor(builder: PointBuilder): super(builder)
 
@@ -66,30 +46,44 @@ class MultiPoint : Point {
         }
     }
 
-    val layoutInflater: LayoutInflater? = null
     fun showDialog(){
-        val builder = AlertDialog.Builder(App.getContext()).create()
-        val editView = layoutInflater?.inflate(R.layout.dialog_multi_click_creator, null)
-        builder.setView(editView)
-        builder.setButton(AlertDialog.BUTTON_POSITIVE, "Ok",{ _, _ ->
-            Log.d("msgBuilderDialog", "allOk")
-        })
-        builder.show();
+        val viewContent: View = createViewDialog()
+        val dialog = AlertDialog.Builder(view.context)
+                .setTitle(view.context.getString(R.string.setting_point))
+                .setView(viewContent)
+                .setPositiveButton(R.string.save) { _, _ ->
+                    val countListCommand: Int = listCommando.size;
+                    val countEditText: Int? = view.findViewById<EditText>(R.id.editNumbMultiPoint).text.toString().toInt()
+                    for(n in 1..countEditText!!) {
+                        var point:Point? = null;
+                        point = invoke()
+                                .position(x+n*10, y+n*10)
+                                .text(String.format("%s", countListCommand))
+                                .build(ClickPoint::class.java)
+                        point!!.attachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
+                        listCommando.add(point)
+                    }
+                }
+                .setNegativeButton(R.string.canel){ _, _ ->
+
+                }
+                .create()
+        dialog.window?.setType(getWindowsTypeApplicationOverlay())
+        dialog.show()
     }
+
+    protected override fun createViewDialog():View{
+        return LayoutInflater.from(view.context).inflate(R.layout.multi_point_dialog, null)
+    }
+
     inner class DrawPathOnTouchListener : View.OnTouchListener {
         override fun onTouch(v: View?, event: MotionEvent): Boolean {
             when(event.action and MotionEvent.ACTION_MASK){
                 MotionEvent.ACTION_DOWN->{
 
-
                 }
                 MotionEvent.ACTION_POINTER_DOWN->{
-                    points.plus(PointBuilder.invoke()
-                            .position(event.rawX.toInt(),event.rawY.toInt())
-                            .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click)!!)
-                            .build(SimplePoint::class.java))
-                    path.moveTo(x.toFloat(), y.toFloat())
-                    Log.d("multi", "2");
+
                 }
                 MotionEvent.ACTION_UP->{
 

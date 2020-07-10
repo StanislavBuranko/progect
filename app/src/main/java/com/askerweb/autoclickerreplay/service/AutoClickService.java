@@ -487,6 +487,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             RecordPoints.timerStart();
             openRecordPanel = true;
             wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
+            listCommando.forEach((c) -> c.setTouchable(false, wm));
             paramRepeatMacro = Optional
                     .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, 1))
                     .orElse(1);
@@ -498,6 +499,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                     .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, SettingExt.defaultRepeat))
                     .orElse(SettingExt.defaultRepeat);
             wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
+            listCommando.forEach((c) -> c.setTouchable(true, wm));
             openRecordPanel = false;
         }
 

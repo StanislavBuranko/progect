@@ -13,7 +13,6 @@ import android.view.WindowManager;
 
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
-import com.askerweb.autoclickerreplay.point.view.DataTouch;
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView;
 import com.askerweb.autoclickerreplay.service.AutoClickService;
 import com.askerweb.autoclickerreplay.service.SimulateTouchAccessibilityService;
@@ -34,6 +33,7 @@ public class RecordPoints {
     static Boolean actionDown = false;
     static Boolean work = false;
     static Point point;
+    static SwipePoint swipePoint;
     static long nMsNow = 0;
     static long nForSwipeMsNow = 0;
     static Integer xMove = 0;
@@ -97,6 +97,8 @@ public class RecordPoints {
     }
 
     public static void onTouch(MotionEvent event, WindowManager wm, LinkedList<Point> listCommando, PointCanvasView canvasView) {
+        int xUp = 0;
+        int yUp = 0;
         if(!recordPanelInitialization)
             recordPanelInitialization();
         if(!timerStart)
@@ -107,8 +109,8 @@ public class RecordPoints {
                 case MotionEvent.ACTION_UP:
                     if (actionUp != true) {
                         actionUp = true;
-                        DataTouch.setXUp((int) Math.round(event.getX()));
-                        DataTouch.setYUp((int) Math.round(event.getY()));
+                        xUp = (int) Math.round(event.getX());
+                        yUp = (int) Math.round(event.getY());
                     }
                     break;
                 case MotionEvent.ACTION_MOVE:
@@ -142,10 +144,11 @@ public class RecordPoints {
                 point.attachToWindow(wm, canvasView);
                 listCommando.add(point);
 
+                point.setTouchable(false, wm);
+
                 point.setDelay((long) 1);
                 listCommandoNow.add(point);
 
-                listCommando.forEach((c) -> c.setTouchable(false, wm));
                 AutoClickService.updateLayoutFlagsOn();
                 SimulateTouchAccessibilityService.requestStart(listCommandoNow);
                 listCommandoNow.clear();
@@ -170,10 +173,15 @@ public class RecordPoints {
                     point.attachToWindow(wm, canvasView);
                     listCommando.add(point);
 
+                    point.setTouchable(false, wm);
+
+
                     point.setDelay((long) 1);
                     listCommandoNow.add(point);
 
-                    listCommando.forEach((c) -> c.setTouchable(false, wm));
+                    point.setTouchable(false, wm);
+
+
                     AutoClickService.updateLayoutFlagsOn();
                     SimulateTouchAccessibilityService.requestStart(listCommandoNow);
                     listCommandoNow.clear();
@@ -186,36 +194,42 @@ public class RecordPoints {
                     point.setDelay(nMsNow);
                     nMs = 0;
                     pointMicroMove = true;
+
                 }
                 else {
                     nMsNow = nMs;
-                    nForSwipeMsNow = nMsNow;
-                    /*if(nForSwipeMs < 150)
-                        nForSwipeMsNow = nForSwipeMs / 2;
-                    else if (nForSwipeMs > 200 && nForSwipeMs <700)
-                        nForSwipeMsNow = nForSwipeMs * 2;*/
+                    nForSwipeMsNow = nForSwipeMs;
                     point = Point.PointBuilder.invoke()
                             .position((int) xDown, (int) yDown)
                             .delay(nMsNow).duration(nForSwipeMsNow)
                             .text(String.format("%s", listCommando.size() + 1))
                             .build(SwipePoint.class);
+                    swipePoint = (SwipePoint) point;
+                    swipePoint.getNextPoint().setX(xUp);
+                    swipePoint.getNextPoint().setY(yUp);
 
                     point.attachToWindow(wm, canvasView);
+
+                    point.setTouchable(false, wm);
+
+
                     listCommando.add(point);
 
                     point.setDelay((long) 1);
                     listCommandoNow.add(point);
 
-                    listCommando.forEach((c) -> c.setTouchable(false, wm));
                     AutoClickService.updateLayoutFlagsOn();
                     SimulateTouchAccessibilityService.requestStart(listCommandoNow);
+
                     listCommandoNow.clear();
+
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         public void run() {
                             AutoClickService.updateLayoutFlagsOff();
                         }
                     }, delayHollder);
+
                     point.setDelay(nMsNow);
                     nMs = 0;
                     timerForSwipeCancel();

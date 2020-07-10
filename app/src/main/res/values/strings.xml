@@ -50,6 +50,9 @@
 
     <string name="toast_empty_script">В сценарии ничего нету</string>
 
+    <string name="multi_points_creat_number">Введите количество одновременных нажатий</string>
+    <string name="multi_points_click">нажатий</string>
+
     <string name="direction_title">Рекомендуем ознакомиться!!!</string>
     <string name="direction_first">После запуска AutoClick настройте под себя программу, нажав на шестеренку слева в панели управления.</string>
     <string name="direction_second">Чтобы добавить цель клика, нажмите на плюс в панели управления.
