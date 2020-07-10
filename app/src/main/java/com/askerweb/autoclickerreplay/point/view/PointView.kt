@@ -1,9 +1,14 @@
 package com.askerweb.autoclickerreplay.point.view
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.Typeface
+import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import com.askerweb.autoclickerreplay.R
 
 class PointView constructor(context: Context) : FrameLayout(context) {
     private var textV: TextView = TextView(context)
@@ -17,8 +22,16 @@ class PointView constructor(context: Context) : FrameLayout(context) {
         systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
-        textV.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
         addView(textV)
+        textV.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
+        val param = FrameLayout.LayoutParams(textV.layoutParams)
+        param.gravity = Gravity.CENTER
+        param.width = ViewGroup.LayoutParams.WRAP_CONTENT
+        param.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        textV.textSize = resources.getDimension(R.dimen.x_low_size_text)
+        textV.setTextColor(resources.getColor(R.color.blueSanMarino))
+        textV.typeface = Typeface.createFromAsset(context.assets, "fonts/Roboto-Bold.ttf")
+        textV.layoutParams = param
     }
 
     override fun performClick(): Boolean {

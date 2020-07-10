@@ -385,14 +385,14 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             case ACTION_STOP:
                 listCommando.forEach((c)->c.setTouchable(true, wm));
                 controlPanel.findViewById(R.id.start_pause)
-                        .setBackground(ContextCompat.getDrawable(App.getContext(), android.R.drawable.ic_media_play));
+                        .setBackground(ContextCompat.getDrawable(App.getContext(), R.drawable.ic_play));
                 group_control.setVisibility(View.VISIBLE);
                 SimulateTouchAccessibilityService.requestStop();
                 break;
             case ACTION_START:
                 listCommando.forEach((c)->c.setTouchable(false,wm));
                 controlPanel.findViewById(R.id.start_pause)
-                        .setBackground(ContextCompat.getDrawable(App.getContext(), android.R.drawable.ic_media_pause));
+                        .setBackground(ContextCompat.getDrawable(App.getContext(), R.drawable.ic_pause));
                 group_control.setVisibility(View.GONE);
                 SimulateTouchAccessibilityService.requestStart(listCommando);
                 break;

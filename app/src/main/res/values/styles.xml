@@ -8,8 +8,11 @@
 <!--        <item name="colorAccent">@color/colorAccent</item>-->
         <item name="actionBarStyle">@style/GradientActionBar</item>
         <item name="android:actionBarStyle">@style/GradientActionBar</item>
-        <item name="android:fitsSystemWindows">true</item>
-        <item name="android:windowTranslucentStatus">false</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+<!--        <item name="background">#ffffff</item>-->
+<!--        <item name="android:fitsSystemWindows">true</item>-->
+<!--        <item name="android:windowTranslucentStatus">false</item>-->
 
     </style>
 
@@ -22,7 +25,8 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
-    <style name="GradientActionBar" parent="@style/Widget.AppCompat.ActionBar.Solid">
+    <style name="GradientActionBar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:titleTextAppearance">@android:color/white</item>
         <item name="android:background">@drawable/draw_gradient_bg</item>
         <item name="background">@drawable/draw_gradient_bg</item>
     </style>
