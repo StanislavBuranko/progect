@@ -18,6 +18,7 @@
     <string name="setting_macro">Настройки сценария</string>
     <string name="setting_point">Настройки цели</string>
     <string name="save">Сохранить</string>
+    <string name="canel">Отмена</string>
     <string name="save_script">Сохранить сценарий</string>
     <string name="title_save_script">Введите название файла</string>
     <string name="load_script">Загрузить сценарий</string>
@@ -49,5 +50,8 @@
     <string name="key_preference_bounds_on">bounds_on</string>
 
     <string name="toast_empty_script">В сценарии ничего нету</string>
+
+    <string name="multi_points_creat_number">Введите количество одновременных нажатий</string>
+    <string name="multi_points_click">нажатий</string>
 
 </resources>
