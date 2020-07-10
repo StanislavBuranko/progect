@@ -64,7 +64,7 @@ class MultiPoint : Point {
                         listCommando.add(point)
                     }
                 }
-                .setNegativeButton(R.string.canel){ _, _ ->
+                .setNegativeButton(R.string.cancel){ _, _ ->
 
                 }
                 .create()
