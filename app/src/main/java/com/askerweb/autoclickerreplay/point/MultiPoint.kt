@@ -22,6 +22,7 @@ import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.askerweb.autoclickerreplay.service.AutoClickService.listCommando
 import com.google.gson.JsonObject
 import kotlinx.android.synthetic.main.dialog_setting_point.*
+import kotlin.math.ceil
 
 class MultiPoint: Point {
     var points : Array<Point> = arrayOf()
@@ -35,22 +36,19 @@ class MultiPoint: Point {
     init {
 
         showDialog()
-
-        val button = view.findViewById<Button>(R.id.multiPointButton) as Button
-
+        val countListCommand: Int = listCommando.size + 1;
+        var button = view.findViewById<Button>(R.id.multiPointButton)
         button.setOnClickListener( View.OnClickListener {view ->
-            val countListCommand: Int = listCommando.size + 1;
-            for (n in 1..countEditText+5) {
+            for (n in 1..countEditText + 5) {
                 var pointSm = PointBuilder.invoke()
-                        .position(100+n*50,100).delay(1000).duration(1000)
+                        .position(100 + n * 50, 100)
                         .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click)!!)
                         .text(listCommando.toString())
                         .build(SimplePoint::class.java)
                 points += pointSm
             }
         })
-
-
+        attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
     }
 
     constructor(builder: PointBuilder): super(builder){
@@ -58,23 +56,18 @@ class MultiPoint: Point {
     }
 
     constructor(json: JsonObject):super(json){
-        /*var pointsJson: Array<JsonObject>
-        val firstPointJson =
-                App.getGson().fromJson(json.get("firstPoint").asString, JsonObject::class.java)
-        val firstPoint =
-                PointBuilder.invoke().buildFrom(SimplePoint::class.java, firstPointJson)
-        this.firstPoint.x = firstPoint.x
-        this.firstPoint.y = firstPoint.y
-        this.firstPoint.height = ceil(firstPoint.height / AutoClickService.getService().resources.displayMetrics.density).toInt()
-        this.firstPoint.width = ceil(firstPoint.width / AutoClickService.getService().resources.displayMetrics.density).toInt()
-        val secondPointJson =
-                App.getGson().fromJson(json.get("secondPoint").asString, JsonObject::class.java)
-        val secondPoint =
-                PointBuilder.invoke().buildFrom(SimplePoint::class.java, secondPointJson)
-        this.secondPoint.x = secondPoint.x
-        this.secondPoint.y = secondPoint.y
-        this.secondPoint.height = ceil(secondPoint.height / AutoClickService.getService().resources.displayMetrics.density).toInt()
-        this.secondPoint.width = ceil(secondPoint.width / AutoClickService.getService().resources.displayMetrics.density).toInt()*/
+        points.forEach { point ->
+            point.repeat = json.get("repeat").asInt
+            point.delay = json.get("delay").asLong
+            point.duration = json.get("duration").asLong
+            val _params =
+                    App.getGson().fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
+            point.width = _params.width
+            point.height = _params.height
+            point.x = _params.x
+            point.y = _params.y
+            text = json.get("text").asString
+        }
     }
 
     fun showDialog(){
