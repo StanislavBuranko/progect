@@ -61,5 +61,6 @@
     <string name="direction_third">После добавления цели клика, можно изменить его свойства.
         Для этого нажмите и удерживайте цель клика.</string>
     <string name="cancel">Отмена</string>
+    <string name="setting">Настройки</string>
 
 </resources>

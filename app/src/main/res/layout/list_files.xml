@@ -4,13 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/_dp12"
+    android:paddingEnd="@dimen/_dp12">
 
     <TextView
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:textSize="@dimen/large_size_text"
+        android:textColor="@color/textColorDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -18,9 +21,9 @@
 
     <Button
         android:id="@+id/btn_delete"
-        android:background="@drawable/ic_remove"
-        android:layout_width="@dimen/x_medium_size"
-        android:layout_height="@dimen/x_medium_size"
+        android:background="@drawable/ic_remove_red"
+        android:layout_width="@dimen/_dp32"
+        android:layout_height="@dimen/_dp32"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

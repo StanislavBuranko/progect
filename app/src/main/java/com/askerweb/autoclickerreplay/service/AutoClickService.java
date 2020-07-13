@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Typeface;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.util.Log;
@@ -257,6 +258,11 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         listTypes.add(PinchPoint.class);
         listTypes.add(PathPoint.class);
         listTypes.add(MultiPoint.class);
+        TextView title = new TextView(this);
+        title.setText("Выберите вид цели");
+        title.setTypeface(Typeface.DEFAULT_BOLD);
+        title.setTextColor(getResources().getColor(R.color.textColorDark));
+        title.setTextSize(getResources().getDimension(R.dimen.medium_size_text));
         TypePointAdapter adapter = new TypePointAdapter(App.getContext(), listTypes);
         AlertDialog.Builder builder = new AlertDialog.Builder(App.getContext())
                 .setAdapter(adapter, (dialog, which) -> {
@@ -268,7 +274,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                     updateTouchListenerPoint(point);
                     listCommando.add(point);
                 })
-                .setTitle("Выберите вид цели");
+                .setCustomTitle(title);
         Dialog d = builder.create();
         d.getWindow().setType(UtilsApp.getWindowsTypeApplicationOverlay());
         d.show();
@@ -308,13 +314,13 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             ImageView img = v.findViewById(R.id.pic);
             Class clazz = listTypes.get(position);
             if(clazz.isAssignableFrom(SwipePoint.class)){
-                img.setImageResource(R.drawable.ic_swipe_point);
+                img.setImageResource(R.drawable.ic_swap);
             }
             else if(clazz.isAssignableFrom(ClickPoint.class)){
-                img.setImageResource(R.drawable.ic_click_point);
+                img.setImageResource(R.drawable.ic_point);
             }
             else if(clazz.isAssignableFrom(PinchPoint.class)){
-                img.setImageResource(R.drawable.ic_pinch_point);
+                img.setImageResource(R.drawable.ic_pinch);
             }
             else if(clazz.isAssignableFrom(PathPoint.class)){
                 img.setImageResource(R.drawable.ic_path_point);

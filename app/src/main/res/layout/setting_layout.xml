@@ -7,18 +7,24 @@
         android:id="@+id/fragment_setting"
         class="com.askerweb.autoclickerreplay.fragment.SettingFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/_dp24"/>
 
 
     <Button
         android:id="@+id/save_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/save_script" />
+        android:text="@string/save_script"
+        android:layout_marginRight="@dimen/_dp64"
+        android:layout_marginLeft="@dimen/_dp64"
+        android:layout_marginBottom="@dimen/_dp20"/>
 
     <Button
         android:id="@+id/load_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/load_script" />
+        android:text="@string/load_script"
+        android:layout_marginRight="@dimen/_dp64"
+        android:layout_marginLeft="@dimen/_dp64"/>
 </LinearLayout>

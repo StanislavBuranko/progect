@@ -3,6 +3,7 @@ package com.askerweb.autoclickerreplay.point.view
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.opengl.Visibility
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,12 @@ class PointView constructor(context: Context) : FrameLayout(context) {
         get() = textV.text as String
         set(value){
             textV.text = value
+        }
+
+    var textVisible
+        get() = textV.visibility == View.GONE
+        set(value){
+            textV.visibility = if(value) View.VISIBLE else View.GONE
         }
 
     init {

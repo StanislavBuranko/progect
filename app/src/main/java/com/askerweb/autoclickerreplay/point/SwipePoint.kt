@@ -23,9 +23,9 @@ import kotlin.math.ceil
 import kotlinx.android.synthetic.main.swipe_dialog_elements.*
 
 class SwipePoint : Point {
-   public val nextPoint: Point =  PointBuilder.invoke()
+   val nextPoint: Point =  PointBuilder.invoke()
             .position(params.x+50, params.y)
-            .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.point_swap)!!)
+            .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.point_click)!!)
             .build(SimplePoint::class.java)
 
 
@@ -34,7 +34,7 @@ class SwipePoint : Point {
         set(value) {
             super.text = value
             if(nextPoint != null){
-                nextPoint.text = "`$value"
+                nextPoint.text = "$value"
             }
         }
 
@@ -74,7 +74,6 @@ class SwipePoint : Point {
     }
 
 
-    override var drawableViewDefault: Drawable = ContextCompat.getDrawable(App.getContext(), R.drawable.point_swap)!!
 
     override fun updateViewLayout(wm: WindowManager, size: Float) {
         nextPoint.updateViewLayout(wm, size)

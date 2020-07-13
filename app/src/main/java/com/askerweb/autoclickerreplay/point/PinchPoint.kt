@@ -12,6 +12,7 @@ import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.point.view.*
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
@@ -21,19 +22,19 @@ import kotlinx.android.synthetic.main.pinch_dialog_elements.*
 
 class PinchPoint:Point {
 
+    override val drawableViewDefault = ContextCompat.getDrawable(App.getContext(), R.drawable.point_pinch)!!
+
     val firstPoint = PointBuilder.invoke()
             .position(this.x + 200, this.y)
-            .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.point_swap)!!)
+            .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.point_click)!!)
             .build(SimplePoint::class.java)
 
     val secondPoint = PointBuilder.invoke()
             .position(this.x - 200, this.y)
-            .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.point_swap)!!)
+            .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.point_click)!!)
             .build(SimplePoint::class.java)
 
     var typePinch = PinchDirection.OUT
-
-    override var drawableViewDefault: Drawable = ContextCompat.getDrawable(App.getContext(), R.drawable.point_solid)!!
 
     constructor(builder: PointBuilder):super(builder)
 
@@ -77,15 +78,16 @@ class PinchPoint:Point {
         set(value) {
             super.text = value
             if(firstPoint != null){
-                firstPoint.text = "`$value"
+                firstPoint.text = value
             }
             if(secondPoint != null){
-                secondPoint.text = "`$value"
+                secondPoint.text = value
             }
         }
 
     init{
         text = text
+        view.textVisible = false
     }
 
     override fun updateViewLayout(wm: WindowManager, size: Float) {
