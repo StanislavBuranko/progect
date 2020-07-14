@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">AutoClickerReplay</string>
     <string name="service_simulate_auto_click">AutoClickerTouchService</string>
-    <string name="service_simulate_auto_click_description">...</string> <!--TODO:write description-->
+    <string name="service_simulate_auto_click_description">Сервис для симуляции клика на указанных точках</string> <!--TODO:write description-->
     <string name="description_overlay_permission">
         Разрешите пожалуйста нашему приложению отображаться по верх других приложений, это нужно
         для работы приложения, приложение не как не пользуется уязвимостями и не использует данное

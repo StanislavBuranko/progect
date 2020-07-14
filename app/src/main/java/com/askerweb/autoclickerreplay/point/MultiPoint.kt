@@ -53,9 +53,7 @@ class MultiPoint: Point {
 
     }
 
-    constructor(builder: PointBuilder): super(builder){
-
-    }
+    constructor(builder: PointBuilder): super(builder)
 
     constructor(json: JsonObject):super(json){
         /*var pointsJson: Array<JsonObject>

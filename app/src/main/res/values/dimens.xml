@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="_dp2">2dp</dimen>
     <dimen name="_dp4">4dp</dimen>
     <dimen name="_dp8">8dp</dimen>
     <dimen name="_dp12">12dp</dimen>
@@ -17,11 +18,11 @@
 
     <dimen name="width_control_panel">36dp</dimen>
 
-    <dimen name="xx_large_size_text">32sp</dimen>
-    <dimen name="x_large_size_text">28sp</dimen>
-    <dimen name="large_size_text">24sp</dimen>
-    <dimen name="xx_medium_size_text">20sp</dimen>
-    <dimen name="x_medium_size_text">16sp</dimen>
-    <dimen name="medium_size_text">12sp</dimen>
-    <dimen name="x_low_size_text">8sp</dimen>
+    <dimen name="_32sp">32sp</dimen>
+    <dimen name="_28sp">28sp</dimen>
+    <dimen name="_24sp">24sp</dimen>
+    <dimen name="_20sp">20sp</dimen>
+    <dimen name="_16sp">16sp</dimen>
+    <dimen name="_12sp">12sp</dimen>
+    <dimen name="_8sp">8sp</dimen>
 </resources>

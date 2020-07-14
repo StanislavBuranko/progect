@@ -152,6 +152,7 @@ class SwipePoint : Point {
                 point.y = yTemp
                 AutoClickService.getWM().updateViewLayout(point.view, point.params)
                 AutoClickService.getWM().updateViewLayout(point.nextPoint.view, point.nextPoint.params)
+                AutoClickService.getCanvas().invalidate()
                 dialogHolder.dialog?.cancel()
             }
         }

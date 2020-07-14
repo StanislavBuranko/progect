@@ -1,10 +1,16 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/textColorDark</item>
         <item name="android:actionBarStyle">@style/GradientActionBar</item>
         <item name="actionBarStyle">@style/GradientActionBar</item>
-        <item name="android:buttonStyle">@style/MyButton</item>
-        <item name="buttonStyle">@style/MyButton</item>
+        <item name="android:buttonStyle">@style/GradientButton</item>
+        <item name="buttonStyle">@style/GradientButton</item>
+        <item name="colorPrimaryDark">@color/blueHippie</item>
+        <item name="colorControlActivated">@color/blueHippie</item>
+        <item name="colorControlHighlight">#80659DD0</item>
+        <item name="dialogTheme">@style/AppDialog</item>
+        <item name="alertDialogTheme">@style/AppDialog</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -22,10 +28,14 @@
         <item name="background">@drawable/draw_gradient_bg</item>
     </style>
 
-    <style name="MyButton" parent="Widget.AppCompat.Button">
+    <style name="GradientButton" parent="Widget.AppCompat.Button">
         <item name="android:background">@drawable/draw_btn</item>
         <item name="background">@drawable/draw_btn</item>
         <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="AppDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:padding">@dimen/_dp4</item>
     </style>
 
 </resources>

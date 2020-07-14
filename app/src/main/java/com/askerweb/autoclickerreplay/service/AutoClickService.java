@@ -246,8 +246,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         point.attachToWindow(wm,canvasView);
         updateTouchListenerPoint(point);
         listCommando.add(point);
-
-
     }
 
     @OnLongClick(R.id.add_point)
@@ -262,7 +260,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         title.setText("Выберите вид цели");
         title.setTypeface(Typeface.DEFAULT_BOLD);
         title.setTextColor(getResources().getColor(R.color.textColorDark));
-        title.setTextSize(getResources().getDimension(R.dimen.medium_size_text));
+        title.setTextSize(getResources().getDimension(R.dimen._12sp));
         TypePointAdapter adapter = new TypePointAdapter(App.getContext(), listTypes);
         AlertDialog.Builder builder = new AlertDialog.Builder(App.getContext())
                 .setAdapter(adapter, (dialog, which) -> {

@@ -17,13 +17,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/description_overlay_permission"
-            android:textSize="21sp"/>
+            android:textSize="@dimen/_20sp"/>
         <Button
             android:id="@+id/btn_get_permission_overlay"
+            android:layout_marginTop="@dimen/_dp8"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/allow_permission"
-            android:textSize="21sp"/>
+            android:textSize="@dimen/_20sp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -36,14 +37,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/accessibility_service_description"
-            android:textSize="21dp"/>
+            android:textSize="@dimen/_20sp"/>
 
         <Button
             android:id="@+id/btn_add_accessibility_service"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/add_service_accessibility"
-            android:textSize="18dp"/>
+            android:layout_marginTop="@dimen/_dp8"
+            android:textSize="@dimen/_20sp"/>
     </LinearLayout>
 
 

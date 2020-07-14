@@ -1,9 +1,7 @@
 package com.askerweb.autoclickerreplay.point.view
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Typeface
-import android.opengl.Visibility
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -35,7 +33,7 @@ class PointView constructor(context: Context) : FrameLayout(context) {
         param.gravity = Gravity.CENTER
         param.width = ViewGroup.LayoutParams.WRAP_CONTENT
         param.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        textV.textSize = resources.getDimension(R.dimen.x_low_size_text)
+        textV.textSize = resources.getDimension(R.dimen._8sp)
         textV.setTextColor(resources.getColor(R.color.blueSanMarino))
         textV.typeface = Typeface.createFromAsset(context.assets, "fonts/Roboto-Bold.ttf")
         textV.layoutParams = param

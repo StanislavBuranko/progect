@@ -10,6 +10,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import com.askerweb.autoclickerreplay.App
@@ -186,14 +187,14 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         val viewContent: View = createViewDialog()
         val holder = createHolderDialog(viewContent)
         holder.updateViewDialogParam()
-        val dialog = AlertDialog.Builder(view.context)
+        val dialog = AlertDialog.Builder(view.context, R.style.AppDialog)
                 .setTitle(view.context.getString(R.string.setting_point))
                 .setView(viewContent)
                 .setPositiveButton(R.string.save) { _, _ ->
                     holder.saveEditDialog()
                     AutoClickService.getCanvas()?.invalidate()
                 }.create()
-        holder.dialog = dialog;
+        holder.dialog = dialog
         dialog.window?.setType(getWindowsTypeApplicationOverlay())
         dialog.show()
         holder.saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
@@ -204,7 +205,8 @@ abstract class Point : PointCommand, Parcelable, Serializable{
     }
 
     protected open fun createViewDialog():View{
-        return LayoutInflater.from(view.context).inflate(R.layout.dialog_setting_point, null)
+        return LayoutInflater.from(ContextThemeWrapper(view.context, R.style.AppTheme))
+                .inflate(R.layout.dialog_setting_point, null)
     }
 
     class PointHolderDialogEdit(override val containerView:View, private val point: Point) :
