@@ -8,7 +8,7 @@
 
     <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="67dp"
         android:layout_marginTop="4dp"
         android:minWidth="10dp"
         android:minHeight="10dp">
@@ -20,15 +20,18 @@
             android:layout_marginBottom="4dp"
             android:text="@string/multi_points_creat_number" />
 
+
         <EditText
             android:id="@+id/editNumbMultiPoint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/textView4"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="21dp"
+            android:layout_marginBottom="1dp"
             android:ems="10"
             android:inputType="number"
             android:text="5" />
-
 
         <TextView
             android:layout_width="wrap_content"
@@ -48,14 +51,14 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btn_duplicate"
+            android:id="@+id/multiPointDialogButtonPlus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/plus" />
 
         <Button
-            android:id="@+id/btn_delete"
+            android:id="@+id/multiPointDialogButtonMinus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -155,11 +158,5 @@
             android:text="@string/times" />
 
     </RelativeLayout>
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/save" />
 
 </LinearLayout>
