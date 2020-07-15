@@ -14,10 +14,10 @@
     <string name="untitled">untitled</string>
     <string name="allow_permission">allow</string>
     <string name="add_service_accessibility">add</string>
-    <string name="setting_macro">script settings</string>
-    <string name="setting_point">goal settings</string>
-    <string name="save">save</string>
-    <string name="save_script">save script</string>
+    <string name="setting_macro">Script settings</string>
+    <string name="setting_point">Goal settings</string>
+    <string name="save">Save</string>
+    <string name="save_script">Save script</string>
     <string name="title_save_script">enter a file name</string>
     <string name="load_script">download a script</string>
     <string name="delete">delete</string>
@@ -31,16 +31,16 @@
     <string name="title_duration_preference_point">duration of pressing ( 1 millisecond per minute)</string>
     <string name="title_direction_preference_point">Direction</string>
 
-    <string name="title_repeat_preference">number of repetitions(-1 indefinitely)</string>
+    <string name="title_repeat_preference">Number of repetitions(-1 indefinitely)</string>
     <string name="summary_repeat_preference">(-1 indefinitely)</string>
     <string name="key_preference_repeat">repeat</string>
 
-    <string name="title_size_point_preference">goal size</string>
-    <string name="summary_size_point_preference">choose the goal size</string>
+    <string name="title_size_point_preference">Goal size</string>
+    <string name="summary_size_point_preference">Choose the goal size</string>
     <string name="key_preference_size_point">size_point</string>
 
-    <string name="title_size_control_panel_preference">control panels size</string>
-    <string name="summary_size_control_panel_preference">choose control panels size</string>
+    <string name="title_size_control_panel_preference">Control panels size</string>
+    <string name="summary_size_control_panel_preference">Choose control panels size</string>
     <string name="key_preference_size_control_panel">size_control_panel</string>
 
 
