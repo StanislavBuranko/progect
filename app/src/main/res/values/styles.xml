@@ -1,16 +1,16 @@
 <resources>
 
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-<!--        <item name="colorPrimary">@color/colorPrimary</item>-->
-<!--        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
-<!--        <item name="colorAccent">@color/colorAccent</item>-->
-        <item name="actionBarStyle">@style/GradientActionBar</item>
+        <item name="android:textColor">@color/textColorDark</item>
         <item name="android:actionBarStyle">@style/GradientActionBar</item>
-        <item name="android:fitsSystemWindows">true</item>
-        <item name="android:windowTranslucentStatus">false</item>
-
+        <item name="actionBarStyle">@style/GradientActionBar</item>
+        <item name="android:buttonStyle">@style/GradientButton</item>
+        <item name="buttonStyle">@style/GradientButton</item>
+        <item name="colorPrimaryDark">@color/blueHippie</item>
+        <item name="colorControlActivated">@color/blueHippie</item>
+        <item name="colorControlHighlight">#80659DD0</item>
+        <item name="dialogTheme">@style/AppDialog</item>
+        <item name="alertDialogTheme">@style/AppDialog</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -23,8 +23,19 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
     <style name="GradientActionBar" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="android:titleTextAppearance">@android:color/white</item>
         <item name="android:background">@drawable/draw_gradient_bg</item>
         <item name="background">@drawable/draw_gradient_bg</item>
+    </style>
+
+    <style name="GradientButton" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/draw_btn</item>
+        <item name="background">@drawable/draw_btn</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="AppDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:padding">@dimen/_dp4</item>
     </style>
 
 </resources>

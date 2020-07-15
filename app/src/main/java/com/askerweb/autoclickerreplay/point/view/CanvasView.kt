@@ -4,6 +4,9 @@ import android.content.Context
 import android.graphics.*
 import android.util.Log
 import android.widget.FrameLayout
+import androidx.core.content.ContextCompat
+import com.askerweb.autoclickerreplay.App
+import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.point.PathPoint
 import com.askerweb.autoclickerreplay.point.PinchPoint
 import com.askerweb.autoclickerreplay.point.Point
@@ -28,7 +31,7 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
 
     init{
         with(paintLineToSwipePoint){
-            color = Color.RED
+            color = ContextCompat.getColor(App.getContext(), R.color.blueHippie)
             strokeWidth = 25f
             strokeCap = Paint.Cap.ROUND
             strokeJoin = Paint.Join.ROUND
@@ -36,7 +39,7 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
             style = Paint.Style.STROKE
         }
         with(paintStandard){
-            color = Color.RED
+            color = ContextCompat.getColor(App.getContext(), R.color.blueHippie)
             strokeWidth = 10f
         }
 

@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">AutoClickerReplay</string>
+    <string name="service_simulate_auto_click">AutoClickerTouchService</string>
+    <string name="service_simulate_auto_click_description">Service for simulating a click on specified points</string> <!--TODO:write description-->
+    <string name="description_overlay_permission">
+        Please allow our application to appear in run time. This is necessary to run the application;
+        it does not use this option to save your metadata.
+    </string>
+    <string name="accessibility_service_description">
+        Please add our application to the accessibility services; it will allow the application to simulate
+        clicking on the screen without root rights. The application does not use this feature 
+        for malicious purposes.
+    </string>
+    <string name="untitled">untitled</string>
+    <string name="allow_permission">allow</string>
+    <string name="add_service_accessibility">add</string>
+    <string name="setting_macro">Script settings</string>
+    <string name="setting_point">Goal settings</string>
+    <string name="save">Save</string>
+    <string name="save_script">Save script</string>
+    <string name="title_save_script">enter a file name</string>
+    <string name="load_script">download a script</string>
+    <string name="delete">delete</string>
+    <string name="duplicate">duplicate</string>
+    <string name="swap">invert</string>
+    <string name="ms">millisecond</string>
+    <string name="times">times</string>
+
+    <string name="title_repeat_preference_point">number of repetitions (one per minute)</string>
+    <string name="title_delay_preference_point">keystoke delay</string>
+    <string name="title_duration_preference_point">duration of pressing ( 1 millisecond per minute)</string>
+    <string name="title_direction_preference_point">Direction</string>
+
+    <string name="title_repeat_preference">Number of repetitions(-1 indefinitely)</string>
+    <string name="summary_repeat_preference">(-1 indefinitely)</string>
+    <string name="key_preference_repeat">repeat</string>
+
+    <string name="title_size_point_preference">Goal size</string>
+    <string name="summary_size_point_preference">Choose the goal size</string>
+    <string name="key_preference_size_point">size_point</string>
+
+    <string name="title_size_control_panel_preference">Control panels size</string>
+    <string name="summary_size_control_panel_preference">Choose control panels size</string>
+    <string name="key_preference_size_control_panel">size_control_panel</string>
+
+
+    <string name="title_bounds_preference">On borders for purposes</string>
+    <string name="key_preference_bounds_on">bounds_on</string>
+
+    <string name="toast_empty_script">There is nothing in the script</string>
+
+    <string name="multi_points_creat_number">enter the number of simultaneous clicks</string>
+    <string name="multi_points_click">clicks</string>
+
+    <string name="direction_title">It is recommended to read!!!</string>
+    <string name="direction_first">After launching AutoClick customize the program pushing a cog from left to control panel.</string>
+    <string name="direction_second">To add the aim of a clique, push the plus on the control panel. The application has the ability to add swipe and a pinch. 
+                                    To do this hold down plus in the control panel</string>
+    <string name="direction_third">After adding the clique, you can change its property. To do this hold down the aim of clique.</string>
+    <string name="cancel">Cancel</string>
+    <string name="setting">Setting</string>
+
+</resources>

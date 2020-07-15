@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.askerweb.autoclickerreplay.R
@@ -26,6 +27,8 @@ class SettingActivity : AppCompatActivity() {
             if(AutoClickService.isRunning() && AutoClickService.getListPoint().size > 0){
                 val builder = AlertDialog.Builder(this)
                 val editNameFile = EditText(this)
+                editNameFile.layoutParams = ViewGroup.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT,
+                        WindowManager.LayoutParams.WRAP_CONTENT)
                 val layout  = LinearLayout(this)
                 editNameFile.setText(getString(R.string.untitled))
                 layout.addView(editNameFile)

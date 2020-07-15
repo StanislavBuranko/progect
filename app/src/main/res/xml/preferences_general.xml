@@ -6,13 +6,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:defaultValue="-1"
-        android:icon="@drawable/ic_replay_black"
+        android:icon="@drawable/ic_refresh"
         android:inputType="numberSigned"
         android:key="@string/key_preference_repeat"
         android:summary="@string/summary_repeat_preference"
         android:title="@string/title_repeat_preference" />
 
-    <CheckBoxPreference
+    <com.takisoft.preferencex.SwitchPreferenceCompat
         app:iconSpaceReserved="false"
         android:defaultValue="false"
         android:key="@string/key_preference_bounds_on"
