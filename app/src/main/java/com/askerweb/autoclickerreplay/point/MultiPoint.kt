@@ -117,7 +117,7 @@ class MultiPoint: Point {
             val path = Path()
             path.moveTo(points[n].xTouch.toFloat(), points[n].yTouch.toFloat())
             "${points[n].x}    ${points[n].y}".logd()
-            builder.addStroke(GestureDescription.StrokeDescription(path, delay, duration))
+            builder.addStroke(GestureDescription.StrokeDescription(path, points[n].delay, points[n].duration))
         }
         return builder.build()
     }
