@@ -46,20 +46,20 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:layout_width="400dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/multiPointDialogButtonPlus"
-            android:layout_width="wrap_content"
+            android:layout_width="197dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/plus" />
 
         <Button
             android:id="@+id/multiPointDialogButtonMinus"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/minus" />
@@ -158,5 +158,11 @@
             android:text="@string/times" />
 
     </RelativeLayout>
+
+    <Button
+        android:id="@+id/deletMultiPoint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/delete_multi_point" />
 
 </LinearLayout>

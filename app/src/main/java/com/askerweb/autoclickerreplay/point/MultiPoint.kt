@@ -20,7 +20,11 @@ import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.askerweb.autoclickerreplay.service.AutoClickService.listCommando
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.dialog_setting_point.*
 import kotlinx.android.synthetic.main.multi_point_dialog.*
+import kotlinx.android.synthetic.main.multi_point_dialog.editDelay
+import kotlinx.android.synthetic.main.multi_point_dialog.editDuration
+import kotlinx.android.synthetic.main.multi_point_dialog.editRepeat
 import java.util.*
 
 class MultiPoint: Point {
@@ -146,7 +150,10 @@ class MultiPoint: Point {
                     updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
                     "${points.size}".logd()
                     AutoClickService.getCanvas()?.invalidate()
-                }.create()
+                }.setNegativeButton(R.string.cancel) { _, _ ->
+
+                }
+                .create()
         holder.dialog = dialog;
         dialog.window?.setType(getWindowsTypeApplicationOverlay())
         dialog.show()
@@ -177,6 +184,14 @@ class MultiPoint: Point {
                 editNumbMultiPoint.setText((editNumbMultiPoint.text.toString().toInt()-1).toString())
                 true
             }
+
+            deletMultiPoint.setOnClickListener{
+                // Delete this point
+                AutoClickService.requestAction(AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, point)
+
+                dialog?.cancel()
+            }
+
             editNumbMultiPoint.addTextChangedListener {
                 if (editNumbMultiPoint.text.toString() != "")
                     if (editNumbMultiPoint.text.toString().toInt() < 2)
@@ -245,7 +260,7 @@ class MultiPoint: Point {
                                 .build(SimplePoint::class.java)
                     }
                 else if (differencePoints < 0) {
-                    points.dropLast(differencePoints*-1)
+                    points.drop(differencePoints*-1)
                     "Ok".logd()
                 }
             }
