@@ -32,12 +32,12 @@ class MultiPoint: Point {
     var points: Array<Point> = arrayOf(
             PointBuilder.invoke()
                     .position(x, y)
-                    .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click)!!)
+                    .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click_1)!!)
                     .text((listCommando.size + 1).toString())
                     .build(SimplePoint::class.java),
             PointBuilder.invoke()
-                    .position(x + 50, y + 50)
-                    .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click)!!)
+                    .position(x + 50, y)
+                    .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click_1)!!)
                     .text((listCommando.size + 1).toString())
                     .build(SimplePoint::class.java))
 
@@ -48,10 +48,7 @@ class MultiPoint: Point {
 
 
     init {
-
         view.visibility = View.GONE
-
-
     }
 
 
@@ -115,12 +112,10 @@ class MultiPoint: Point {
     override fun getCommand(): GestureDescription? {
 
         val builder = GestureDescription.Builder()
-        "${points.size}".logd()
 
         for (n in 0..points.size - 1) {
             val path = Path()
             path.moveTo(points[n].xTouch.toFloat(), points[n].yTouch.toFloat())
-            "${points[n].x}    ${points[n].y}".logd()
             builder.addStroke(GestureDescription.StrokeDescription(path, delay, duration))
         }
         return builder.build()
@@ -148,17 +143,22 @@ class MultiPoint: Point {
                     holder.saveEditDialog()
                     attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
                     updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
-                    "${points.size}".logd()
                     AutoClickService.getCanvas()?.invalidate()
                 }.setNegativeButton(R.string.cancel) { _, _ ->
-
+                    attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
+                    updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
+                    AutoClickService.getCanvas()?.invalidate()
+                }
+                .setOnCancelListener { _ ->
+                    attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
+                    updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
+                    AutoClickService.getCanvas()?.invalidate()
                 }
                 .create()
         holder.dialog = dialog;
         dialog.window?.setType(getWindowsTypeApplicationOverlay())
         dialog.show()
         detachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
-        "123123123123".logd()
         holder.saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
     }
 
@@ -250,29 +250,23 @@ class MultiPoint: Point {
             "${points.size}  ${editNumbMultiPoint.text.toString().toInt()}".logd()
             if(points.size-1 != editNumbMultiPoint.text.toString().toInt()) {
                 var differencePoints = -points.size + editNumbMultiPoint.text.toString().toInt()
-                "${differencePoints}".logd()
                 if (differencePoints > 0)
                     for (n in 1..differencePoints) {
                         points += PointBuilder.invoke()
-                                .position(points.last().x + 50, points.last().y + 50)
-                                .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click)!!)
+                                .position(points.last().x + 50, points.last().y)
+                                .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click_1)!!)
                                 .text(points[0].text)
                                 .build(SimplePoint::class.java)
                     }
                 else if (differencePoints < 0) {
-                    points.drop(differencePoints*-1)
-                    "Ok".logd()
+                    val points1 = points.dropLast(differencePoints * -1).toTypedArray()
+                    points = points1
                 }
             }
-            "${points.size}".logd()
             points.forEach { point ->
                 point.delay = editDelay.text.toString().toLong()
                 point.duration = editDuration.text.toString().toLong()
                 point.repeat = editRepeat.text.toString().toInt()
-
-                "${point.delay}".logd()
-                "${point.duration}".logd()
-                "${point.repeat}".logd()
             }
 
         }
