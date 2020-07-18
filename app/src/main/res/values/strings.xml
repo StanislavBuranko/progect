@@ -66,5 +66,8 @@
 
     <string name="plus" translatable="false">+</string>
     <string name="minus" translatable="false">—</string>
+    <string name="plus">+</string>
+    <string name="minus">—</string>
+    <string name="delete_multi_point">Удалить мулти поинт</string>
 
 </resources>

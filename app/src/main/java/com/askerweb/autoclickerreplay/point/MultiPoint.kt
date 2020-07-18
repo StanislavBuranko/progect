@@ -20,7 +20,11 @@ import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.askerweb.autoclickerreplay.service.AutoClickService.listCommando
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.dialog_setting_point.*
 import kotlinx.android.synthetic.main.multi_point_dialog.*
+import kotlinx.android.synthetic.main.multi_point_dialog.editDelay
+import kotlinx.android.synthetic.main.multi_point_dialog.editDuration
+import kotlinx.android.synthetic.main.multi_point_dialog.editRepeat
 import java.util.*
 
 class MultiPoint: Point {
@@ -44,7 +48,10 @@ class MultiPoint: Point {
 
 
     init {
+
         view.visibility = View.GONE
+
+
     }
 
 
@@ -58,7 +65,7 @@ class MultiPoint: Point {
             point.delay = json.get("delay").asLong
             point.duration = json.get("duration").asLong
             val _params =
-                    gson.fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
+                    App.getGson().fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
             point.width = _params.width
             point.height = _params.height
             point.x = _params.x
@@ -141,9 +148,18 @@ class MultiPoint: Point {
                     holder.saveEditDialog()
                     attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
                     updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
-                    "${points.size}".logd()
                     AutoClickService.getCanvas()?.invalidate()
-                }.create()
+                }.setNegativeButton(R.string.cancel) { _, _ ->
+                    attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
+                    updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
+                    AutoClickService.getCanvas()?.invalidate()
+                }
+                .setOnCancelListener { _ ->
+                    attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
+                    updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
+                    AutoClickService.getCanvas()?.invalidate()
+                }
+                .create()
         holder.dialog = dialog;
         dialog.window?.setType(getWindowsTypeApplicationOverlay())
         dialog.show()
@@ -174,6 +190,14 @@ class MultiPoint: Point {
                 editNumbMultiPoint.setText((editNumbMultiPoint.text.toString().toInt()-1).toString())
                 true
             }
+
+            deletMultiPoint.setOnClickListener{
+                // Delete this point
+                AutoClickService.requestAction(AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, point)
+
+                dialog?.cancel()
+            }
+
             editNumbMultiPoint.addTextChangedListener {
                 if (editNumbMultiPoint.text.toString() != "")
                     if (editNumbMultiPoint.text.toString().toInt() < 2)
@@ -237,25 +261,22 @@ class MultiPoint: Point {
                 if (differencePoints > 0)
                     for (n in 1..differencePoints) {
                         points += PointBuilder.invoke()
+                                .position(points.last().x + 50, points.last().y)
+                                .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click_1)!!)
                                 .position(points.last().x + 50, points.last().y + 50)
                                 .drawable(ContextCompat.getDrawable(appContext, R.drawable.draw_point_click)!!)
                                 .text(points[0].text)
                                 .build(SimplePoint::class.java)
                     }
                 else if (differencePoints < 0) {
-                    points.dropLast(differencePoints*-1)
-                    "Ok".logd()
+                    val points1 = points.dropLast(differencePoints * -1).toTypedArray()
+                    points = points1
                 }
             }
-            "${points.size}".logd()
             points.forEach { point ->
                 point.delay = editDelay.text.toString().toLong()
                 point.duration = editDuration.text.toString().toLong()
                 point.repeat = editRepeat.text.toString().toInt()
-
-                "${point.delay}".logd()
-                "${point.duration}".logd()
-                "${point.repeat}".logd()
             }
 
         }

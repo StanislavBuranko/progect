@@ -80,7 +80,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.setting, R.id.close})
     List<View> controls;
 
-    public static LinkedList<Point> listCommando = new LinkedList<>();
+    public static  LinkedList<Point> listCommando = new LinkedList<>();
 
     public Boolean paramBoundsOn;
     public Integer paramRepeatMacro;
@@ -200,6 +200,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         }
         wm.removeView(controlPanel);
         wm.removeView(canvasView);
+        listCommando.clear();
         super.onDestroy();
     }
 
