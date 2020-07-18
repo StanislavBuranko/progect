@@ -2,6 +2,7 @@ package com.askerweb.autoclickerreplay.service;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
@@ -17,9 +18,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Function;
 
+import javax.inject.Inject;
+
 public class SimulateTouchAccessibilityService extends AccessibilityService {
 
     private static SimulateTouchAccessibilityService service;
+    
+    Context appContext = App.component.getAppContext();
 
     public final static String ACTION_COMPLETE = "ACTION_COMPLETE_POINT";
     public final static String KEY_LIST_COMMAND = "listCommand";
@@ -61,6 +66,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
         super.onCreate();
         service = this;
     }
+    
 
     public synchronized static void execCommand(PointCommand command, GestureResultCallback callback){
         if(command != null){
@@ -88,7 +94,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
     }
 
     private static void requestAction(String action){
-        Intent intent = new Intent(App.getContext(), SimulateTouchAccessibilityService.class);
+        Intent intent = new Intent(service.appContext, SimulateTouchAccessibilityService.class);
         intent.setAction(action);
         service.getApplicationContext().startService(intent);
     }
@@ -96,7 +102,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
 
 
     public static void requestStart(LinkedList<Point> list){
-        Intent intent = new Intent(App.getContext(), SimulateTouchAccessibilityService.class)
+        Intent intent = new Intent(service.appContext, SimulateTouchAccessibilityService.class)
                 .setAction(AutoClickService.ACTION_START)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -153,7 +159,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                     if(counterRepeatMacro != 0)
                         SimulateTouchAccessibilityService.execCommand(point, getGestureCallback.apply(point));
                     else
-                        AutoClickService.requestAction(AutoClickService.ACTION_STOP);
+                        AutoClickService.requestAction(appContext, AutoClickService.ACTION_STOP);
                 }
                 break;
         }
@@ -178,7 +184,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
             if(service.counterRepeatMacro != 0)
                 SimulateTouchAccessibilityService.execCommand(point, getGestureCallback.apply(point));
             else
-                AutoClickService.requestAction(AutoClickService.ACTION_STOP);
+                AutoClickService.requestAction(service.appContext, AutoClickService.ACTION_STOP);
         }
     }
 

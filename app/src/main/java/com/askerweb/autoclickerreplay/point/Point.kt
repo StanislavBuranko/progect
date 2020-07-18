@@ -3,6 +3,7 @@
 package com.askerweb.autoclickerreplay.point
 
 import android.app.AlertDialog
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
@@ -21,11 +22,14 @@ import com.askerweb.autoclickerreplay.point.view.PointCanvasView
 import com.askerweb.autoclickerreplay.point.view.PointOnTouchListener
 import com.askerweb.autoclickerreplay.point.view.PointView
 import com.askerweb.autoclickerreplay.service.AutoClickService
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.synthetic.main.dialog_setting_point.*
 import java.io.Serializable
+import javax.inject.Inject
+import javax.inject.Named
 import kotlin.properties.Delegates
 
 abstract class Point : PointCommand, Parcelable, Serializable{
@@ -35,7 +39,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
                     Gravity.START or Gravity.TOP,
                             standardOverlayFlags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
 
-    val view: PointView = PointView(App.getContext())
+    val view: PointView = PointView(App.component.getAppContext())
 
     val xTouch:Int
         get() = params.x + (params.width / 2)
@@ -81,7 +85,16 @@ abstract class Point : PointCommand, Parcelable, Serializable{
     @IgnoredOnParcel
     var counterRepeat:Int = 0
 
-    open val drawableViewDefault: Drawable = ContextCompat.getDrawable(App.getContext(), R.drawable.point_click)!!
+    open val drawableViewDefault: Drawable = ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.point_click)!!
+
+    val gson: Gson = App.component.getGson()
+
+    @Inject
+    lateinit var appContext: Context
+
+    @Inject @Named("ActivityContext")
+    lateinit var mainActivityContext:Context
+
 
     init{
         view.setOnLongClickListener {
@@ -94,12 +107,12 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         repeat = parcel?.readInt()!!
         delay = parcel.readLong()
         duration = parcel.readLong()
-        val _params =
+        val params =
                 parcel.readParcelable<WindowManager.LayoutParams>(WindowManager.LayoutParams::class.java.classLoader)
-        params.width = _params?.width!!
-        params.height = _params.height
-        params.x = _params.x
-        params.y = _params.y
+        this.params.width = params?.width!!
+        this.params.height = params.height
+        this.params.x = params.x
+        this.params.y = params.y
         text = parcel.readString()!!
     }
 
@@ -107,12 +120,12 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         repeat = json.get("repeat").asInt
         delay = json.get("delay").asLong
         duration = json.get("duration").asLong
-        val _params =
-                App.getGson().fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
-        params.width = _params.width
-        params.height = _params.height
-        params.x = _params.x
-        params.y = _params.y
+        val params =
+                gson.fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
+        this.params.width = params.width
+        this.params.height = params.height
+        this.params.x = params.x
+        this.params.y = params.y
         text = json.get("text").asString
     }
 
@@ -169,14 +182,14 @@ abstract class Point : PointCommand, Parcelable, Serializable{
 
     fun toJson(): String {
         val obj = toJsonObject()
-        return App.getGson().toJson(obj)
+        return gson.toJson(obj)
     }
 
     open fun toJsonObject():JsonObject{
         val obj = JsonObject()
         obj.addProperty("class", this::class.java.name)
         obj.addProperty("text", text)
-        obj.addProperty("params", App.getGson().toJson(params))
+        obj.addProperty("params", gson.toJson(params))
         obj.addProperty("delay", delay)
         obj.addProperty("duration", duration)
         obj.addProperty("repeat", repeat)
@@ -187,8 +200,9 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         val viewContent: View = createViewDialog()
         val holder = createHolderDialog(viewContent)
         holder.updateViewDialogParam()
+        val title = getDialogTitle(view.context, view.context.getString(R.string.setting_point))
         val dialog = AlertDialog.Builder(view.context, R.style.AppDialog)
-                .setTitle(view.context.getString(R.string.setting_point))
+                .setCustomTitle(title)
                 .setView(viewContent)
                 .setPositiveButton(R.string.save) { _, _ ->
                     holder.saveEditDialog()
@@ -205,8 +219,10 @@ abstract class Point : PointCommand, Parcelable, Serializable{
     }
 
     protected open fun createViewDialog():View{
-        return LayoutInflater.from(ContextThemeWrapper(view.context, R.style.AppTheme))
-                .inflate(R.layout.dialog_setting_point, null)
+        appContext.logd()
+        mainActivityContext.logd()
+        return LayoutInflater.from(ContextThemeWrapper(mainActivityContext, R.style.AppDialogGradient))
+                .inflate(R.layout.dialog_setting_point, null, false)
     }
 
     class PointHolderDialogEdit(override val containerView:View, private val point: Point) :
@@ -216,13 +232,13 @@ abstract class Point : PointCommand, Parcelable, Serializable{
 
             btn_duplicate.setOnClickListener{
                 // Duplicate this point
-                AutoClickService.requestAction(AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, point)
+                AutoClickService.requestAction(point.appContext ,AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, point)
                 dialog?.cancel()
             }
 
             btn_delete.setOnClickListener{
                 // Delete this point
-                AutoClickService.requestAction(AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, point)
+                AutoClickService.requestAction(point.appContext, AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, point)
                 dialog?.cancel()
             }
 
@@ -314,6 +330,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         var drawable: Drawable? = null
 
         var doAfter = { p:Point ->
+            App.component.inject(p)
             p.view.background = if (drawable != null) drawable else p.drawableViewDefault
         }
 
@@ -357,7 +374,6 @@ abstract class Point : PointCommand, Parcelable, Serializable{
             return with(factory(clazz, this))
             {
                 doAfter(this)
-
                 this
             }
         }

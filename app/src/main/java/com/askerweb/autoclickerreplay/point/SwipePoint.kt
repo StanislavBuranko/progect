@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.swipe_dialog_elements.*
 class SwipePoint : Point {
    val nextPoint: Point =  PointBuilder.invoke()
             .position(params.x+50, params.y)
-            .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.point_click)!!)
+            .drawable(ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.point_click)!!)
             .build(SimplePoint::class.java)
 
 
@@ -54,7 +54,7 @@ class SwipePoint : Point {
 
     constructor(json: JsonObject):super(json){
         val nextPointJson =
-                App.getGson().fromJson(json.get("nextPoint").asString, JsonObject::class.java)
+                gson.fromJson(json.get("nextPoint").asString, JsonObject::class.java)
         val nextPoint =
                 PointBuilder.invoke().buildFrom(SimplePoint::class.java, nextPointJson)
         this.nextPoint.x = nextPoint.x

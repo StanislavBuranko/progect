@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="backgroundColor">#F4F4F4</color>
     <color name="colorPrimary">#000000</color>
     <color name="blueHippie">#5A8CB9</color>
     <color name="blueSanMarino">#416693</color>
     <color name="blueCornflower">#677FFF</color>
+    <color name="blueDanube">#659DD0</color>
     <color name="viking">#58E1C9</color>
     <color name="pastelGreen">#58E197</color>
     <color name="backgroundControlPanel">#B33A9EB4</color>

@@ -8,9 +8,10 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ContextThemeWrapper
+import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.loadMacroFromJson
-import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.ktExt.saveMacroToJson
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import kotlinx.android.synthetic.main.setting_layout.*;
@@ -22,35 +23,34 @@ class SettingActivity : AppCompatActivity() {
         setContentView(R.layout.setting_layout)
         save_btn.setOnClickListener {
             if(!AutoClickService.isRunning()){
-                AutoClickService.start()
+                AutoClickService.start(this)
             }
             if(AutoClickService.isRunning() && AutoClickService.getListPoint().size > 0){
-                val builder = AlertDialog.Builder(this)
-                val editNameFile = EditText(this)
-                editNameFile.layoutParams = ViewGroup.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT,
-                        WindowManager.LayoutParams.WRAP_CONTENT)
-                val layout  = LinearLayout(this)
+                val builder = AlertDialog.Builder(this, R.style.AppDialog)
+                val contentView = LayoutInflater.from(this)
+                        .inflate(R.layout.dialog_edit_text, null, false)
+                val editNameFile = contentView.findViewById<EditText>(R.id.editText)
                 editNameFile.setText(getString(R.string.untitled))
-                layout.addView(editNameFile)
-                builder.setTitle(getString(R.string.title_save_script))
-                        .setView(layout)
+                val dialog = builder.setTitle(getString(R.string.title_save_script))
+                        .setView(contentView)
                         .setPositiveButton(getString(R.string.save)) { _, _ ->
                             saveMacroToJson(AutoClickService.getListPoint(), editNameFile.text.toString())
                         }
-                        .setNegativeButton("Отмена"){ d, _ ->
+                        .setNegativeButton(getString(R.string.cancel)){ d, _ ->
                             d.cancel()
                         }
-                        .create().show()
+                        .create()
+                dialog.show()
             }
             else{
                 Toast.makeText(this, R.string.toast_empty_script, Toast.LENGTH_LONG).show()
             }
         }
         load_btn.setOnClickListener { //TODO "refactor code here", comment code here
-            AutoClickService.start()
+            AutoClickService.start(this)
             val dir = filesDir.listFiles()?.toList()
             val adapter = ScriptSavedAdapterFiles(dir!! as MutableList<File>, LayoutInflater.from(this))
-            val dialog = AlertDialog.Builder(this)
+            val dialog = AlertDialog.Builder(this,  R.style.AppDialog)
                     .setTitle(resources.getString(R.string.load_script))
                     .setAdapter(adapter){_,_->}
                     .create()

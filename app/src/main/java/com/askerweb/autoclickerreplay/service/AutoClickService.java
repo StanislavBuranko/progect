@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.core.content.ContextCompat;
 
 import com.askerweb.autoclickerreplay.App;
@@ -53,6 +54,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
@@ -65,7 +68,7 @@ import butterknife.ViewCollections;
 public class AutoClickService extends Service implements View.OnTouchListener {
 
     public static AutoClickService service = null;
-
+    
     static WindowManager wm = null;
     Unbinder unbindControlPanel = null;
     View controlPanel;
@@ -122,6 +125,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     @Override
     public void onCreate() {
         super.onCreate();
+        service = this;
         updateSetting();
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
@@ -171,14 +175,14 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
         registerReceiver(receiver, intentFilter);
-        service = this;
+
     }
 
 
-    public static void start(){
+    public static void start(Context context){
         if(service != null) return;
-        Intent service = new Intent(App.getContext(), AutoClickService.class);
-        App.getContext().startService(service);
+        Intent service = new Intent(context, AutoClickService.class);
+        context.startService(service);
     }
 
     public static boolean isRunning(){
@@ -234,7 +238,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 //    @OnClick(R.id.start_pause)
     public void startPauseCommand(){
         String action = SimulateTouchAccessibilityService.isPlaying() ? ACTION_STOP : ACTION_START;
-        requestAction(action);
+        requestAction(this, action);
     }
 
     @OnClick(R.id.add_point)
@@ -254,15 +258,11 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         listTypes.add(ClickPoint.class);
         listTypes.add(SwipePoint.class);
         listTypes.add(PinchPoint.class);
-        listTypes.add(PathPoint.class);
-        listTypes.add(MultiPoint.class);
-        TextView title = new TextView(this);
-        title.setText("Выберите вид цели");
-        title.setTypeface(Typeface.DEFAULT_BOLD);
-        title.setTextColor(getResources().getColor(R.color.textColorDark));
-        title.setTextSize(getResources().getDimension(R.dimen._12sp));
-        TypePointAdapter adapter = new TypePointAdapter(App.getContext(), listTypes);
-        AlertDialog.Builder builder = new AlertDialog.Builder(App.getContext())
+//        listTypes.add(PathPoint.class);
+//        listTypes.add(MultiPoint.class);
+        View title = UtilsApp.getDialogTitle(this, getString(R.string.sel_type_goal));
+        TypePointAdapter adapter = new TypePointAdapter(new ContextThemeWrapper(this, R.style.AppDialog), listTypes);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setAdapter(adapter, (dialog, which) -> {
                     Point point = Point.PointBuilder.invoke()
                         .position(canvasView.getWidth()/2, canvasView.getHeight()/2)
@@ -376,7 +376,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     @OnClick(R.id.close)
     public void closeService() {
         if(SimulateTouchAccessibilityService.isPlaying()){
-            requestAction(ACTION_STOP);
+            requestAction(this, ACTION_STOP);
         }
         wm.removeView(recordPanel);
         stopSelf();
@@ -389,14 +389,14 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             case ACTION_STOP:
                 listCommando.forEach((c)->c.setTouchable(true, wm));
                 controlPanel.findViewById(R.id.start_pause)
-                        .setBackground(ContextCompat.getDrawable(App.getContext(), R.drawable.ic_play));
+                        .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_play));
                 group_control.setVisibility(View.VISIBLE);
                 SimulateTouchAccessibilityService.requestStop();
                 break;
             case ACTION_START:
                 listCommando.forEach((c)->c.setTouchable(false,wm));
                 controlPanel.findViewById(R.id.start_pause)
-                        .setBackground(ContextCompat.getDrawable(App.getContext(), R.drawable.ic_pause));
+                        .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_pause));
                 group_control.setVisibility(View.GONE);
                 SimulateTouchAccessibilityService.requestStart(listCommando);
                 break;
@@ -472,17 +472,17 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         point.updateListener(wm, canvasView, paramBoundsOn);
     }
 
-    public static void requestAction(String action){
-        Intent intent = new Intent(App.getContext(), AutoClickService.class);
+    public static void requestAction(Context context, String action){
+        Intent intent = new Intent(context, AutoClickService.class);
         intent.setAction(action);
-        App.getContext().startService(intent);
+        context.startService(intent);
     }
 
-    public static void requestAction(String action, String key, Parcelable parcelable){
-        Intent intent = new Intent(App.getContext(), AutoClickService.class);
+    public static void requestAction(Context context, String action, String key, Parcelable parcelable){
+        Intent intent = new Intent(context, AutoClickService.class);
         intent.setAction(action);
         intent.putExtra(key, parcelable);
-        App.getContext().startService(intent);
+        context.startService(intent);
     }
 
     @OnClick(R.id.record_points)

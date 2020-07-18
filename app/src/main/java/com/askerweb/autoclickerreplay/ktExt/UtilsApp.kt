@@ -8,6 +8,7 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
+import android.graphics.Typeface
 import android.os.Build
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
@@ -16,9 +17,12 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityManager
+import android.widget.TextView
 import com.askerweb.autoclickerreplay.App
+import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.point.Point
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.askerweb.autoclickerreplay.service.SimulateTouchAccessibilityService
@@ -29,6 +33,9 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.util.*
 
+
+val context = App.component.getAppContext()
+val gson = App.component.getGson()
 
 fun checkPermissionOverlay(context: Context?) : Boolean {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return true
@@ -135,26 +142,39 @@ fun saveMacroToJson(points: List<Point>, nameMacro: String = "untitle.json"){
     }
     val saveJson = JsonObject()
     saveJson.add("points", pointsJson)
-    FileWriter("${App.getContext().filesDir}/$nameMacro.json").use{writer ->
-        App.getGson().toJson(saveJson, writer)
+    FileWriter("${context.filesDir}/$nameMacro.json").use{writer ->
+        gson.toJson(saveJson, writer)
     }
 }
 
 fun loadMacroFromJson(points: LinkedList<Point>, nameMacro: String){
     var jsonObj:JsonObject? = null
-    FileReader("${App.getContext().filesDir}/$nameMacro.json").use {
+    FileReader("${context.filesDir}/$nameMacro.json").use {
         val text = it.readText().trim()
                 .replace("\\[", "")
                 .replace("\\]", "")
-        jsonObj = App.getGson().fromJson(text, JsonObject::class.java)
+        jsonObj = gson.fromJson(text, JsonObject::class.java)
     }
     val jsonArrayPoints =  jsonObj?.getAsJsonArray("points")
     jsonArrayPoints?.forEach {
-        val jsonPoint = App.getGson().fromJson(it.asString, JsonObject::class.java)
+        val jsonPoint = gson.fromJson(it.asString, JsonObject::class.java)
         val clazz = Class.forName(jsonPoint.get("class").asString) as Class<Point>
         val point:Point = Point.PointBuilder.invoke().buildFrom(clazz, jsonPoint)
         points.add(point)
     }
+}
+
+fun getDialogTitle(context: Context, text:String): View {
+    val title = TextView(context)
+    title.text = text
+    title.setTextColor(context.resources.getColor(R.color.textColorDark))
+    title.setTextSize(TypedValue.COMPLEX_UNIT_SP, context.resources.getDimension(R.dimen._8sp))
+    title.typeface = Typeface.DEFAULT_BOLD
+    title.setPadding(context.resources.getDimension(R.dimen._16dp).toInt(),
+            context.resources.getDimension(R.dimen._8dp).toInt(),
+            0,
+            context.resources.getDimension(R.dimen._4dp).toInt())
+    return title
 }
 
 enum class Dimension(private val type: Int){

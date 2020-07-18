@@ -21,10 +21,11 @@
     <string name="save_script">Сохранить сценарий</string>
     <string name="title_save_script">Введите название файла</string>
     <string name="load_script">Загрузить сценарий</string>
+    <string name="sel_type_goal">Загрузить сценарий</string>
     <string name="delete">Удалить</string>
     <string name="duplicate">Дублировать</string>
     <string name="swap">Инвертировать</string>
-    <string name="ms">мс.</string>
+    <string name="ms">мс</string>
     <string name="times">раз</string>
 
     <string name="title_repeat_preference_point">Количество повторений(мин. 1 раз)</string>
@@ -63,7 +64,7 @@
     <string name="cancel">Отмена</string>
     <string name="setting">Настройки</string>
 
-    <string name="plus">+</string>
-    <string name="minus">—</string>
+    <string name="plus" translatable="false">+</string>
+    <string name="minus" translatable="false">—</string>
 
 </resources>

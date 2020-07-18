@@ -6,13 +6,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/_12dp">
 
         <Button
             android:id="@+id/btn_duplicate"
-            android:layout_marginEnd="@dimen/_dp24"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/_24sp"
             android:layout_weight="1"
             android:text="@string/duplicate" />
 
@@ -35,6 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginBottom="4dp"
+            android:textColor="@color/textColorDark"
             android:text="@string/title_delay_preference_point" />
 
         <EditText
@@ -52,7 +54,8 @@
             android:layout_alignEnd="@id/editDelay"
             android:layout_marginEnd="8dp"
             android:gravity="bottom|end"
-            android:text="@string/ms" />
+            android:text="@string/ms"
+            android:textSize="@dimen/_20sp" />
     </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
@@ -65,6 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginBottom="4dp"
+            android:textColor="@color/textColorDark"
             android:text="@string/title_duration_preference_point" />
 
         <EditText
@@ -82,12 +86,14 @@
             android:layout_alignEnd="@id/editDuration"
             android:layout_marginEnd="8dp"
             android:gravity="bottom|end"
-            android:text="@string/ms" />
+            android:text="@string/ms"
+            android:textSize="@dimen/_20sp" />
     </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp">
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="@dimen/_4dp">
 
         <TextView
             android:id="@+id/textView4"
@@ -95,6 +101,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginBottom="4dp"
+            android:textColor="@color/textColorDark"
             android:text="@string/title_repeat_preference_point" />
 
         <EditText
@@ -103,7 +110,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/textView4"
             android:ems="10"
-            android:inputType="number" />
+            android:inputType="number"
+            />
 
         <TextView
             android:layout_width="wrap_content"
@@ -112,6 +120,7 @@
             android:layout_alignEnd="@id/editRepeat"
             android:layout_marginEnd="8dp"
             android:gravity="bottom|end"
-            android:text="@string/times" />
+            android:text="@string/times"
+            android:textSize="@dimen/_20sp" />
     </RelativeLayout>
 </LinearLayout>

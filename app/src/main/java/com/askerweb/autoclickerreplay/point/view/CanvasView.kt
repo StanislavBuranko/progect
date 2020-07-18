@@ -31,7 +31,7 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
 
     init{
         with(paintLineToSwipePoint){
-            color = ContextCompat.getColor(App.getContext(), R.color.blueHippie)
+            color = ContextCompat.getColor(context, R.color.blueHippie)
             strokeWidth = 25f
             strokeCap = Paint.Cap.ROUND
             strokeJoin = Paint.Join.ROUND
@@ -39,7 +39,7 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
             style = Paint.Style.STROKE
         }
         with(paintStandard){
-            color = ContextCompat.getColor(App.getContext(), R.color.blueHippie)
+            color = ContextCompat.getColor(context, R.color.blueHippie)
             strokeWidth = 10f
         }
 

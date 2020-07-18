@@ -22,16 +22,16 @@ import kotlinx.android.synthetic.main.pinch_dialog_elements.*
 
 class PinchPoint:Point {
 
-    override val drawableViewDefault = ContextCompat.getDrawable(App.getContext(), R.drawable.point_pinch)!!
+    override val drawableViewDefault = ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.point_pinch)!!
 
     val firstPoint = PointBuilder.invoke()
             .position(this.x + 200, this.y)
-            .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.point_click)!!)
+            .drawable(ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.point_click)!!)
             .build(SimplePoint::class.java)
 
     val secondPoint = PointBuilder.invoke()
             .position(this.x - 200, this.y)
-            .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.point_click)!!)
+            .drawable(ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.point_click)!!)
             .build(SimplePoint::class.java)
 
     var typePinch = PinchDirection.OUT
@@ -56,7 +56,7 @@ class PinchPoint:Point {
         typePinch = if(json.get("type").asString == PinchDirection.IN.name) PinchDirection.IN
                 else PinchDirection.OUT
         val firstPointJson =
-                App.getGson().fromJson(json.get("firstPoint").asString, JsonObject::class.java)
+                gson.fromJson(json.get("firstPoint").asString, JsonObject::class.java)
         val firstPoint =
                 PointBuilder.invoke().buildFrom(SimplePoint::class.java, firstPointJson)
         this.firstPoint.x = firstPoint.x
@@ -64,7 +64,7 @@ class PinchPoint:Point {
         this.firstPoint.height = ceil(firstPoint.height / AutoClickService.getService().resources.displayMetrics.density).toInt()
         this.firstPoint.width = ceil(firstPoint.width / AutoClickService.getService().resources.displayMetrics.density).toInt()
         val secondPointJson =
-                App.getGson().fromJson(json.get("secondPoint").asString, JsonObject::class.java)
+                gson.fromJson(json.get("secondPoint").asString, JsonObject::class.java)
         val secondPoint =
                 PointBuilder.invoke().buildFrom(SimplePoint::class.java, secondPointJson)
         this.secondPoint.x = secondPoint.x

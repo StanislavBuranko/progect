@@ -28,12 +28,12 @@ class MultiPoint: Point {
     var points: Array<Point> = arrayOf(
             PointBuilder.invoke()
                     .position(x, y)
-                    .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click)!!)
+                    .drawable(ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.draw_point_click)!!)
                     .text((listCommando.size + 1).toString())
                     .build(SimplePoint::class.java),
             PointBuilder.invoke()
                     .position(x + 50, y + 50)
-                    .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click)!!)
+                    .drawable(ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.draw_point_click)!!)
                     .text((listCommando.size + 1).toString())
                     .build(SimplePoint::class.java))
 
@@ -44,10 +44,7 @@ class MultiPoint: Point {
 
 
     init {
-
         view.visibility = View.GONE
-
-
     }
 
 
@@ -61,7 +58,7 @@ class MultiPoint: Point {
             point.delay = json.get("delay").asLong
             point.duration = json.get("duration").asLong
             val _params =
-                    App.getGson().fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
+                    gson.fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
             point.width = _params.width
             point.height = _params.height
             point.x = _params.x
@@ -232,15 +229,16 @@ class MultiPoint: Point {
         }
 
         override fun saveEditDialog(){
+            "dd".logd()
             "${points.size}  ${editNumbMultiPoint.text.toString().toInt()}".logd()
             if(points.size-1 != editNumbMultiPoint.text.toString().toInt()) {
                 var differencePoints = -points.size + editNumbMultiPoint.text.toString().toInt()
-                "${differencePoints}".logd()
+                "diff:${differencePoints}".logd()
                 if (differencePoints > 0)
                     for (n in 1..differencePoints) {
                         points += PointBuilder.invoke()
                                 .position(points.last().x + 50, points.last().y + 50)
-                                .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click)!!)
+                                .drawable(ContextCompat.getDrawable(appContext, R.drawable.draw_point_click)!!)
                                 .text(points[0].text)
                                 .build(SimplePoint::class.java)
                     }

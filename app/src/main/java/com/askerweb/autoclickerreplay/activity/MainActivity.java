@@ -10,6 +10,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.service.AutoClickService;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        App.initComponent(this);
         Dimension.displayMetrics = getResources().getDisplayMetrics();
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
@@ -38,9 +40,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         actionButton.setOnClickListener((v)->{
-            AutoClickService.start();
+            AutoClickService.start(this);
         });
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AutoClickService.requestAction(this, AutoClickService.ACTION_STOP);
+    }
 }
