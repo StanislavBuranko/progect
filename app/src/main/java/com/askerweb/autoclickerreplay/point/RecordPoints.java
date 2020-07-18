@@ -139,7 +139,7 @@ public class RecordPoints {
                 actionDown = false;
                 nMsNow = nMs;
                 point = Point.PointBuilder.invoke()
-                        .position((int) xDown, (int) yDown)
+                        .position((int) xDown-75, (int) yDown-75)
                         .delay(nMsNow).duration(nForDurationMs)
                         .text(String.format("%s", listCommando.size() + 1))
                         .build(ClickPoint.class);
@@ -171,8 +171,8 @@ public class RecordPoints {
                 if (xDown - 75 <= xMove && xMove <= xDown + 75 && yDown - 75 <= yMove && yMove <= yDown + 75) {
                     nMsNow = nMs;
                     point = Point.PointBuilder.invoke()
-                            .position((int) xMove, (int) yMove)
-                            .delay(nMsNow).duration(nForDurationMs)
+                            .position((int) xDown-75, (int) yDown-75)
+                            .delay(nMsNow)
                             .text(String.format("%s", listCommando.size() + 1))
                             .build(ClickPoint.class);
 
@@ -189,6 +189,7 @@ public class RecordPoints {
 
 
                     AutoClickService.updateLayoutFlagsOn();
+
                     SimulateTouchAccessibilityService.requestStart(listCommandoNow);
                     listCommandoNow.clear();
                     Handler handler = new Handler();
@@ -206,13 +207,13 @@ public class RecordPoints {
                     isWorkSwipe = true;
                     nMsNow = nMs;
                     point = Point.PointBuilder.invoke()
-                            .position((int) xDown, (int) yDown)
+                            .position((int) xDown-75, (int) yDown-75)
                             .delay(nMsNow).duration(nForDurationMs)
                             .text(String.format("%s", listCommando.size() + 1))
                             .build(SwipePoint.class);
                     swipePoint = (SwipePoint) point;
-                    swipePoint.getNextPoint().setX(xUp);
-                    swipePoint.getNextPoint().setY(yUp);
+                    swipePoint.getNextPoint().setX(xUp-75);
+                    swipePoint.getNextPoint().setY(yUp-75);
 
                     point.attachToWindow(wm, canvasView);
 
@@ -224,28 +225,19 @@ public class RecordPoints {
                     point.setDelay((long) 1);
                     listCommandoNow.add(point);
 
-                    Handler handler = new Handler();
                     AutoClickService.updateLayoutFlagsOn();
 
                     Log.d("123qwe",""+point.getDuration());
-                    SimulateTouchAccessibilityService.execCommand(swipePoint, new AccessibilityService.GestureResultCallback() {
-                        @Override
-                        public void onCompleted(GestureDescription gestureDescription) {
-                            super.onCompleted(gestureDescription);
-                            Log.d(LogExt.TAG, "gesture completed");
-                        }
 
-                        @Override
-                        public void onCancelled(GestureDescription gestureDescription) {
-                            super.onCancelled(gestureDescription);
-                            Log.d(LogExt.TAG, "gesture cancelled ");
-                        }
-                    });
-                    //SimulateTouchAccessibilityService.requestStart(listCommandoNow);
+                    SimulateTouchAccessibilityService.requestStart(listCommandoNow);
                     listCommandoNow.clear();
 
-
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
                             AutoClickService.updateLayoutFlagsOff();
+                        }
+                    }, delayHollder);
 
 
                     point.setDelay(nMsNow);
