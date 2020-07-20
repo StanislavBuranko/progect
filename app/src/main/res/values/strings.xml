@@ -50,6 +50,7 @@
     <string name="key_preference_bounds_on">bounds_on</string>
 
     <string name="toast_empty_script">В сценарии ничего нету</string>
+    <string name="toast_havent_saved_script">Нет сохраненных сценариев</string>
 
     <string name="multi_points_creat_number">Введите количество одновременных нажатий</string>
     <string name="multi_points_click">нажатий</string>
@@ -66,8 +67,7 @@
 
     <string name="plus" translatable="false">+</string>
     <string name="minus" translatable="false">—</string>
-    <string name="plus">+</string>
-    <string name="minus">—</string>
-    <string name="delete_multi_point">Удалить мулти поинт</string>
+    <string name="delete_multi_point" translatable="false">Удалить мулти поинт</string>
 
+    <string name="Interstitial_Unit_Ad_ID" translatable="false">ca-app-pub-8943838769488807/5167779275</string>
 </resources>

@@ -118,6 +118,8 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     public final static String ACTION_UPDATE_SETTING = "ACTION_UPDATE_SETTING";
     public final static String ACTION_DUPLICATE_POINT = "ACTION_DUPLICATE_POINT";
     public final static String ACTION_DELETE_POINT = "ACTION_DELETE_POINT";
+    public final static String ACTION_HIDE_VIEWS = "ACTION_HIDE_VIEWS";
+    public final static String ACTION_SHOW_VIEWS = "ACTION_SHOW_VIEWS";
 
     public final static String ACTIVITY_SETTING = "com.askerweb.autoclicker.setting";
 
@@ -128,9 +130,9 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         service = this;
         updateSetting();
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-        recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
-        recordPanel.setOnTouchListener(this);
-        wm.addView(recordPanel, paramsRecordPanelFlagsOn);
+//        recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
+//        recordPanel.setOnTouchListener(this);
+//        wm.addView(recordPanel, paramsRecordPanelFlagsOn);
 
         controlPanel = LayoutInflater.from(this).inflate(R.layout.control_panel_service, null);
         controlPanel.setLayoutParams(paramsControlPanel);
@@ -400,6 +402,16 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                         .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_pause));
                 group_control.setVisibility(View.GONE);
                 SimulateTouchAccessibilityService.requestStart(listCommando);
+                break;
+            case ACTION_HIDE_VIEWS:
+                controlPanel.setVisibility(View.GONE);
+                listCommando.forEach((c)->c.setVisible(View.GONE));
+                canvasView.invalidate();
+                break;
+            case ACTION_SHOW_VIEWS:
+                controlPanel.setVisibility(View.VISIBLE);
+                listCommando.forEach((c)->c.setVisible(View.VISIBLE));
+                canvasView.invalidate();
                 break;
             case ACTION_UPDATE_SETTING: //update after change setting
                 updateSetting();

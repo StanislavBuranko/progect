@@ -49,6 +49,7 @@
     <string name="key_preference_bounds_on">bounds_on</string>
 
     <string name="toast_empty_script">There is nothing in the script</string>
+    <string name="toast_havent_saved_script">There aren\'t saved files</string>
 
     <string name="multi_points_creat_number">Enter the number of simultaneous clicks</string>
     <string name="multi_points_click">clicks</string>

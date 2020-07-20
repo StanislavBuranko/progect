@@ -13,6 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8943838769488807~6340603608"/>
+
         <service
             android:name=".service.AutoClickService"
             android:enabled="true"

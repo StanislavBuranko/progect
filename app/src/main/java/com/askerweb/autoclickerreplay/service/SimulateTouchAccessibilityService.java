@@ -18,13 +18,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-
 public class SimulateTouchAccessibilityService extends AccessibilityService {
 
     private static SimulateTouchAccessibilityService service;
     
-    Context appContext = App.component.getAppContext();
+    Context appContext = App.appComponent.getAppContext();
 
     public final static String ACTION_COMPLETE = "ACTION_COMPLETE_POINT";
     public final static String KEY_LIST_COMMAND = "listCommand";

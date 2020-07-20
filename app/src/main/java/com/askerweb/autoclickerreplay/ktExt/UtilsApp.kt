@@ -24,18 +24,16 @@ import android.widget.TextView
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.point.Point
-import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.askerweb.autoclickerreplay.service.SimulateTouchAccessibilityService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import java.io.FileReader
 import java.io.FileWriter
 import java.util.*
 
 
-val context = App.component.getAppContext()
-val gson = App.component.getGson()
+val context = App.appComponent.getAppContext()
+val gson = App.appComponent.getGson()
 
 fun checkPermissionOverlay(context: Context?) : Boolean {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return true

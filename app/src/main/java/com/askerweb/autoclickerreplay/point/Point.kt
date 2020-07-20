@@ -2,6 +2,7 @@
 
 package com.askerweb.autoclickerreplay.point
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.graphics.drawable.Drawable
@@ -16,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.di.ActivityComponent
 import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView
@@ -39,14 +41,13 @@ abstract class Point : PointCommand, Parcelable, Serializable{
                     Gravity.START or Gravity.TOP,
                             standardOverlayFlags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
 
-    val view: PointView = PointView(App.component.getAppContext())
+    val view: PointView = PointView(App.appComponent.getAppContext())
 
     val xTouch:Int
         get() = params.x + (params.width / 2)
 
     val yTouch:Int
         get() = params.y + (params.height / 2)
-
 
     var x:Int
         get() = params.x
@@ -82,17 +83,20 @@ abstract class Point : PointCommand, Parcelable, Serializable{
     var duration by Delegates.notNull<Long>()
     var repeat by Delegates.notNull<Int>()
 
-    @IgnoredOnParcel
+    @IgnoredOnParcel @Transient
     var counterRepeat:Int = 0
 
-    open val drawableViewDefault: Drawable = ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.point_click)!!
+    open val drawableViewDefault: Drawable = ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.point_click)!!
 
-    val gson: Gson = App.component.getGson()
+    @IgnoredOnParcel @Transient
+    val gson: Gson = App.appComponent.getGson()
 
+    @IgnoredOnParcel @Transient
     @Inject
     lateinit var appContext: Context
 
-    @Inject @Named("ActivityContext")
+    @IgnoredOnParcel @Transient
+    @Inject @field:[Named("ActivityContext")]
     lateinit var mainActivityContext:Context
 
 
@@ -176,6 +180,10 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         wm.updateViewLayout(view, params)
     }
 
+    open fun setVisible(visible:Int){
+        view.visibility = visible
+    }
+
     fun isTouchable() =
             (params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE) != WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
 
@@ -219,9 +227,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
     }
 
     protected open fun createViewDialog():View{
-        appContext.logd()
-        mainActivityContext.logd()
-        return LayoutInflater.from(ContextThemeWrapper(mainActivityContext, R.style.AppDialogGradient))
+        return LayoutInflater.from(ContextThemeWrapper(App.activityComponent.getActivityContext(), R.style.AppDialogGradient))
                 .inflate(R.layout.dialog_setting_point, null, false)
     }
 
@@ -330,7 +336,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         var drawable: Drawable? = null
 
         var doAfter = { p:Point ->
-            App.component.inject(p)
+            App.activityComponent.inject(p)
             p.view.background = if (drawable != null) drawable else p.drawableViewDefault
         }
 

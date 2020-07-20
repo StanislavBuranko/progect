@@ -14,16 +14,22 @@ import javax.inject.Singleton
 
 
 @Singleton
-@Component(modules = [JsonModule::class, ContextModule::class])
+@Component(modules = [JsonModule::class, ApplicationModule::class])
 interface AppComponent {
     fun inject(app: App)
     fun inject(context: Context)
-    fun inject(point: Point)
     fun inject(autoClickService: AutoClickService)
-//    fun plus(activityModule: ActivityModule):ActivityComponent
+    fun plus(activityModule: ActivityModule):ActivityComponent
     fun getGson(): Gson
     fun getAppContext():Context
-    @Named("ActivityContext")
-    fun getActivityContext():Context
+
 }
 
+@ActivityScope
+@Subcomponent(modules = [ActivityModule::class, ListCommandModule::class])
+interface ActivityComponent{
+    @Named("ActivityContext")
+    fun getActivityContext():Context
+    fun getListPoint():Context
+    fun inject(point: Point)
+}

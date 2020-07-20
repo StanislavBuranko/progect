@@ -5,6 +5,7 @@ import android.graphics.*
 import android.util.Log
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.point.PathPoint
@@ -53,6 +54,7 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         for(a in this.points!!){
+            if(!a.view.isVisible) continue
             when(a::class){
                 PinchPoint::class -> drawPinch(a as PinchPoint, canvas)
                 SwipePoint::class -> drawSwipe(a as SwipePoint, canvas)

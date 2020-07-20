@@ -25,7 +25,7 @@ class PathPoint : Point {
     val path = Path()
     val endPoint = PointBuilder.invoke()
             .position(x,y)
-            .drawable(ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.point_swap)!!)
+            .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.point_swap)!!)
             .build(SimplePoint::class.java)
 
     val panel = LinearLayout(appContext)

@@ -2,13 +2,13 @@ package com.askerweb.autoclickerreplay.point
 
 import android.accessibilityservice.GestureDescription
 import android.graphics.Path
-import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.swipe_dialog_elements.*
 class SwipePoint : Point {
    val nextPoint: Point =  PointBuilder.invoke()
             .position(params.x+50, params.y)
-            .drawable(ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.point_click)!!)
+            .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.point_click)!!)
             .build(SimplePoint::class.java)
 
 
@@ -73,6 +73,11 @@ class SwipePoint : Point {
         }
     }
 
+
+    override fun setVisible(visible: Int) {
+        super.setVisible(visible)
+        nextPoint.setVisible(visible)
+    }
 
 
     override fun updateViewLayout(wm: WindowManager, size: Float) {
@@ -126,7 +131,8 @@ class SwipePoint : Point {
         val vContent = super.createViewDialog() as ViewGroup
         val vSwipePoint = LayoutInflater.from(vContent.context)
                 .inflate(R.layout.swipe_dialog_elements, null)
-        vContent.addView(vSwipePoint)
+        vContent.findViewById<LinearLayout>(R.id.content)
+                .addView(vSwipePoint)
         return vContent
     }
 

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="arr_size_control">
+        <item>Small</item>
+        <item>Middle</item>
+        <item>Big</item>
+    </string-array>
+</resources>

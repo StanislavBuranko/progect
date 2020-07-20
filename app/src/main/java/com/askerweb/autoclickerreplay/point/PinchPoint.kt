@@ -2,17 +2,16 @@ package com.askerweb.autoclickerreplay.point
 
 import android.accessibilityservice.GestureDescription
 import android.graphics.Path
-import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.point.view.*
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
@@ -22,16 +21,16 @@ import kotlinx.android.synthetic.main.pinch_dialog_elements.*
 
 class PinchPoint:Point {
 
-    override val drawableViewDefault = ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.point_pinch)!!
+    override val drawableViewDefault = ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.point_pinch)!!
 
     val firstPoint = PointBuilder.invoke()
             .position(this.x + 200, this.y)
-            .drawable(ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.point_click)!!)
+            .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.point_click)!!)
             .build(SimplePoint::class.java)
 
     val secondPoint = PointBuilder.invoke()
             .position(this.x - 200, this.y)
-            .drawable(ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.point_click)!!)
+            .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.point_click)!!)
             .build(SimplePoint::class.java)
 
     var typePinch = PinchDirection.OUT
@@ -88,6 +87,12 @@ class PinchPoint:Point {
     init{
         text = text
         view.textVisible = false
+    }
+
+    override fun setVisible(visible: Int) {
+        super.setVisible(visible)
+        firstPoint.setVisible(visible)
+        secondPoint.setVisible(visible)
     }
 
     override fun updateViewLayout(wm: WindowManager, size: Float) {
@@ -150,7 +155,8 @@ class PinchPoint:Point {
         val vContent: ViewGroup = super.createViewDialog() as ViewGroup
         val vContentPinch = LayoutInflater.from(vContent.context)
                 .inflate(R.layout.pinch_dialog_elements, null)
-        vContent.addView(vContentPinch)
+        vContent.findViewById<LinearLayout>(R.id.content)
+                .addView(vContentPinch)
         return vContent
     }
 

@@ -20,7 +20,6 @@ import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.askerweb.autoclickerreplay.service.AutoClickService.listCommando
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
-import kotlinx.android.synthetic.main.dialog_setting_point.*
 import kotlinx.android.synthetic.main.multi_point_dialog.*
 import kotlinx.android.synthetic.main.multi_point_dialog.editDelay
 import kotlinx.android.synthetic.main.multi_point_dialog.editDuration
@@ -32,12 +31,12 @@ class MultiPoint: Point {
     var points: Array<Point> = arrayOf(
             PointBuilder.invoke()
                     .position(x, y)
-                    .drawable(ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.draw_point_click)!!)
+                    .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click)!!)
                     .text((listCommando.size + 1).toString())
                     .build(SimplePoint::class.java),
             PointBuilder.invoke()
                     .position(x + 50, y + 50)
-                    .drawable(ContextCompat.getDrawable(App.component.getAppContext(), R.drawable.draw_point_click)!!)
+                    .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click)!!)
                     .text((listCommando.size + 1).toString())
                     .build(SimplePoint::class.java))
 
@@ -65,13 +64,18 @@ class MultiPoint: Point {
             point.delay = json.get("delay").asLong
             point.duration = json.get("duration").asLong
             val _params =
-                    App.getGson().fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
+                    gson.fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
             point.width = _params.width
             point.height = _params.height
             point.x = _params.x
             point.y = _params.y
             text = json.get("text").asString
         }
+    }
+
+    override fun setVisible(visible: Int) {
+        super.setVisible(visible)
+        points.forEach { it.setVisible(visible) }
     }
 
     override fun updateViewLayout(wm: WindowManager, size: Float) {
@@ -88,7 +92,7 @@ class MultiPoint: Point {
         super.attachToWindow(wm, canvas)
         points.forEach { point ->
             point.attachToWindow(wm, canvas)
-            point.view.setOnLongClickListener(){viewPoint ->
+            point.view.setOnLongClickListener{
                 showDialog()
                 true
             }
@@ -193,7 +197,7 @@ class MultiPoint: Point {
 
             deletMultiPoint.setOnClickListener{
                 // Delete this point
-                AutoClickService.requestAction(AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, point)
+                AutoClickService.requestAction(appContext, AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, point)
 
                 dialog?.cancel()
             }
@@ -262,7 +266,7 @@ class MultiPoint: Point {
                     for (n in 1..differencePoints) {
                         points += PointBuilder.invoke()
                                 .position(points.last().x + 50, points.last().y)
-                                .drawable(ContextCompat.getDrawable(App.getContext(), R.drawable.draw_point_click_1)!!)
+                                .drawable(ContextCompat.getDrawable(appContext, R.drawable.draw_point_click_1)!!)
                                 .position(points.last().x + 50, points.last().y + 50)
                                 .drawable(ContextCompat.getDrawable(appContext, R.drawable.draw_point_click)!!)
                                 .text(points[0].text)

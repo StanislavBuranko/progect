@@ -13,7 +13,7 @@ class SettingFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferencesFix(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences_general, rootKey)
         PreferenceManager
-                .getDefaultSharedPreferences(App.component.getAppContext())
+                .getDefaultSharedPreferences(App.appComponent.getAppContext())
                 .registerOnSharedPreferenceChangeListener { _, _ ->
                     AutoClickService.requestAction(context, AutoClickService.ACTION_UPDATE_SETTING)
                 }

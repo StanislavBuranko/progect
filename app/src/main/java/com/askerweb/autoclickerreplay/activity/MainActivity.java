@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        App.initComponent(this);
+        App.initActivityComponent(this);
         Dimension.displayMetrics = getResources().getDisplayMetrics();
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
@@ -47,6 +47,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        AutoClickService.requestAction(this, AutoClickService.ACTION_STOP);
+//        AutoClickService.requestAction(this, AutoClickService.ACTION_STOP);
     }
 }
