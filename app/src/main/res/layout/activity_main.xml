@@ -20,9 +20,9 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
-        android:layout_width="@dimen/_64dp"
-        android:layout_height="@dimen/_64dp"
-        app:fabCustomSize="@dimen/_64dp"
+        android:layout_width="@dimen/xxlarge_size"
+        android:layout_height="@dimen/xxlarge_size"
+        app:fabCustomSize="@dimen/xxlarge_size"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_play"

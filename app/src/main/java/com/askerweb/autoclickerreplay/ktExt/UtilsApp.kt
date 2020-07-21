@@ -29,7 +29,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import java.io.FileReader
 import java.io.FileWriter
-import java.util.*
 
 
 val context = App.appComponent.getAppContext()
@@ -145,7 +144,7 @@ fun saveMacroToJson(points: List<Point>, nameMacro: String = "untitle.json"){
     }
 }
 
-fun loadMacroFromJson(points: LinkedList<Point>, nameMacro: String){
+fun loadMacroFromJson(points: MutableList<Point>, nameMacro: String){
     var jsonObj:JsonObject? = null
     FileReader("${context.filesDir}/$nameMacro.json").use {
         val text = it.readText().trim()
@@ -166,12 +165,12 @@ fun getDialogTitle(context: Context, text:String): View {
     val title = TextView(context)
     title.text = text
     title.setTextColor(context.resources.getColor(R.color.textColorDark))
-    title.setTextSize(TypedValue.COMPLEX_UNIT_SP, context.resources.getDimension(R.dimen._8sp))
+    title.setTextSize(TypedValue.COMPLEX_UNIT_SP, context.resources.getDimension(R.dimen.xsmall_text_size))
     title.typeface = Typeface.DEFAULT_BOLD
-    title.setPadding(context.resources.getDimension(R.dimen._16dp).toInt(),
-            context.resources.getDimension(R.dimen._8dp).toInt(),
+    title.setPadding(context.resources.getDimension(R.dimen.middle_size).toInt(),
+            context.resources.getDimension(R.dimen.xxsmall_size).toInt(),
             0,
-            context.resources.getDimension(R.dimen._4dp).toInt())
+            context.resources.getDimension(R.dimen.xsmall_size).toInt())
     return title
 }
 

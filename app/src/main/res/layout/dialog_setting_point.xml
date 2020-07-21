@@ -12,13 +12,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="@dimen/_12dp">
+            android:layout_marginBottom="@dimen/xxxsmall_size">
 
             <Button
                 android:id="@+id/btn_duplicate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/_24sp"
+                android:layout_marginEnd="@dimen/xxmiddle_text_size"
                 android:layout_weight="1"
                 android:text="@string/duplicate" />
 
@@ -60,7 +60,7 @@
                 android:layout_marginEnd="8dp"
                 android:gravity="bottom|end"
                 android:text="@string/ms"
-                android:textSize="@dimen/_20sp" />
+                android:textSize="@dimen/xmiddle_text_size" />
         </RelativeLayout>
         <RelativeLayout
             android:layout_width="match_parent"
@@ -92,13 +92,13 @@
                 android:layout_marginEnd="8dp"
                 android:gravity="bottom|end"
                 android:text="@string/ms"
-                android:textSize="@dimen/_20sp" />
+                android:textSize="@dimen/xmiddle_text_size" />
         </RelativeLayout>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="@dimen/_4dp">
+            android:layout_marginBottom="@dimen/xsmall_size">
 
             <TextView
                 android:id="@+id/textView4"
@@ -126,7 +126,7 @@
                 android:layout_marginEnd="8dp"
                 android:gravity="bottom|end"
                 android:text="@string/times"
-                android:textSize="@dimen/_20sp" />
+                android:textSize="@dimen/xmiddle_text_size" />
         </RelativeLayout>
     </LinearLayout>
 

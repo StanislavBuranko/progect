@@ -21,6 +21,7 @@ import com.askerweb.autoclickerreplay.service.AutoClickService;
 import com.askerweb.autoclickerreplay.service.SimulateTouchAccessibilityService;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class RecordPoints {
 
@@ -98,7 +99,7 @@ public class RecordPoints {
         nForDurationMs = 0;
     }
 
-    public static void onTouch(MotionEvent event, WindowManager wm, LinkedList<Point> listCommando, PointCanvasView canvasView) {
+    public static void onTouch(MotionEvent event, WindowManager wm, List<Point> listCommando, PointCanvasView canvasView) {
         int xUp = 0;
         int yUp = 0;
         if(!recordPanelInitialization)

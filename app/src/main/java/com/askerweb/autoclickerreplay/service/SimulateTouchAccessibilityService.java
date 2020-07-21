@@ -12,8 +12,10 @@ import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.point.Point;
 import com.askerweb.autoclickerreplay.point.PointCommand;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Function;
@@ -99,12 +101,12 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
 
 
 
-    public static void requestStart(LinkedList<Point> list){
+    public static void requestStart(List<Point> list){
         Intent intent = new Intent(service.appContext, SimulateTouchAccessibilityService.class)
                 .setAction(AutoClickService.ACTION_START)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .putExtra(KEY_LIST_COMMAND, list);
+                .putExtra(KEY_LIST_COMMAND, (Serializable) list);
         service.getApplicationContext().startService(intent);
     }
     public static void requestStop(){

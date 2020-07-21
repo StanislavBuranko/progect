@@ -17,7 +17,6 @@ import com.askerweb.autoclickerreplay.point.RecordPoints.point
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView
 import com.askerweb.autoclickerreplay.service.AutoClickService
-import com.askerweb.autoclickerreplay.service.AutoClickService.listCommando
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.multi_point_dialog.*
@@ -28,16 +27,18 @@ import java.util.*
 
 class MultiPoint: Point {
 
+    private val listCommands:MutableList<Point> = App.serviceComponent.getListPoint()
+
     var points: Array<Point> = arrayOf(
             PointBuilder.invoke()
                     .position(x, y)
                     .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click)!!)
-                    .text((listCommando.size + 1).toString())
+                    .text((listCommands.size + 1).toString())
                     .build(SimplePoint::class.java),
             PointBuilder.invoke()
                     .position(x + 50, y + 50)
                     .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click)!!)
-                    .text((listCommando.size + 1).toString())
+                    .text((listCommands.size + 1).toString())
                     .build(SimplePoint::class.java))
 
     constructor(parcel: Parcel) : super(parcel) {
@@ -47,10 +48,7 @@ class MultiPoint: Point {
 
 
     init {
-
         view.visibility = View.GONE
-
-
     }
 
 

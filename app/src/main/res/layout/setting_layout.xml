@@ -15,7 +15,7 @@
                 class="com.askerweb.autoclickerreplay.fragment.SettingFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/_24dp"/>
+                android:layout_marginBottom="@dimen/xxmiddle_size"/>
 
 
             <Button
@@ -23,18 +23,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/save_script"
-                android:layout_marginRight="@dimen/_64dp"
-                android:layout_marginLeft="@dimen/_64dp"
-                android:layout_marginBottom="@dimen/_20dp"/>
+                android:layout_marginRight="@dimen/xxlarge_size"
+                android:layout_marginLeft="@dimen/xxlarge_size"
+                android:layout_marginBottom="@dimen/xmiddle_size"/>
 
             <Button
                 android:id="@+id/load_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/load_script"
-                android:layout_marginRight="@dimen/_64dp"
-                android:layout_marginLeft="@dimen/_64dp"
-                android:layout_marginBottom="@dimen/_20dp"/>
+                android:layout_marginRight="@dimen/xxlarge_size"
+                android:layout_marginLeft="@dimen/xxlarge_size"
+                android:layout_marginBottom="@dimen/xmiddle_size"/>
         </LinearLayout>
     </ScrollView>
 

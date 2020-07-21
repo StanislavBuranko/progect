@@ -6,10 +6,10 @@
     android:padding="8dp">
     <ImageView
         android:id="@+id/pic"
-        android:layout_width="@dimen/_32dp"
-        android:layout_height="@dimen/_32dp"
+        android:layout_width="@dimen/large_size"
+        android:layout_height="@dimen/large_size"
         android:contentDescription="TODO"
-        android:layout_marginRight="@dimen/_16dp"/>
+        android:layout_marginRight="@dimen/middle_size"/>
     <TextView
         android:id="@+id/text"
         android:textSize="18sp"

@@ -33,7 +33,7 @@ class PointView constructor(context: Context) : FrameLayout(context) {
         param.gravity = Gravity.CENTER
         param.width = ViewGroup.LayoutParams.WRAP_CONTENT
         param.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        textV.textSize = resources.getDimension(R.dimen._8sp)
+        textV.textSize = resources.getDimension(R.dimen.xsmall_text_size)
         textV.setTextColor(resources.getColor(R.color.blueSanMarino))
         textV.typeface = Typeface.createFromAsset(context.assets, "fonts/Roboto-Bold.ttf")
         textV.layoutParams = param

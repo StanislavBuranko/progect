@@ -12,12 +12,12 @@
 
     <ImageView
         android:id="@+id/imageView4"
-        android:layout_width="258dp"
-        android:layout_height="247dp"
+        android:layout_width="@dimen/imageFaqSize"
+        android:layout_height="@dimen/imageFaqSize"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.761"
+        app:layout_constraintStart_toEndOf="@+id/textView6"
         app:srcCompat="@drawable/draw_img_faq1" />
 
     <TextView
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="@string/direction_title"
-        android:textSize="20sp"
+        android:textSize="@dimen/textSizeFaqTitle"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.076"
@@ -36,33 +36,33 @@
     <TextView
         android:id="@+id/textView5"
         android:layout_width="337dp"
-        android:layout_height="62dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="44dp"
         android:layout_marginTop="8dp"
         android:text="@string/direction_first"
-        android:textSize="16sp"
+        android:textSize="@dimen/textSizeFaq"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
     <TextView
         android:id="@+id/textView6"
         android:layout_width="337dp"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="44dp"
-        android:layout_marginTop="@dimen/_16dp"
+        android:layout_marginTop="@dimen/middle_size"
         android:text="@string/direction_second"
-        android:textSize="16sp"
+        android:textSize="@dimen/textSizeFaq"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="337dp"
-        android:layout_height="69dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="44dp"
-        android:layout_marginTop="@dimen/_16dp"
+        android:layout_marginTop="@dimen/middle_size"
         android:text="@string/direction_third"
-        android:textSize="16sp"
+        android:textSize="@dimen/textSizeFaq"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView6" />
 

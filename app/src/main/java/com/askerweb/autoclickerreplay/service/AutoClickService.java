@@ -9,7 +9,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Typeface;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.util.Log;
@@ -31,7 +30,9 @@ import androidx.core.content.ContextCompat;
 
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
+import com.askerweb.autoclickerreplay.activity.MainActivity;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
+import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
 import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
 import com.askerweb.autoclickerreplay.point.ClickPoint;
@@ -80,7 +81,8 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.setting, R.id.close})
     List<View> controls;
 
-    public static  LinkedList<Point> listCommando = new LinkedList<>();
+    @Inject
+    public List<Point> listCommands;
 
     public Boolean paramBoundsOn;
     public Integer paramRepeatMacro;
@@ -106,7 +108,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             if(isRunning() && SimulateTouchAccessibilityService.isPlaying()){
                 startPauseCommand();
             }
-            listCommando.forEach(AutoClickService.this::swapPointOrientation);
+            listCommands.forEach(AutoClickService.this::swapPointOrientation);
         }
     };
 
@@ -128,7 +130,18 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     public void onCreate() {
         super.onCreate();
         service = this;
+        App.initServiceComponent(service);
+        App.serviceComponent.inject(service);
         updateSetting();
+        initView();
+        //start listing change orientation
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
+        registerReceiver(receiver, intentFilter);
+
+    }
+
+    private void initView(){
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 //        recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
 //        recordPanel.setOnTouchListener(this);
@@ -140,12 +153,12 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         wm.addView(controlPanel, paramsControlPanel);
 
         canvasView = new PointCanvasView(this);
-        canvasView.points = listCommando;
+        canvasView.points = listCommands;
         paramsCanvas.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
         canvasView.setLayoutParams(paramsCanvas);
         // update listener after change orientation
         canvasView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
-                listCommando.forEach(AutoClickService.this::updateTouchListenerPoint)
+                listCommands.forEach(AutoClickService.this::updateTouchListenerPoint)
         );
         wm.addView(canvasView, paramsCanvas);
 
@@ -172,12 +185,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             }
             return true;
         });
-
-        //start listing change orientation
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
-        registerReceiver(receiver, intentFilter);
-
     }
 
 
@@ -197,12 +204,12 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         service = null;
         unregisterReceiver(receiver);
         unbindControlPanel.unbind();
-        for (Point a : listCommando) {
+        for (Point a : listCommands) {
             a.detachToWindow(wm, canvasView);
         }
         wm.removeView(controlPanel);
         wm.removeView(canvasView);
-        listCommando.clear();
+        listCommands.clear();
         super.onDestroy();
     }
 
@@ -222,8 +229,8 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         return service.paramSizeControl;
     }
 
-    public static LinkedList<Point> getListPoint(){
-        return service.listCommando;
+    public static List<Point> getListPoint(){
+        return service.listCommands;
     }
 
     public static WindowManager getWM(){
@@ -241,6 +248,10 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 //    @OnClick(R.id.start_pause)
     public void startPauseCommand(){
         String action = SimulateTouchAccessibilityService.isPlaying() ? ACTION_STOP : ACTION_START;
+        if(action == ACTION_START){
+            LogExt.logd("shows");
+            MainActivity.interstitialAd.show();
+        }
         requestAction(this, action);
     }
 
@@ -248,11 +259,11 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     public void addPoint() {
         Point point = Point.PointBuilder.invoke()
                 .position(canvasView.getWidth()/2, canvasView.getHeight()/2)
-                .text(String.format("%s", listCommando.size() + 1))
+                .text(String.format("%s", listCommands.size() + 1))
                 .build(ClickPoint.class);
         point.attachToWindow(wm,canvasView);
         updateTouchListenerPoint(point);
-        listCommando.add(point);
+        listCommands.add(point);
     }
 
     @OnLongClick(R.id.add_point)
@@ -269,11 +280,11 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 .setAdapter(adapter, (dialog, which) -> {
                     Point point = Point.PointBuilder.invoke()
                         .position(canvasView.getWidth()/2, canvasView.getHeight()/2)
-                        .text(String.format("%s", listCommando.size() + 1))
+                        .text(String.format("%s", listCommands.size() + 1))
                         .build(listTypes.get(which));
                     point.attachToWindow(wm, canvasView);
                     updateTouchListenerPoint(point);
-                    listCommando.add(point);
+                    listCommands.add(point);
                 })
                 .setCustomTitle(title);
         Dialog d = builder.create();
@@ -335,8 +346,8 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 
     @OnClick(R.id.remove_point)
     public void removePoint(){
-        if(listCommando.size() > 0){
-            listCommando.remove(listCommando.size() - 1)
+        if(listCommands.size() > 0){
+            listCommands.remove(listCommands.size() - 1)
                     .detachToWindow(wm, canvasView);
         }
     }
@@ -381,7 +392,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         if(SimulateTouchAccessibilityService.isPlaying()){
             requestAction(this, ACTION_STOP);
         }
-        wm.removeView(recordPanel);
+//        wm.removeView(recordPanel);
         stopSelf();
     }
 
@@ -390,32 +401,32 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         if(intent == null || intent.getAction() == null) return super.onStartCommand(intent, flags, startId);
         switch (intent.getAction()){
             case ACTION_STOP:
-                listCommando.forEach((c)->c.setTouchable(true, wm));
+                listCommands.forEach((c)->c.setTouchable(true, wm));
                 controlPanel.findViewById(R.id.start_pause)
                         .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_play));
                 group_control.setVisibility(View.VISIBLE);
                 SimulateTouchAccessibilityService.requestStop();
                 break;
             case ACTION_START:
-                listCommando.forEach((c)->c.setTouchable(false,wm));
+                listCommands.forEach((c)->c.setTouchable(false,wm));
                 controlPanel.findViewById(R.id.start_pause)
                         .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_pause));
                 group_control.setVisibility(View.GONE);
-                SimulateTouchAccessibilityService.requestStart(listCommando);
+                SimulateTouchAccessibilityService.requestStart(listCommands);
                 break;
             case ACTION_HIDE_VIEWS:
                 controlPanel.setVisibility(View.GONE);
-                listCommando.forEach((c)->c.setVisible(View.GONE));
+                listCommands.forEach((c)->c.setVisible(View.GONE));
                 canvasView.invalidate();
                 break;
             case ACTION_SHOW_VIEWS:
                 controlPanel.setVisibility(View.VISIBLE);
-                listCommando.forEach((c)->c.setVisible(View.VISIBLE));
+                listCommands.forEach((c)->c.setVisible(View.VISIBLE));
                 canvasView.invalidate();
                 break;
             case ACTION_UPDATE_SETTING: //update after change setting
                 updateSetting();
-                listCommando.forEach(this::updatePoint);
+                listCommands.forEach(this::updatePoint);
                 setControlSize();
                 break;
             case ACTION_DUPLICATE_POINT:
@@ -429,17 +440,17 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     }
 
     private void duplicatePoint(Point point) {
-        point.setText(String.format("%s", listCommando.size() + 1));
+        point.setText(String.format("%s", listCommands.size() + 1));
         point.attachToWindow(wm, canvasView);
         updateTouchListenerPoint(point);
-        listCommando.add(point);
+        listCommands.add(point);
     }
 
     private void deletePoint(Point point){
-        int index  = Collections.binarySearch(listCommando, point,
+        int index  = Collections.binarySearch(listCommands, point,
                 (u1,u2)-> u1.getText().compareTo(u2.getText()));
         if(index > -1){
-            Point p = listCommando.remove(index);
+            Point p = listCommands.remove(index);
             reindexListCommand();
             p.detachToWindow(wm, canvasView);
         }
@@ -447,7 +458,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 
     private void reindexListCommand(){
         AtomicInteger i = new AtomicInteger(1);
-        listCommando.forEach((p)-> p.setText(String.valueOf(i.getAndIncrement())));
+        listCommands.forEach((p)-> p.setText(String.valueOf(i.getAndIncrement())));
     }
 
     void updateSetting(){
@@ -504,7 +515,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             RecordPoints.timerStart();
             openRecordPanel = true;
             wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
-            listCommando.forEach((c) -> c.setTouchable(false, wm));
+            listCommands.forEach((c) -> c.setTouchable(false, wm));
             paramRepeatMacro = Optional
                     .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, 1))
                     .orElse(1);
@@ -516,14 +527,14 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                     .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, SettingExt.defaultRepeat))
                     .orElse(SettingExt.defaultRepeat);
             wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
-            listCommando.forEach((c) -> c.setTouchable(true, wm));
+            listCommands.forEach((c) -> c.setTouchable(true, wm));
             openRecordPanel = false;
         }
 
     }
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        RecordPoints.onTouch(event,wm,listCommando,canvasView);
+        RecordPoints.onTouch(event,wm, listCommands,canvasView);
         return true;
     }
 

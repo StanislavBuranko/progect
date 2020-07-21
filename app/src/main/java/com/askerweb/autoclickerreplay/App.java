@@ -9,7 +9,18 @@ import com.askerweb.autoclickerreplay.di.AppComponent;
 import com.askerweb.autoclickerreplay.di.ApplicationModule;
 import com.askerweb.autoclickerreplay.di.DaggerAppComponent;
 import com.askerweb.autoclickerreplay.di.ListCommandModule;
+import com.askerweb.autoclickerreplay.di.ServiceComponent;
+import com.askerweb.autoclickerreplay.point.Point;
+import com.askerweb.autoclickerreplay.service.AutoClickService;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import kotlin.jvm.internal.markers.KMutableList;
 
 public class App extends Application {
 
@@ -18,8 +29,7 @@ public class App extends Application {
 
     public static AppComponent appComponent = null;
     public static ActivityComponent activityComponent = null;
-
-
+    public static ServiceComponent serviceComponent = null;
 
     public static App getInstance() {
         return instance;
@@ -29,7 +39,6 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        MobileAds.initialize(this);
         appComponent = DaggerAppComponent.builder()
                 .applicationModule(new ApplicationModule(this))
                 .build();
@@ -44,4 +53,19 @@ public class App extends Application {
             }
         }
     }
+
+    public static void initServiceComponent(AutoClickService service){
+        if(serviceComponent == null) {
+            synchronized (instance){
+                if(serviceComponent == null){
+                    serviceComponent = appComponent.builderServiceComponent()
+                            .service(service)
+                            .listCommandModule(new ListCommandModule(new LinkedList<Point>()))
+                            .build();
+                }
+            }
+        }
+    }
+
+
 }
