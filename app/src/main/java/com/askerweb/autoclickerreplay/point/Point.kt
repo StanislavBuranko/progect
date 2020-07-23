@@ -81,7 +81,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
 
     var delay by Delegates.notNull<Long>()
     var duration by Delegates.notNull<Long>()
-    var repeat by Delegates.notNull<Int>()
+    public var repeat by Delegates.notNull<Int>()
 
     @IgnoredOnParcel @Transient
     var counterRepeat:Int = 0

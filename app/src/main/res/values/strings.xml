@@ -52,7 +52,7 @@
     <string name="toast_empty_script">В сценарии ничего нету</string>
     <string name="toast_havent_saved_script">Нет сохраненных сценариев</string>
 
-    <string name="multi_points_creat_number">Введите количество одновременных нажатий</string>
+    <string name="multi_points_creat_number">Введите количество одновременных нажатий(мин. 2 нажатия)</string>
     <string name="multi_points_click">нажатий</string>
 
     <string name="direction_title">Рекомендуем ознакомиться!!!</string>
