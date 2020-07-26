@@ -5,7 +5,10 @@ import android.app.AlertDialog
 import android.graphics.Path
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.Log
 import android.view.*
+import android.widget.LinearLayout
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
@@ -13,33 +16,27 @@ import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.getWindowsTypeApplicationOverlay
 import com.askerweb.autoclickerreplay.ktExt.logd
-import com.askerweb.autoclickerreplay.point.RecordPoints.point
+import com.askerweb.autoclickerreplay.point.MultiPoint.ExtendedPinchDialog
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
+import com.askerweb.autoclickerreplay.point.view.ExtendedViewHolder
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView
 import com.askerweb.autoclickerreplay.service.AutoClickService
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.dialog_setting_point.*
 import kotlinx.android.synthetic.main.multi_point_dialog.*
-import kotlinx.android.synthetic.main.multi_point_dialog.editDelay
-import kotlinx.android.synthetic.main.multi_point_dialog.editDuration
-import kotlinx.android.synthetic.main.multi_point_dialog.editRepeat
+import kotlinx.android.synthetic.main.pinch_dialog_elements.*
 import java.util.*
+import kotlin.math.ceil
 
 class MultiPoint: Point {
 
     private val listCommands:MutableList<Point> = App.serviceComponent.getListPoint()
 
-    var points: Array<Point> = arrayOf(
-            PointBuilder.invoke()
-                    .position(x, y)
-                    .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click)!!)
-                    .text((listCommands.size + 1).toString())
-                    .build(SimplePoint::class.java),
-            PointBuilder.invoke()
-                    .position(x + 50, y + 50)
-                    .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click)!!)
-                    .text((listCommands.size + 1).toString())
-                    .build(SimplePoint::class.java))
+    var isDelete = false
+
+    var points: Array<Point> = arrayOf()
 
     constructor(parcel: Parcel) : super(parcel) {
         var parcelPoints = parcel.readParcelableArray(MultiPoint::class.java.classLoader)
@@ -49,48 +46,60 @@ class MultiPoint: Point {
 
     init {
         view.visibility = View.GONE
+        points += PointBuilder.invoke()
+                .position(x, y)
+                .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click_1)!!)
+                .text((listCommands.size + 1).toString())
+                .build(SimplePoint::class.java)
+        points += PointBuilder.invoke()
+                .position(x + 50, y + 50)
+                .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click_1)!!)
+                .text((listCommands.size + 1).toString())
+                .build(SimplePoint::class.java)
+        setTextArray = true
     }
-
 
     constructor(builder: PointBuilder) : super(builder) {
 
     }
 
     constructor(json: JsonObject) : super(json) {
-        points.forEach { point ->
-            point.repeat = json.get("repeat").asInt
-            point.delay = json.get("delay").asLong
-            point.duration = json.get("duration").asLong
-            val _params =
-                    gson.fromJson(json.get("params").asString, WindowManager.LayoutParams::class.java)
-            point.width = _params.width
-            point.height = _params.height
-            point.x = _params.x
-            point.y = _params.y
-            text = json.get("text").asString
+        val pointJson =
+                gson.fromJson(json.get("MultiPoints"), JsonArray::class.java)
+        var pointsJson: Array<Point> = arrayOf()
+        pointJson.forEach{
+            pointsJson += PointBuilder.invoke().buildFrom(SimplePoint::class.java,gson.fromJson(it,JsonObject::class.java))
         }
+        points = pointsJson
+    }
+
+    override fun toJsonObject():JsonObject{
+        val obj = super.toJsonObject()
+        val objArray  = JsonArray()
+        for(n in 0..points.size-1){
+            objArray.add(points[n].toJsonObject())
+        }
+        obj.add("MultiPoints", objArray)
+        return obj
     }
 
     override fun setVisible(visible: Int) {
-        super.setVisible(visible)
         points.forEach { it.setVisible(visible) }
     }
 
     override fun updateViewLayout(wm: WindowManager, size: Float) {
-        super.updateViewLayout(wm, size)
         points.forEach { point -> point.updateViewLayout(wm, size) }
     }
 
     override fun updateListener(wm: WindowManager, canvas: PointCanvasView, bounds: Boolean) {
-        super.updateListener(wm, canvas, bounds)
         points.forEach { point -> point.updateListener(wm, canvas, bounds) }
     }
 
     override fun attachToWindow(wm: WindowManager, canvas: PointCanvasView) {
         super.attachToWindow(wm, canvas)
-        points.forEach { point ->
-            point.attachToWindow(wm, canvas)
-            point.view.setOnLongClickListener{
+        points.forEach {
+            it.attachToWindow(wm, canvas)
+            it.view.setOnLongClickListener{
                 showDialog()
                 true
             }
@@ -98,15 +107,31 @@ class MultiPoint: Point {
     }
 
     override fun detachToWindow(wm: WindowManager, canvas: PointCanvasView) {
-        points.forEach { point -> point.detachToWindow(wm, canvas) }
         super.detachToWindow(wm, canvas)
-
+        points.forEach {
+            it.detachToWindow(wm, canvas)
+        }
     }
+    var setTextArray = false
+    override var text:String
+        get() = view.text
+        set(value){
+            view.text = value
+            if(setTextArray)
+                points.forEach { it.view.text = value }
+        }
 
-    override fun toJsonObject(): JsonObject {
-        val obj = super.toJsonObject()
-        obj.addProperty("nextPoint", points[0].toJson())
-        return obj
+    override fun setTouchable(touchable: Boolean, wm:WindowManager){
+        points.forEach {
+            if (touchable) {
+                it.params.flags = it.params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+                it.view.isClickable = true
+            } else {
+                it.params.flags = it.params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                it.view.isClickable = false
+            }
+            wm.updateViewLayout(it.view, it.params)
+        }
     }
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {
@@ -115,15 +140,11 @@ class MultiPoint: Point {
     }
 
     override fun getCommand(): GestureDescription? {
-
         val builder = GestureDescription.Builder()
-        "${points.size}".logd()
-
         for (n in 0..points.size - 1) {
             val path = Path()
             path.moveTo(points[n].xTouch.toFloat(), points[n].yTouch.toFloat())
-            "${points[n].x}    ${points[n].y}".logd()
-            builder.addStroke(GestureDescription.StrokeDescription(path, delay, duration))
+            builder.addStroke(GestureDescription.StrokeDescription(path, points[n].delay, points[n].duration))
         }
         return builder.build()
     }
@@ -138,67 +159,39 @@ class MultiPoint: Point {
         }
     }
 
-
-    fun showDialog() {
-        val viewContent: View = createViewDialog()
-        val holder = createHolderDialog(viewContent)
-        holder.updateViewDialogParam()
-        val dialog = AlertDialog.Builder(view.context)
-                .setTitle(view.context.getString(R.string.setting_point))
-                .setView(viewContent)
-                .setPositiveButton(R.string.save) { _, _ ->
-                    holder.saveEditDialog()
-                    attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
-                    updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
-                    AutoClickService.getCanvas()?.invalidate()
-                }.setNegativeButton(R.string.cancel) { _, _ ->
-                    attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
-                    updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
-                    AutoClickService.getCanvas()?.invalidate()
-                }
-                .setOnCancelListener { _ ->
-                    attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
-                    updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
-                    AutoClickService.getCanvas()?.invalidate()
-                }
-                .create()
-        holder.dialog = dialog;
-        dialog.window?.setType(getWindowsTypeApplicationOverlay())
-        dialog.show()
-        detachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
-        "123123123123".logd()
-        holder.saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-    }
-
-    override open fun createHolderDialog(viewContent: View): AbstractViewHolderDialog {
-        return PointHolderMultiPointDialogEdit(viewContent)
-    }
-
     override fun createViewDialog(): View {
-        return LayoutInflater.from(view.context).inflate(R.layout.multi_point_dialog, null)
+        val vContent: ViewGroup = super.createViewDialog() as ViewGroup
+        val vContentPinch = LayoutInflater.from(vContent.context)
+                .inflate(R.layout.multi_point_dialog, null)
+        vContent.findViewById<LinearLayout>(R.id.content)
+                .addView(vContentPinch)
+        return vContent
     }
 
-    inner class PointHolderMultiPointDialogEdit(override val containerView:View) :
-            AbstractViewHolderDialog(), LayoutContainer {
+    override fun createHolderDialog(viewContent: View): AbstractViewHolderDialog {
+        val holder = super.createHolderDialog(viewContent)
+        return ExtendedPinchDialog(holder, viewContent)
+    }
 
-        init{
+    inner class ExtendedPinchDialog(dialogHolder: AbstractViewHolderDialog, override val containerView:View) : ExtendedViewHolder(dialogHolder), LayoutContainer{
 
-            multiPointDialogButtonPlus.setOnClickListener{
-                editNumbMultiPoint.setText((editNumbMultiPoint.text.toString().toInt()+1).toString())
+        init {
+            multiPointDialogButtonPlus.setOnClickListener {
+                editNumbMultiPoint.setText((editNumbMultiPoint.text.toString().toInt() + 1).toString())
                 true
             }
 
-            multiPointDialogButtonMinus.setOnClickListener{
-                editNumbMultiPoint.setText((editNumbMultiPoint.text.toString().toInt()-1).toString())
+            multiPointDialogButtonMinus.setOnClickListener {
+                editNumbMultiPoint.setText((editNumbMultiPoint.text.toString().toInt() - 1).toString())
                 true
             }
 
-            deletMultiPoint.setOnClickListener{
+            btn_delete.setOnClickListener {
                 // Delete this point
-                AutoClickService.requestAction(appContext, AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, point)
-
+                AutoClickService.requestAction(appContext, AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, this@MultiPoint)
                 dialog?.cancel()
             }
+
 
             editNumbMultiPoint.addTextChangedListener {
                 if (editNumbMultiPoint.text.toString() != "")
@@ -213,7 +206,7 @@ class MultiPoint: Point {
                 if (editDelay.text.toString() != "")
                     if (editDelay.text.toString().toInt() < 0)
                         editDelay.setText((0).toString())
-                    else if (editDelay.text.toString().toInt() > 100000)
+                    else if (editDelay.text.toString().toInt() > 10000)
                         editDelay.setText((100000).toString())
             }
 
@@ -221,7 +214,7 @@ class MultiPoint: Point {
                 if (editDuration.text.toString() != "")
                     if (editDuration.text.toString().toInt() < 0)
                         editDuration.setText((0).toString())
-                    else if (editDuration.text.toString().toInt() > 100000)
+                    else if (editDuration.text.toString().toInt() > 10000)
                         editDuration.setText((100000).toString())
             }
 
@@ -229,73 +222,110 @@ class MultiPoint: Point {
                 if (editRepeat.text.toString() != "")
                     if (editRepeat.text.toString().toInt() < 0)
                         editRepeat.setText((0).toString())
-                    else if (editRepeat.text.toString().toInt() > 100000)
+                    else if (editRepeat.text.toString().toInt() > 10000)
                         editRepeat.setText((100000).toString())
             }
 
-            editDelay.doAfterTextChanged{
+            editDelay.doAfterTextChanged {
                 editNumbMultiPoint.setText(points.size.toString())
                 requireSettingEdit()
             }
 
-            editDuration.doAfterTextChanged{
+            editDuration.doAfterTextChanged {
                 requireSettingEdit()
             }
 
-            editRepeat.doAfterTextChanged{
+            editRepeat.doAfterTextChanged {
                 requireSettingEdit()
             }
 
         }
 
-        override fun updateViewDialogParam() {
-            editDelay.setText("${points[0].delay}")
-            editDuration.setText("${points[0].duration}")
-            editRepeat.setText("${points[0].repeat}")
-        }
+    override fun updateViewDialogParam() {
+        editDelay.setText("${points[0].delay}")
+        editDuration.setText("${points[0].duration}")
+        editRepeat.setText("${points[0].repeat}")
 
-        override fun saveEditDialog(){
-            "dd".logd()
-            "${points.size}  ${editNumbMultiPoint.text.toString().toInt()}".logd()
-            if(points.size-1 != editNumbMultiPoint.text.toString().toInt()) {
-                var differencePoints = -points.size + editNumbMultiPoint.text.toString().toInt()
-                "diff:${differencePoints}".logd()
-                if (differencePoints > 0)
-                    for (n in 1..differencePoints) {
-                        points += PointBuilder.invoke()
-                                .position(points.last().x + 50, points.last().y)
-                                .drawable(ContextCompat.getDrawable(appContext, R.drawable.draw_point_click_1)!!)
-                                .position(points.last().x + 50, points.last().y + 50)
-                                .drawable(ContextCompat.getDrawable(appContext, R.drawable.draw_point_click)!!)
-                                .text(points[0].text)
-                                .build(SimplePoint::class.java)
-                    }
-                else if (differencePoints < 0) {
-                    val points1 = points.dropLast(differencePoints * -1).toTypedArray()
+    }
+
+
+    override fun saveEditDialog(){
+        "${points.size}  ${editNumbMultiPoint.text.toString().toInt()}".logd()
+        if(points.size != editNumbMultiPoint.text.toString().toInt()) {
+            var differencePoints = -points.size + editNumbMultiPoint.text.toString().toInt()
+            "diff:${differencePoints}".logd()
+            if (differencePoints > 0)
+                for (n in 1..differencePoints) {
+                    points += PointBuilder.invoke()
+                            .position(points.last().x + 50, points.last().y)
+                            .drawable(ContextCompat.getDrawable(appContext, R.drawable.draw_point_click_1)!!)
+                            .text(points[0].text)
+                            .build(SimplePoint::class.java)
+                    points.last().attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
+                    points.last().updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
+                    points.last().updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
+                }
+            else if (differencePoints < 0) {
+                for (n in 1..differencePoints* -1) {
+                    points.last().detachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
+                    points.last().updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
+                    val points1 = points.dropLast(1).toTypedArray()
                     points = points1
                 }
+
+
             }
-            points.forEach { point ->
-                point.delay = editDelay.text.toString().toLong()
-                point.duration = editDuration.text.toString().toLong()
-                point.repeat = editRepeat.text.toString().toInt()
-            }
+        }
+        points.forEach { point ->
+            point.delay = editDelay.text.toString().toLong()
+            point.duration = editDuration.text.toString().toLong()
+            point.repeat = editRepeat.text.toString().toInt()
+        }
+    }
+
+    override fun requireSettingEdit(){
+        saveButton?.isEnabled = isRequire()
+    }
+
+    override fun isRequire(): Boolean {
+        val delayRequire = editDelay.text.isNotEmpty() &&
+                Integer.parseInt(editDelay.text.toString()) >= 0
+        val durationRequire = editDuration.text.isNotEmpty() &&
+                Integer.parseInt(editDuration.text.toString()) > 0
+        val repeatRequire = editRepeat.text.isNotEmpty() &&
+                Integer.parseInt(editRepeat.text.toString()) > 0
+        return delayRequire && durationRequire && repeatRequire
+    }
+
+        override val expandableSave = {
 
         }
 
-        override fun requireSettingEdit(){
-            saveButton?.isEnabled = isRequire()
-        }
+        override val expandableUpdate = {
 
-        override fun isRequire(): Boolean {
-            val delayRequire = editDelay.text.isNotEmpty() &&
-                    Integer.parseInt(editDelay.text.toString()) >= 0
-            val durationRequire = editDuration.text.isNotEmpty() &&
-                    Integer.parseInt(editDuration.text.toString()) > 0
-            val repeatRequire = editRepeat.text.isNotEmpty() &&
-                    Integer.parseInt(editRepeat.text.toString()) > 0
-            return delayRequire && durationRequire && repeatRequire
         }
+    }
 
+    fun showDialog() {
+        val viewContent: View = createViewDialog()
+        val holder = createHolderDialog(viewContent)
+        holder.updateViewDialogParam()
+        val dialog = AlertDialog.Builder(view.context)
+                .setTitle(view.context.getString(R.string.setting_point))
+                .setView(viewContent)
+                .setPositiveButton(R.string.save) { _, _ ->
+                    holder.saveEditDialog()
+                    detachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
+                    attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
+                    super.repeat = points[0].repeat
+                }.setNegativeButton(R.string.cancel) { _, _ ->
+                }
+                .setOnCancelListener { _ ->
+                }
+                .create()
+        holder.dialog = dialog;
+        dialog.window?.setType(getWindowsTypeApplicationOverlay())
+        dialog.show()
+        holder.saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
     }
 }

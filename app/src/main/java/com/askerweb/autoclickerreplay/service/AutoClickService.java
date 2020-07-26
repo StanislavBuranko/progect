@@ -579,7 +579,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     }
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        RecordPoints.onTouch(event,wm, listCommands,canvasView);
+        //RecordPoints.onTouch(event,wm, listCommands,canvasView);
         return true;
     }
 

@@ -122,6 +122,28 @@ class PinchPoint:Point {
         secondPoint.view.setOnTouchListener(ConnectMirrorTouchListener.create(secondPoint, firstPoint, wm, canvas, bounds))
     }
 
+    override fun setTouchable(touchable: Boolean, wm:WindowManager){
+        if(touchable){
+            params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+            view.isClickable = true
+            firstPoint.params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+            firstPoint.view.isClickable = true
+            secondPoint.params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+            secondPoint.view.isClickable = true
+        }
+        else{
+            params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            view.isClickable = false
+            firstPoint.params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            firstPoint.view.isClickable = false
+            secondPoint.params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            secondPoint.view.isClickable = false
+        }
+        wm.updateViewLayout(view, params)
+        wm.updateViewLayout(firstPoint.view, firstPoint.params)
+        wm.updateViewLayout(secondPoint.view, secondPoint.params)
+    }
+
     companion object CREATOR : Parcelable.Creator<Point> {
         override fun createFromParcel(parcel: Parcel): Point {
             return PointBuilder.invoke().buildFrom(PinchPoint::class.java, parcel)

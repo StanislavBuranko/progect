@@ -111,6 +111,23 @@ class SwipePoint : Point {
         dest?.writeParcelable(nextPoint, flags)
     }
 
+    override fun setTouchable(touchable: Boolean, wm:WindowManager){
+        if(touchable){
+            params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+            view.isClickable = true
+            nextPoint.params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+            nextPoint.view.isClickable = true
+        }
+        else{
+            params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            view.isClickable = false
+            nextPoint.params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            nextPoint.view.isClickable = false
+        }
+        wm.updateViewLayout(view, params)
+        wm.updateViewLayout(nextPoint.view, nextPoint.params)
+    }
+
     override fun getCommand() : GestureDescription {
         "swipe from $xTouch $yTouch to ${nextPoint.xTouch} ${nextPoint.yTouch}".logd()
         val path = Path()

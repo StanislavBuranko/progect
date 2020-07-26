@@ -27,41 +27,26 @@ public class RecordPoints {
 
     static CountDownTimer timer;
     static CountDownTimer timerForSwipe;
-    static Integer i;
-    static Boolean openRecordPanel = false;
-    static float xDown, yDown;
-    static Integer nMs = 0;
-    static Integer nForDurationMs = 0;
+    static int xDown, yDown, xMove, yMove, xUp, yUp;
+    static long nMs = 0;
+    static long nMsNow = 0;
+    static long nDurationMsNow = 0;
+    static long nDurationMs = 0;
     static Boolean actionUp = false;
     static Boolean actionMove = false;
     static Boolean actionDown = false;
     static Boolean work = false;
-    static Point point;
     static SwipePoint swipePoint;
-    static long nMsNow = 0;
-    static Integer xMove = 0;
-    static Integer yMove = 0;
-    static Boolean pointMicroMove = false;
-    static View recordPanel;
+    static int pointLocateHelper = 0;
     static Boolean timerForSwipeisStart = false;
-    static int delayHollder = 500;
+    static int delayHollder = 400;
 
     static public LinkedList<Point> listCommandoNow = new LinkedList<>();
-
-    public static final WindowManager.LayoutParams paramsRecordPanelFlagsOff =
-            UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, Gravity.CENTER);
-    public static final WindowManager.LayoutParams paramsRecordPanelFlagsOn =
-            UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, Gravity.CENTER,  WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 
     static boolean timerStart = false;
     static boolean recordPanelInitialization  = false;
 
-    static public  boolean recordPanelInitialization() {
-        recordPanel = LayoutInflater.from(AutoClickService.getService()).inflate(R.layout.record_panel, null);
-        recordPanelInitialization = true;
-        return  true;
-    }
-
+    // start timer for delay
     public static void timerStart(){
         timer = new CountDownTimer(9999 * 1000, 10) {
             @Override
@@ -76,15 +61,16 @@ public class RecordPoints {
         }.start();
         timerStart = true;
     }
+    // canel timer for delay
     public static void timerCancel(){
         timer.cancel();
     }
-
+    // start timer for duration
     public static void timerForDurationStart(){
         timerForSwipe = new CountDownTimer(9999 * 1000, 10) {
             @Override
             public void onTick(long l) {
-                nForDurationMs += 10;
+                nDurationMs += 10;
             }
 
             @Override
@@ -94,16 +80,20 @@ public class RecordPoints {
         }.start();
         timerStart = true;
     }
+    // canel timer for duration
     public static void timerForDurationCancel(){
         timerForSwipe.cancel();
-        nForDurationMs = 0;
+        nDurationMs = 0;
     }
+    // onTouch method for recordPanel
+    public static void onTouch(MotionEvent event, WindowManager wm, List<Point> listCommando, PointCanvasView canvasView, float paramSizePoint) {
+        if(paramSizePoint == 32)
+            pointLocateHelper = 37;
+        else if(paramSizePoint == 40)
+            pointLocateHelper = 50;
+        else if(paramSizePoint == 56)
+            pointLocateHelper = 75;
 
-    public static void onTouch(MotionEvent event, WindowManager wm, List<Point> listCommando, PointCanvasView canvasView) {
-        int xUp = 0;
-        int yUp = 0;
-        if(!recordPanelInitialization)
-            recordPanelInitialization();
         if(!timerStart)
             timerStart();
         if(!work) {
@@ -132,119 +122,145 @@ public class RecordPoints {
                     xDown = Math.round(event.getX());
                     yDown = Math.round(event.getY());
                     timerForDurationStart();
-                    nForDurationMs = 0;
+                    nDurationMs = 0;
+                    AutoClickService.updateLayoutFlagsOn();
                     break;
             }
             if (actionUp == true && actionMove == false && actionDown == true) {
                 actionUp = false;
                 actionDown = false;
                 nMsNow = nMs;
-                point = Point.PointBuilder.invoke()
-                        .position((int) xDown-75, (int) yDown-75)
-                        .delay(nMsNow).duration(nForDurationMs)
+                nDurationMsNow = nDurationMs;
+                Point point = Point.PointBuilder.invoke()
+                        .position((int) xDown-pointLocateHelper, (int) yDown-pointLocateHelper)
                         .text(String.format("%s", listCommando.size() + 1))
                         .build(ClickPoint.class);
 
                 point.attachToWindow(wm, canvasView);
-                listCommando.add(point);
-
+                point.updateListener(wm,canvasView, AutoClickService.getParamBound());
                 point.setTouchable(false, wm);
 
-                point.setDelay((long) 1);
-                listCommandoNow.add(point);
+                listCommando.add(point);
 
-                AutoClickService.updateLayoutFlagsOn();
-                SimulateTouchAccessibilityService.requestStart(listCommandoNow);
-                listCommandoNow.clear();
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    public void run() {
+                point.setDelay((long) 1);
+                point.setDuration((long) 1);
+
+                SimulateTouchAccessibilityService.execCommand(point, new AccessibilityService.GestureResultCallback() {
+                    @Override
+                    public void onCompleted(GestureDescription gestureDescription) {
+                        super.onCompleted(gestureDescription);
                         AutoClickService.updateLayoutFlagsOff();
+                        Log.d(LogExt.TAG, "gesture completed");
                     }
-                }, delayHollder);
+
+                    @Override
+                    public void onCancelled(GestureDescription gestureDescription) {
+                        super.onCancelled(gestureDescription);
+                        AutoClickService.updateLayoutFlagsOff();
+                        Log.d(LogExt.TAG, "gesture cancelled ");
+                    }
+                });
+
                 point.setDelay(nMsNow);
+                point.setDuration(nDurationMsNow);
                 nMs = 0;
-                nForDurationMs = 0;
+                nDurationMs = 0;
+
                 timerForDurationCancel();
+                actionDown = false;
+                actionUp = false;
+                actionMove = false;
             }
             else if (actionMove == true && actionUp == true && actionUp == true) {
                 boolean isWorkSwipe = false;
                 if (xDown - 75 <= xMove && xMove <= xDown + 75 && yDown - 75 <= yMove && yMove <= yDown + 75) {
                     nMsNow = nMs;
-                    point = Point.PointBuilder.invoke()
-                            .position((int) xDown-75, (int) yDown-75)
+                    nDurationMsNow = nDurationMs;
+                    Point point = Point.PointBuilder.invoke()
+                            .position((int) xDown-pointLocateHelper, (int) yDown-pointLocateHelper)
                             .delay(nMsNow)
                             .text(String.format("%s", listCommando.size() + 1))
                             .build(ClickPoint.class);
 
                     point.attachToWindow(wm, canvasView);
+                    point.updateListener(wm,canvasView, AutoClickService.getParamBound());
+                    point.setTouchable(false, wm);
+
                     listCommando.add(point);
 
-                    point.setTouchable(false, wm);
-
-
                     point.setDelay((long) 1);
-                    listCommandoNow.add(point);
+                    point.setDuration((long) 1);
 
-                    point.setTouchable(false, wm);
-
-
-                    AutoClickService.updateLayoutFlagsOn();
-
-                    SimulateTouchAccessibilityService.requestStart(listCommandoNow);
-                    listCommandoNow.clear();
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        public void run() {
+                    SimulateTouchAccessibilityService.execCommand(point, new AccessibilityService.GestureResultCallback() {
+                        @Override
+                        public void onCompleted(GestureDescription gestureDescription) {
+                            super.onCompleted(gestureDescription);
                             AutoClickService.updateLayoutFlagsOff();
+                            Log.d(LogExt.TAG, "gesture completed");
                         }
-                    }, delayHollder);
-                    point.setDelay(nMsNow);
-                    nMs = 0;
-                    timerForDurationCancel();
 
+                        @Override
+                        public void onCancelled(GestureDescription gestureDescription) {
+                            super.onCancelled(gestureDescription);
+                            AutoClickService.updateLayoutFlagsOff();
+                            Log.d(LogExt.TAG, "gesture cancelled ");
+                        }
+                    });
+
+                    point.setDelay(nMsNow);
+                    point.setDuration(nDurationMsNow);
+                    nMs = 0;
+                    nDurationMs = 0;
+
+                    timerForDurationCancel();
+                    actionDown = false;
+                    actionUp = false;
+                    actionMove = false;
                 }
                 else if (!isWorkSwipe){
                     isWorkSwipe = true;
                     nMsNow = nMs;
-                    point = Point.PointBuilder.invoke()
-                            .position((int) xDown-75, (int) yDown-75)
-                            .delay(nMsNow).duration(nForDurationMs)
+                    Point point = (SwipePoint) Point.PointBuilder.invoke()
+                            .position((int) xDown-pointLocateHelper, (int) yDown-pointLocateHelper)
+                            .delay(nMsNow).duration(nDurationMs)
                             .text(String.format("%s", listCommando.size() + 1))
                             .build(SwipePoint.class);
                     swipePoint = (SwipePoint) point;
-                    swipePoint.getNextPoint().setX(xUp-75);
-                    swipePoint.getNextPoint().setY(yUp-75);
+                    swipePoint.getNextPoint().setX(xUp-pointLocateHelper);
+                    swipePoint.getNextPoint().setY(yUp-pointLocateHelper);
 
                     point.attachToWindow(wm, canvasView);
-
+                    point.updateListener(wm,canvasView, AutoClickService.getParamBound());
                     point.setTouchable(false, wm);
 
 
                     listCommando.add(point);
 
                     point.setDelay((long) 1);
-                    listCommandoNow.add(point);
+                    point.setDuration((long) 1);
 
-                    AutoClickService.updateLayoutFlagsOn();
-
-                    Log.d("123qwe",""+point.getDuration());
-
-                    SimulateTouchAccessibilityService.requestStart(listCommandoNow);
-                    listCommandoNow.clear();
-
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        public void run() {
+                    SimulateTouchAccessibilityService.execCommand(point, new AccessibilityService.GestureResultCallback() {
+                        @Override
+                        public void onCompleted(GestureDescription gestureDescription) {
+                            super.onCompleted(gestureDescription);
                             AutoClickService.updateLayoutFlagsOff();
+                            Log.d(LogExt.TAG, "gesture completed");
                         }
-                    }, delayHollder);
 
+                        @Override
+                        public void onCancelled(GestureDescription gestureDescription) {
+                            super.onCancelled(gestureDescription);
+                            AutoClickService.updateLayoutFlagsOff();
+                            Log.d(LogExt.TAG, "gesture cancelled ");
+                        }
+                    });
 
                     point.setDelay(nMsNow);
+                    point.setDuration(nDurationMsNow);
                     nMs = 0;
-                    timerForDurationCancel();
+                    nDurationMs = 0;
 
+                    timerForDurationCancel();
                     actionDown = false;
                     actionUp = false;
                     actionMove = false;
