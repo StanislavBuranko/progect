@@ -25,7 +25,8 @@ fun getSetting(key:String, defaultValue:String):String?{
 fun getSetting(key:String, defaultValue:Int):Int?{
     return PreferenceManager
             .getDefaultSharedPreferences(context)
-            .getString(key, defaultValue.toString())?.toInt()
+            .getString(key, defaultValue.toString())?.toIntOrNull()
+
 }
 
 fun getSetting(key:String, defaultValue:Boolean):Boolean?{

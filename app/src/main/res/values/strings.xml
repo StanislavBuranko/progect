@@ -70,4 +70,5 @@
     <string name="delete_multi_point" translatable="false">Удалить мулти поинт</string>
 
     <string name="Interstitial_Unit_Ad_ID" translatable="false">ca-app-pub-8943838769488807/5167779275</string>
+    <string name="Banner_in_Setting_Unit_Ad_ID" translatable="false">ca-app-pub-8943838769488807/9648189572</string>
 </resources>

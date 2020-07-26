@@ -3,6 +3,15 @@ package com.askerweb.autoclickerreplay;
 import android.app.Application;
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchasesUpdatedListener;
+import com.android.billingclient.api.SkuDetailsParams;
 import com.askerweb.autoclickerreplay.di.ActivityComponent;
 import com.askerweb.autoclickerreplay.di.ActivityModule;
 import com.askerweb.autoclickerreplay.di.AppComponent;
@@ -10,17 +19,18 @@ import com.askerweb.autoclickerreplay.di.ApplicationModule;
 import com.askerweb.autoclickerreplay.di.DaggerAppComponent;
 import com.askerweb.autoclickerreplay.di.ListCommandModule;
 import com.askerweb.autoclickerreplay.di.ServiceComponent;
+import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.point.Point;
 import com.askerweb.autoclickerreplay.service.AutoClickService;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import kotlin.jvm.internal.markers.KMutableList;
+import javax.inject.Inject;
 
 public class App extends Application {
 
@@ -35,13 +45,46 @@ public class App extends Application {
         return instance;
     }
 
+    public static PurchasesUpdatedListener purchasesListener = new PurchasesUpdatedListener() {
+        @Override
+        public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> list) {
+
+        }
+    };
+
+    public static BillingClientStateListener billingStateListener = new BillingClientStateListener() {
+        @Override
+        public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
+            if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+
+            }
+        }
+
+        @Override
+        public void onBillingServiceDisconnected() {
+
+        }
+    };
+
+    @Inject
+    BillingClient clientBilling;
+
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
+        MobileAds.initialize(instance);
+        List<String> android_id = Collections.singletonList("B661284821DE7327318792508C54E72D");
+        MobileAds.setRequestConfiguration(
+                new RequestConfiguration.Builder()
+                        .setTestDeviceIds(android_id)
+                        .build()
+        );
         appComponent = DaggerAppComponent.builder()
-                .applicationModule(new ApplicationModule(this))
+                .applicationModule(new ApplicationModule(instance))
                 .build();
+        appComponent.inject(instance);
+        clientBilling.startConnection(billingStateListener);
     }
 
     public static void initActivityComponent(Context mainActivityContext){
@@ -66,6 +109,37 @@ public class App extends Application {
             }
         }
     }
+
+
+
+    private void querySkuDetails() {
+//        SkuDetailsParams.Builder skuDetailsParamsBuilder = SkuDetailsParams.newBuilder();
+////        List<String> skuList = new ArrayList<>();
+////        skuList.add(mSkuId);
+////        skuDetailsParamsBuilder.setSkusList(skuList).setType(BillingClient.SkuType.INAPP);
+////        mBillingClient.querySkuDetailsAsync(skuDetailsParamsBuilder.build(), new SkuDetailsResponseListener() {
+////            @Override
+////            public void onSkuDetailsResponse(int responseCode, List<SkuDetails> skuDetailsList) {
+////                if (responseCode == 0) {
+////                    for (SkuDetails skuDetails : skuDetailsList) {
+////                        mSkuDetailsMap.put(skuDetails.getSku(), skuDetails);
+////                    }
+////                }
+////            }
+////        });
+    }
+
+    public static void disableServiceComponent(){
+        if(serviceComponent != null) {
+            synchronized (instance){
+                if(serviceComponent != null){
+                    serviceComponent = null;
+                }
+            }
+        }
+    }
+
+
 
 
 }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="textWidthFaq">250dp</dimen>
+    <dimen name="imageFaqSize">160dp</dimen>
+    <dimen name="list_image_size">21dp</dimen>
+    <dimen name="textSizeFaq">12sp</dimen>
+    <dimen name="textSizeFaqTitle">14sp</dimen>
+</resources>

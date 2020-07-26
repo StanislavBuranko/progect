@@ -17,10 +17,13 @@ import com.askerweb.autoclickerreplay.ktExt.loadMacroFromJson
 import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.ktExt.saveMacroToJson
 import com.askerweb.autoclickerreplay.service.AutoClickService
+import com.google.android.gms.ads.AdRequest
 import kotlinx.android.synthetic.main.setting_layout.*;
 import java.io.File
 
 class SettingActivity : AppCompatActivity() {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.setting_layout)
@@ -71,6 +74,7 @@ class SettingActivity : AppCompatActivity() {
                 Toast.makeText(this, R.string.toast_havent_saved_script, Toast.LENGTH_LONG).show()
             }
         }
+        adBanner.loadAd(AdRequest.Builder().build())
     }
 
     class ScriptSavedAdapterFiles constructor(var listFiles:MutableList<File>,

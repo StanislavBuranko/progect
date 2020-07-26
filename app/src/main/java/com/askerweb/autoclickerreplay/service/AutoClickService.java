@@ -9,7 +9,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.Gravity;
@@ -30,6 +33,7 @@ import androidx.core.content.ContextCompat;
 
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
+import com.askerweb.autoclickerreplay.activity.AdActivity;
 import com.askerweb.autoclickerreplay.activity.MainActivity;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
@@ -44,12 +48,15 @@ import com.askerweb.autoclickerreplay.point.RecordPoints;
 import com.askerweb.autoclickerreplay.point.SwipePoint;
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView;
 import com.askerweb.autoclickerreplay.point.view.ViewOverlayOnTouchListener;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -84,6 +91,9 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     @Inject
     public List<Point> listCommands;
 
+    @Inject
+    public InterstitialAd interstitialAd;
+
     public Boolean paramBoundsOn;
     public Integer paramRepeatMacro;
     public Integer paramSizePoint;
@@ -99,7 +109,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, Gravity.CENTER);
     public static final WindowManager.LayoutParams paramsRecordPanelFlagsOn =
             UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, Gravity.CENTER,  WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-
 
     // update listener after change orientation
     public final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -125,6 +134,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 
     public final static String ACTIVITY_SETTING = "com.askerweb.autoclicker.setting";
 
+    public static long startCount = 0;
 
     @Override
     public void onCreate() {
@@ -132,13 +142,23 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         service = this;
         App.initServiceComponent(service);
         App.serviceComponent.inject(service);
+        interstitialAd.setAdListener(new AdListener(){
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+                interstitialAd.loadAd(new AdRequest.Builder().build());
+                AdActivity.getInstance()
+                        .getClosedInterstitialAd()
+                        .sendEmptyMessageDelayed(0, 0);
+                runMacroAfterAd();
+            }
+        });
         updateSetting();
         initView();
         //start listing change orientation
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
         registerReceiver(receiver, intentFilter);
-
     }
 
     private void initView(){
@@ -248,10 +268,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 //    @OnClick(R.id.start_pause)
     public void startPauseCommand(){
         String action = SimulateTouchAccessibilityService.isPlaying() ? ACTION_STOP : ACTION_START;
-        if(action == ACTION_START){
-            LogExt.logd("shows");
-            MainActivity.interstitialAd.show();
-        }
         requestAction(this, action);
     }
 
@@ -396,6 +412,18 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         stopSelf();
     }
 
+    public void hideViews(){
+        controlPanel.setVisibility(View.GONE);
+        listCommands.forEach((c)->c.setVisible(View.GONE));
+        canvasView.invalidate();
+    }
+
+    public void showViews(){
+        controlPanel.setVisibility(View.VISIBLE);
+        listCommands.forEach((c)->c.setVisible(View.VISIBLE));
+        canvasView.invalidate();
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(intent == null || intent.getAction() == null) return super.onStartCommand(intent, flags, startId);
@@ -408,21 +436,25 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 SimulateTouchAccessibilityService.requestStop();
                 break;
             case ACTION_START:
-                listCommands.forEach((c)->c.setTouchable(false,wm));
-                controlPanel.findViewById(R.id.start_pause)
-                        .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_pause));
-                group_control.setVisibility(View.GONE);
-                SimulateTouchAccessibilityService.requestStart(listCommands);
+                startCount++;
+                if(interstitialAd.isLoaded() && (startCount % 2) == 0){
+                    hideViews();
+                    // request to show ad
+                    Intent intent1 = new Intent(this, AdActivity.class);
+                    intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                    intent1.putExtra("ad_request", "true");
+                    startActivity(intent1);
+                    LogExt.logd("showed Ad");
+                }
+                else
+                    runMacro();
                 break;
             case ACTION_HIDE_VIEWS:
-                controlPanel.setVisibility(View.GONE);
-                listCommands.forEach((c)->c.setVisible(View.GONE));
-                canvasView.invalidate();
+                hideViews();
                 break;
             case ACTION_SHOW_VIEWS:
-                controlPanel.setVisibility(View.VISIBLE);
-                listCommands.forEach((c)->c.setVisible(View.VISIBLE));
-                canvasView.invalidate();
+                showViews();
                 break;
             case ACTION_UPDATE_SETTING: //update after change setting
                 updateSetting();
@@ -437,6 +469,19 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 break;
         }
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void runMacro(){
+        listCommands.forEach((c)->c.setTouchable(false,wm));
+        controlPanel.findViewById(R.id.start_pause)
+                .setBackground(ContextCompat.getDrawable(AutoClickService.this, R.drawable.ic_pause));
+        group_control.setVisibility(View.GONE);
+        SimulateTouchAccessibilityService.requestStart(listCommands);
+    }
+
+    private void runMacroAfterAd(){
+        showViews();
+        runMacro();
     }
 
     private void duplicatePoint(Point point) {

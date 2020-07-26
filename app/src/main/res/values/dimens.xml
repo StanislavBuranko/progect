@@ -32,4 +32,5 @@
     <dimen name="list_image_size">30dp</dimen>
     <dimen name="textSizeFaq">16sp</dimen>
     <dimen name="textSizeFaqTitle">18sp</dimen>
+
 </resources>
