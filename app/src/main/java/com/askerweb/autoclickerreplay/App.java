@@ -11,7 +11,9 @@ import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
+import com.android.billingclient.api.SkuDetails;
 import com.android.billingclient.api.SkuDetailsParams;
+import com.android.billingclient.api.SkuDetailsResponseListener;
 import com.askerweb.autoclickerreplay.di.ActivityComponent;
 import com.askerweb.autoclickerreplay.di.ActivityModule;
 import com.askerweb.autoclickerreplay.di.AppComponent;
@@ -26,6 +28,7 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.RequestConfiguration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,6 +71,8 @@ public class App extends Application {
 
     @Inject
     BillingClient clientBilling;
+
+    List<String> mSkuIds = Arrays.asList("turn_off_ad");
 
     @Override
     public void onCreate() {
@@ -113,20 +118,18 @@ public class App extends Application {
 
 
     private void querySkuDetails() {
-//        SkuDetailsParams.Builder skuDetailsParamsBuilder = SkuDetailsParams.newBuilder();
-////        List<String> skuList = new ArrayList<>();
-////        skuList.add(mSkuId);
-////        skuDetailsParamsBuilder.setSkusList(skuList).setType(BillingClient.SkuType.INAPP);
-////        mBillingClient.querySkuDetailsAsync(skuDetailsParamsBuilder.build(), new SkuDetailsResponseListener() {
-////            @Override
-////            public void onSkuDetailsResponse(int responseCode, List<SkuDetails> skuDetailsList) {
-////                if (responseCode == 0) {
-////                    for (SkuDetails skuDetails : skuDetailsList) {
-////                        mSkuDetailsMap.put(skuDetails.getSku(), skuDetails);
-////                    }
-////                }
-////            }
-////        });
+        SkuDetailsParams.Builder skuDetailsParamsBuilder = SkuDetailsParams.newBuilder();
+        skuDetailsParamsBuilder.setSkusList(mSkuIds).setType(BillingClient.SkuType.INAPP);
+        clientBilling.querySkuDetailsAsync(skuDetailsParamsBuilder.build(), new SkuDetailsResponseListener() {
+            @Override
+            public void onSkuDetailsResponse(@NonNull BillingResult billingResult, @Nullable List<SkuDetails> list) {
+                if (billingResult.getResponseCode() == 0) {
+                    for (SkuDetails skuDetails : list) {
+                        mSkuDetailsMap.put(skuDetails.getSku(), skuDetails);
+                    }
+                }
+            }
+        });
     }
 
     public static void disableServiceComponent(){

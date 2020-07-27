@@ -185,6 +185,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         unbindControlPanel = ButterKnife.bind(this, controlPanel);
 
         setControlSize();
+
         //on start button
         controlPanel.findViewById(R.id.start_pause).setOnTouchListener((v, event)->{
             switch (event.getAction() & MotionEvent.ACTION_MASK){

@@ -90,6 +90,8 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 super.onCancelled(gestureDescription);
                 Log.d(LogExt.TAG, "gesture cancelled ");
             }
+
+
         });
     }
 
