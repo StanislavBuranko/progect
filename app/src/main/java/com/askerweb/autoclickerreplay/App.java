@@ -125,7 +125,7 @@ public class App extends Application {
             public void onSkuDetailsResponse(@NonNull BillingResult billingResult, @Nullable List<SkuDetails> list) {
                 if (billingResult.getResponseCode() == 0) {
                     for (SkuDetails skuDetails : list) {
-                        mSkuDetailsMap.put(skuDetails.getSku(), skuDetails);
+//                        mSkuDetailsMap.put(skuDetails.getSku(), skuDetails);
                     }
                 }
             }
