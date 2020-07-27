@@ -36,7 +36,7 @@ class MultiPoint: Point {
 
     var isDelete = false
 
-    var points: Array<Point> = arrayOf()
+    public var points: Array<Point> = arrayOf()
 
     constructor(parcel: Parcel) : super(parcel) {
         var parcelPoints = parcel.readParcelableArray(MultiPoint::class.java.classLoader)
@@ -57,6 +57,14 @@ class MultiPoint: Point {
                 .text((listCommands.size + 1).toString())
                 .build(SimplePoint::class.java)
         setTextArray = true
+    }
+
+    public fun createPointsForRecordPanel(numbersElements: Int, x:Int, y:Int){
+            points += PointBuilder.invoke()
+                    .position(x, y)
+                    .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click_1)!!)
+                    .text((listCommands.size + 1).toString())
+                    .build(SimplePoint::class.java)
     }
 
     constructor(builder: PointBuilder) : super(builder) {
@@ -192,6 +200,11 @@ class MultiPoint: Point {
                 dialog?.cancel()
             }
 
+            btn_duplicate.setOnClickListener{
+                // Duplicate this point
+                AutoClickService.requestAction(appContext, AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, this@MultiPoint)
+                dialog?.cancel()
+            }
 
             editNumbMultiPoint.addTextChangedListener {
                 if (editNumbMultiPoint.text.toString() != "")
