@@ -1,9 +1,13 @@
 package com.askerweb.autoclickerreplay.activity
 
 import android.app.AlertDialog
+import android.opengl.Visibility
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
@@ -18,11 +22,18 @@ import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.ktExt.saveMacroToJson
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.android.gms.ads.AdRequest
+import kotlinx.android.synthetic.main.control_panel_service.view.*
 import kotlinx.android.synthetic.main.setting_layout.*;
 import java.io.File
 
 class SettingActivity : AppCompatActivity() {
 
+
+    companion object{
+        private var _handlerBoughtAd:Handler? = null
+        @JvmStatic val handlerBoughtAd
+            get() = _handlerBoughtAd
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +66,7 @@ class SettingActivity : AppCompatActivity() {
                 Toast.makeText(this, R.string.toast_empty_script, Toast.LENGTH_LONG).show()
             }
         }
-        load_btn.setOnClickListener { //TODO "refactor code here", comment code here
+        load_btn.setOnClickListener {
             AutoClickService.start(this)
             val dir = mutableListOf<File>(*filesDir.listFiles()!!)
             if(dir.isNotEmpty()){
@@ -74,7 +85,23 @@ class SettingActivity : AppCompatActivity() {
                 Toast.makeText(this, R.string.toast_havent_saved_script, Toast.LENGTH_LONG).show()
             }
         }
-        adBanner.loadAd(AdRequest.Builder().build())
+        turn_off_ad.setOnClickListener {
+            App.launchPay(this, getString(R.string.id_sku_turn_off_ad));
+        }
+        _handlerBoughtAd = Handler{
+            adBanner.visibility = GONE
+            adBanner.destroy()
+            false
+        }
+        if(App.isShowAd()) {
+            adBanner.loadAd(AdRequest.Builder().build())
+            adBanner.visibility = VISIBLE
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _handlerBoughtAd = null
     }
 
     class ScriptSavedAdapterFiles constructor(var listFiles:MutableList<File>,

@@ -90,8 +90,6 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 super.onCancelled(gestureDescription);
                 Log.d(LogExt.TAG, "gesture cancelled ");
             }
-
-
         });
     }
 
@@ -100,8 +98,6 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
         intent.setAction(action);
         service.getApplicationContext().startService(intent);
     }
-
-
 
     public static void requestStart(List<Point> list){
         Intent intent = new Intent(service.appContext, SimulateTouchAccessibilityService.class)

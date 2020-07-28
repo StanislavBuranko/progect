@@ -6,6 +6,7 @@
     android:layout_height="match_parent">
     <com.google.android.gms.ads.AdView
         android:id="@+id/adBanner"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:adSize="SMART_BANNER"
@@ -39,6 +40,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/load_script"
+                android:layout_marginRight="@dimen/xxlarge_size"
+                android:layout_marginLeft="@dimen/xxlarge_size"
+                android:layout_marginBottom="@dimen/xmiddle_size"/>
+            <Button
+                android:id="@+id/turn_off_ad"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/turn_off_ad"
                 android:layout_marginRight="@dimen/xxlarge_size"
                 android:layout_marginLeft="@dimen/xxlarge_size"
                 android:layout_marginBottom="@dimen/xmiddle_size"/>

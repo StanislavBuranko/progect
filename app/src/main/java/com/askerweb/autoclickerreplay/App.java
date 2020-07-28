@@ -1,19 +1,23 @@
 package com.askerweb.autoclickerreplay;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.SkuDetails;
 import com.android.billingclient.api.SkuDetailsParams;
 import com.android.billingclient.api.SkuDetailsResponseListener;
+import com.askerweb.autoclickerreplay.activity.SettingActivity;
 import com.askerweb.autoclickerreplay.di.ActivityComponent;
 import com.askerweb.autoclickerreplay.di.ActivityModule;
 import com.askerweb.autoclickerreplay.di.AppComponent;
@@ -30,8 +34,11 @@ import com.google.android.gms.ads.RequestConfiguration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -48,18 +55,32 @@ public class App extends Application {
         return instance;
     }
 
+    private static boolean isShowAd = true;
+
     public static PurchasesUpdatedListener purchasesListener = new PurchasesUpdatedListener() {
         @Override
         public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> list) {
-
+            if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK && list != null) {
+                payTurnOffAd();
+            }
         }
     };
 
     public static BillingClientStateListener billingStateListener = new BillingClientStateListener() {
         @Override
         public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
+            LogExt.logd("setat");
             if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                LogExt.logd("setat e");
 
+                getInstance().querySkuDetails(); // query get unit product
+                List<Purchase> purchasesList = getInstance().queryPurchases(); // query get bought unit
+                for (int i = 0; i < purchasesList.size(); i++) {
+                    String purchaseId = purchasesList.get(i).getSku();
+                    if(purchaseId.equals(getInstance().getString(R.string.id_sku_turn_off_ad))) {
+                        payTurnOffAd();
+                    }
+                }
             }
         }
 
@@ -72,19 +93,22 @@ public class App extends Application {
     @Inject
     BillingClient clientBilling;
 
-    List<String> mSkuIds = Arrays.asList("turn_off_ad");
+    List<String> mSkuIds;
+
+    private Map<String, SkuDetails> mSkuDetailsMap = new HashMap<>();
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
+        mSkuIds = Collections.singletonList(getString(R.string.id_sku_turn_off_ad));
         MobileAds.initialize(instance);
-        List<String> android_id = Collections.singletonList("B661284821DE7327318792508C54E72D");
-        MobileAds.setRequestConfiguration(
-                new RequestConfiguration.Builder()
-                        .setTestDeviceIds(android_id)
-                        .build()
-        );
+//        List<String> android_id = Collections.singletonList("B661284821DE7327318792508C54E72D");
+//        MobileAds.setRequestConfiguration(
+//                new RequestConfiguration.Builder()
+//                        .setTestDeviceIds(android_id)
+//                        .build()
+//        );
         appComponent = DaggerAppComponent.builder()
                 .applicationModule(new ApplicationModule(instance))
                 .build();
@@ -116,7 +140,6 @@ public class App extends Application {
     }
 
 
-
     private void querySkuDetails() {
         SkuDetailsParams.Builder skuDetailsParamsBuilder = SkuDetailsParams.newBuilder();
         skuDetailsParamsBuilder.setSkusList(mSkuIds).setType(BillingClient.SkuType.INAPP);
@@ -125,11 +148,17 @@ public class App extends Application {
             public void onSkuDetailsResponse(@NonNull BillingResult billingResult, @Nullable List<SkuDetails> list) {
                 if (billingResult.getResponseCode() == 0) {
                     for (SkuDetails skuDetails : list) {
-//                        mSkuDetailsMap.put(skuDetails.getSku(), skuDetails);
+                        LogExt.logd(skuDetails.getSku());
+                        mSkuDetailsMap.put(skuDetails.getSku(), skuDetails);
                     }
                 }
             }
         });
+    }
+
+    private List<Purchase> queryPurchases() {
+        Purchase.PurchasesResult purchasesResult = clientBilling.queryPurchases(BillingClient.SkuType.INAPP);
+        return purchasesResult.getPurchasesList();
     }
 
     public static void disableServiceComponent(){
@@ -142,7 +171,23 @@ public class App extends Application {
         }
     }
 
+    public static boolean isShowAd() {
+        return isShowAd;
+    }
 
+    public static void launchPay(Activity activity, String skuId){
+        LogExt.logd(String.valueOf(getInstance().mSkuDetailsMap.get(skuId)));
+        SkuDetails skuDetails = Objects.requireNonNull(getInstance().mSkuDetailsMap.get(skuId));
+        BillingFlowParams billingFlowParams = BillingFlowParams.newBuilder()
+                .setSkuDetails(skuDetails)
+                .build();
+        getInstance().clientBilling.launchBillingFlow(activity, billingFlowParams);
+    }
 
+    private static void payTurnOffAd(){
+        isShowAd = false;
+        if(SettingActivity.getHandlerBoughtAd() != null){
+            SettingActivity.getHandlerBoughtAd().sendEmptyMessage(0);
+        }    }
 
 }

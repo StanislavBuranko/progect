@@ -62,4 +62,6 @@
     <string name="cancel">Cancel</string>
     <string name="setting">Setting</string>
 
+    <string name="turn_off_ad">Turn off ad</string>
+
 </resources>

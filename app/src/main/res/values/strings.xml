@@ -65,10 +65,14 @@
     <string name="cancel">Отмена</string>
     <string name="setting">Настройки</string>
 
+    <string name="turn_off_ad">Отключить рекламу</string>
+
     <string name="plus" translatable="false">+</string>
     <string name="minus" translatable="false">—</string>
     <string name="delete_multi_point" translatable="false">Удалить мулти поинт</string>
 
     <string name="Interstitial_Unit_Ad_ID" translatable="false">ca-app-pub-8943838769488807/5167779275</string>
     <string name="Banner_in_Setting_Unit_Ad_ID" translatable="false">ca-app-pub-8943838769488807/9648189572</string>
+
+    <string name="id_sku_turn_off_ad" translatable="false">turn_off_ad</string>
 </resources>
