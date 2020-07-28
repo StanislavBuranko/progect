@@ -9,10 +9,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
+
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.Gravity;
@@ -34,7 +32,6 @@ import androidx.core.content.ContextCompat;
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.activity.AdActivity;
-import com.askerweb.autoclickerreplay.activity.MainActivity;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
@@ -54,7 +51,6 @@ import com.google.android.gms.ads.InterstitialAd;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -229,6 +225,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             a.detachToWindow(wm, canvasView);
         }
         wm.removeView(controlPanel);
+        wm.removeView(recordPanel);
         wm.removeView(canvasView);
         listCommands.clear();
         super.onDestroy();
@@ -409,7 +406,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         if(SimulateTouchAccessibilityService.isPlaying()){
             requestAction(this, ACTION_STOP);
         }
-        wm.removeView(recordPanel);
         stopSelf();
     }
 
@@ -438,7 +434,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 break;
             case ACTION_START:
                 startCount++;
-                if(interstitialAd.isLoaded() && (startCount % 2) == 0){
+                if(interstitialAd.isLoaded() && startCount >= 2){
                     hideViews();
                     // request to show ad
                     Intent intent1 = new Intent(this, AdActivity.class);

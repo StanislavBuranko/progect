@@ -188,6 +188,7 @@ public class App extends Application {
         isShowAd = false;
         if(SettingActivity.getHandlerBoughtAd() != null){
             SettingActivity.getHandlerBoughtAd().sendEmptyMessage(0);
-        }    }
+        }
+    }
 
 }
