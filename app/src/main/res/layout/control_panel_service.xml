@@ -56,7 +56,6 @@
     <!--                android:layout_width="match_parent"-->
     <!--                android:layout_height="wrap_content"-->
     <!--                android:background="@android:drawable/star_on"/>-->
-
             <Button
                 android:id="@+id/record_points"
                 android:layout_width="match_parent"
@@ -69,7 +68,6 @@
                     android:layout_height="match_parent"
                     android:background="@drawable/ic_settings"
                     android:layout_marginBottom="16dp"/>
-
         </LinearLayout>
 
         <Button

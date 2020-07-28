@@ -13,7 +13,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
@@ -25,8 +24,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class RecordPoints {
 
@@ -61,8 +58,6 @@ public class RecordPoints {
 
     static boolean timerStart = false;
     static boolean recordPanelInitialization  = false;
-
-    static View.OnLayoutChangeListener listenerChangeLayout = null;
 
     // start timer for delay
     public static void timerStart(){
@@ -167,7 +162,12 @@ public class RecordPoints {
                     pointsCreate = PointsCreate.Point;
                 Log.d("1",""+coordinateXDown.size());
                 AutoClickService.updateLayoutFlagsOn();
-                CreatPoint(wm,listCommando,canvasView,paramSizePoint);
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        CreatPoint(wm,listCommando,canvasView,paramSizePoint);
+                    }
+                }, 100);
                 coordinateXDown.clear();
                 coordinateYDown.clear();
                 break;

@@ -80,12 +80,12 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     static WindowManager wm = null;
     Unbinder unbindControlPanel = null;
     View controlPanel;
-    public static View recordPanel;
+    static View recordPanel;
     static PointCanvasView canvasView;
 
     @BindView(R.id.group_control)
     View group_control;
-    @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.remove_point, R.id.setting, R.id.close})
+    @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.setting, R.id.close})
     List<View> controls;
 
     @Inject
@@ -164,12 +164,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     private void initView(){
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
-        recordPanel.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                LogExt.logd("dd");
-            }
-        });
         recordPanel.setOnTouchListener(this);
         wm.addView(recordPanel, paramsRecordPanelFlagsOn);
 
@@ -296,7 +290,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         listTypes.add(SwipePoint.class);
         listTypes.add(PinchPoint.class);
 //        listTypes.add(PathPoint.class);
-//        listTypes.add(MultiPoint.class);
+        listTypes.add(MultiPoint.class);
         View title = UtilsApp.getDialogTitle(this, getString(R.string.sel_type_goal));
         TypePointAdapter adapter = new TypePointAdapter(new ContextThemeWrapper(this, R.style.AppDialog), listTypes);
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -444,7 +438,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 break;
             case ACTION_START:
                 startCount++;
-                if(App.isShowAd() && interstitialAd.isLoaded() && (startCount % 2) == 0){
+                if(interstitialAd.isLoaded() && (startCount % 2) == 0){
                     hideViews();
                     // request to show ad
                     Intent intent1 = new Intent(this, AdActivity.class);
@@ -586,7 +580,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     }
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        RecordPoints.onTouch(event,wm, listCommands,canvasView, paramSizePoint);
+        RecordPoints.onTouch(event,wm, listCommands, canvasView, paramSizePoint);
         return true;
     }
 

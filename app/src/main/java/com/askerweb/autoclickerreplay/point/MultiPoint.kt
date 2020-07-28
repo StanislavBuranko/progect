@@ -59,12 +59,17 @@ class MultiPoint: Point {
         setTextArray = true
     }
 
-    public fun createPointsForRecordPanel(numbersElements: Int, x:Int, y:Int){
-            points += PointBuilder.invoke()
-                    .position(x, y)
-                    .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click_1)!!)
-                    .text((listCommands.size + 1).toString())
-                    .build(SimplePoint::class.java)
+    public fun createPointsForRecordPanel(x:Int, y:Int) {
+        points += PointBuilder.invoke()
+                .position(x, y)
+                .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click_1)!!)
+                .text((listCommands.size + 1).toString())
+                .build(SimplePoint::class.java)
+    }
+
+    public fun clearArray(){
+        val points1: Array<Point> = arrayOf()
+        points = points1;
     }
 
     constructor(builder: PointBuilder) : super(builder) {
@@ -102,9 +107,12 @@ class MultiPoint: Point {
     override fun updateListener(wm: WindowManager, canvas: PointCanvasView, bounds: Boolean) {
         points.forEach { point -> point.updateListener(wm, canvas, bounds) }
     }
-
+    var isAttach = false
     override fun attachToWindow(wm: WindowManager, canvas: PointCanvasView) {
-        super.attachToWindow(wm, canvas)
+        if(!isAttach) {
+            super.attachToWindow(wm, canvas)
+            isAttach = true;
+        }
         points.forEach {
             it.attachToWindow(wm, canvas)
             it.view.setOnLongClickListener{
@@ -115,7 +123,10 @@ class MultiPoint: Point {
     }
 
     override fun detachToWindow(wm: WindowManager, canvas: PointCanvasView) {
-        super.detachToWindow(wm, canvas)
+        if(isAttach) {
+            super.detachToWindow(wm, canvas)
+            isAttach = false;
+        }
         points.forEach {
             it.detachToWindow(wm, canvas)
         }
