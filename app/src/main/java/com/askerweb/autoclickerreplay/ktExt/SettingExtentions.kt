@@ -11,7 +11,7 @@ import com.askerweb.autoclickerreplay.R
 @JvmField val KEY_BOUNDS_ON = context.resources.getString(R.string.key_preference_bounds_on)
 @JvmField val KEY_SIZE_CONTROL_PANEL = context.resources.getString(R.string.key_preference_size_control_panel)
 
-@JvmField val defaultSizeControl = context.resources.getStringArray(R.array.arr_size_control_panel_values)[1].toInt()
+@JvmField val defaultSizeControl = context.resources.getStringArray(R.array.arr_size_control_panel_values)[0].toInt()
 @JvmField val defaultSizePoint = context.resources.getStringArray(R.array.arr_size_point_values)[1].toInt()
 const val defaultRepeat = -1
 const val defaultBoundsOn = false

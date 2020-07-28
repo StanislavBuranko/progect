@@ -33,7 +33,7 @@
         android:key="@string/key_preference_size_control_panel"
         android:summary="@string/summary_size_control_panel_preference"
         android:title="@string/title_size_control_panel_preference"
-        android:defaultValue="20"
+        android:defaultValue="16"
         app:iconSpaceReserved="false" />
 
 

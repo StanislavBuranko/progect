@@ -350,7 +350,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 img.setImageResource(R.drawable.ic_path_point);
             }
             else if(clazz.isAssignableFrom(MultiPoint.class)){
-                img.setImageResource(R.drawable.ic_click_point);
+                img.setImageResource(R.drawable.ic_multi_point);
             }
             return v;
         }
@@ -433,7 +433,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 break;
             case ACTION_START:
                 startCount++;
-                if(interstitialAd.isLoaded() && (startCount % 2) == 0){
+                if(interstitialAd.isLoaded() && startCount >= 2){
                     hideViews();
                     // request to show ad
                     Intent intent1 = new Intent(this, AdActivity.class);

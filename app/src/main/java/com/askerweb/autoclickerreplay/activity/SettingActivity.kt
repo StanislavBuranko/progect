@@ -87,8 +87,8 @@ class SettingActivity : AppCompatActivity() {
             false
         }
         if(App.isShowAd()) {
-            adBanner.loadAd(AdRequest.Builder().build())
             adBanner.visibility = VISIBLE
+            adBanner.loadAd(AdRequest.Builder().build())
         }
     }
 
