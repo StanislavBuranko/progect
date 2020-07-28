@@ -163,9 +163,9 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 
     private void initView(){
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-//        recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
-//        recordPanel.setOnTouchListener(this);
-//        wm.addView(recordPanel, paramsRecordPanelFlagsOn);
+        recordPanel = LayoutInflater.from(this).inflate(R.layout.record_panel, null);
+        recordPanel.setOnTouchListener(this);
+        wm.addView(recordPanel, paramsRecordPanelFlagsOn);
 
         controlPanel = LayoutInflater.from(this).inflate(R.layout.control_panel_service, null);
         controlPanel.setLayoutParams(paramsControlPanel);
@@ -290,7 +290,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         listTypes.add(SwipePoint.class);
         listTypes.add(PinchPoint.class);
 //        listTypes.add(PathPoint.class);
-//        listTypes.add(MultiPoint.class);
+        listTypes.add(MultiPoint.class);
         View title = UtilsApp.getDialogTitle(this, getString(R.string.sel_type_goal));
         TypePointAdapter adapter = new TypePointAdapter(new ContextThemeWrapper(this, R.style.AppDialog), listTypes);
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -409,7 +409,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         if(SimulateTouchAccessibilityService.isPlaying()){
             requestAction(this, ACTION_STOP);
         }
-//        wm.removeView(recordPanel);
+        wm.removeView(recordPanel);
         stopSelf();
     }
 
@@ -580,7 +580,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     }
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        //RecordPoints.onTouch(event,wm, listCommands,canvasView);
+        RecordPoints.onTouch(event,wm, listCommands, canvasView, paramSizePoint);
         return true;
     }
 

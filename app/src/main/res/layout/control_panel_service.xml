@@ -68,8 +68,8 @@
                 android:id="@+id/record_points"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone"
-                android:background="@android:drawable/btn_star_big_on" />
+                android:background="@android:drawable/btn_star_big_on"
+                android:visibility="visible" />
         </LinearLayout>
 
         <Button
