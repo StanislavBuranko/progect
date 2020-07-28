@@ -25,7 +25,7 @@ class PathPoint : Point {
     val path = Path()
     val endPoint = PointBuilder.invoke()
             .position(x,y)
-            .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.point_swap)!!)
+            .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click_pressed)!!)
             .build(SimplePoint::class.java)
 
     val panel = LinearLayout(appContext)
@@ -34,7 +34,7 @@ class PathPoint : Point {
             WindowManager.LayoutParams.MATCH_PARENT.toFloat(),
             Gravity.CENTER)
 
-    override var drawableViewDefault: Drawable = ContextCompat.getDrawable(appContext, R.drawable.point_solid)!!
+    override var drawableViewDefault: Drawable = ContextCompat.getDrawable(appContext, R.drawable.draw_point_click)!!
 
     constructor(builder: PointBuilder): super(builder)
 

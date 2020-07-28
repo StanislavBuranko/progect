@@ -560,6 +560,8 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             paramRepeatMacro = Optional
                     .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, 1))
                     .orElse(1);
+            controlPanel.findViewById(R.id.record_points_start_pause)
+                    .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_radio_button));
 
         }
         else {
@@ -570,6 +572,8 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
             listCommands.forEach((c) -> c.setTouchable(true, wm));
             openRecordPanel = false;
+            controlPanel.findViewById(R.id.record_points_start_pause)
+                    .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_radio_button_off));
         }
 
     }

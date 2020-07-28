@@ -104,6 +104,7 @@ public class RecordPoints {
                                PointCanvasView canvasView,
                                float paramSizePoint) {
         boolean microMove = false;
+        int numbPointerUp = 0;
         if(!timerStart)
             timerStart();
         switch (event.getActionMasked()) {
@@ -123,8 +124,8 @@ public class RecordPoints {
                 timerForDurationStart();
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
-                coordinateXDown.add((int) event.getX());
-                coordinateYDown.add((int) event.getY());
+                coordinateXDown.add((int) event.getX(event.getActionIndex()));
+                coordinateYDown.add((int) event.getY(event.getActionIndex()));
                 Log.d("123321", "CreatPoint: " +coordinateXDown.get(coordinateXDown.size()-1)+" "+coordinateYDown.get(coordinateXDown.size()-1));
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -149,12 +150,12 @@ public class RecordPoints {
                     else if(actionMove && !isPointCreate)
                         pointsCreate = PointsCreate.SwipePoint;
                 }
-                //else if(coordinateXDown.size() == 2) {
-                //    pointsCreate = PointsCreate.PinchPoint;
-                //}
-                //else if(coordinateXDown.size() > 2) {
-                //    pointsCreate = PointsCreate.MultiPoint;
-                //}
+                else if(coordinateXDown.size() == 2) {
+                    pointsCreate = PointsCreate.PinchPoint;
+                }
+                else if(coordinateXDown.size() > 2) {
+                    pointsCreate = PointsCreate.MultiPoint;
+                }
                 else
                     pointsCreate = PointsCreate.Point;
                 Log.d("1",""+coordinateXDown.size());
@@ -187,7 +188,6 @@ public class RecordPoints {
                                    PointCanvasView canvasView,
                                    float paramSizePoint)
     {
-        Log.d("1",""+pointsCreate);
         if(paramSizePoint == 32)
             pointLocateHelper = 37;
         else if(paramSizePoint == 40)
@@ -274,6 +274,118 @@ public class RecordPoints {
 
             point.setDelay(nMsNow);
             point.setDuration(nDurationMsNow);
+            timerForDurationCancel();
+        }
+        if(pointsCreate == PointsCreate.PinchPoint) {
+            nMsNow = nMs;
+            nDurationMsNow = nDurationMs;
+            Point point = (PinchPoint) Point.PointBuilder.invoke()
+                    .position(500,
+                            750)
+                    .delay(nMsNow).duration(nDurationMsNow)
+                    .text(String.format("%s", listCommando.size() + 1))
+                    .build(PinchPoint.class);
+            pinchPoint = (PinchPoint) point;
+            for (int i  = 0 ; i < coordinateXDown.size()-1; i++) {
+                Log.d("123321", "CreatPoint: " +coordinateXDown.get(i)+coordinateYDown.get(i));
+                //multiPoint.createPointsForRecordPanel(coordinateXDown.get(i), coordinateYDown.get(i));
+            }
+/*
+            pinchPoint.getFirstPoint().setX((int) coordinateXDown.get(coordinateXDown.size()-2)-pointLocateHelper);
+            pinchPoint.getFirstPoint().setY((int) coordinateYDown.get(coordinateYDown.size()-2)-pointLocateHelper);
+
+            pinchPoint.getSecondPoint().setX((int) coordinateXDown.get(coordinateXDown.size()-1)-pointLocateHelper);
+            pinchPoint.getSecondPoint().setY((int) coordinateYDown.get(coordinateYDown.size()-1)-pointLocateHelper);
+            Log.d("13211", "CreatPoint: " + coordinateXDown.get(coordinateXDown.size()-2));
+            Log.d("13211", "CreatPoint: " + coordinateXDown.get(coordinateXDown.size()-1));
+            Log.d("13211", "CreatPoint: "+Math.abs(coordinateXDown.get(coordinateXDown.size()-2) - coordinateXDown.get(coordinateXDown.size()-1)));
+            point.setX(Math.abs(coordinateXDown.get(coordinateXDown.size()-2) - coordinateXDown.get(coordinateXDown.size()-1)));
+            point.setY(Math.abs(coordinateYDown.get(coordinateYDown.size()-2) - coordinateYDown.get(coordinateYDown.size()-1)));
+*/
+
+            pinchPoint.setTypePinch(PinchPoint.PinchDirection.OUT);
+
+            point.attachToWindow(wm, canvasView);
+            point.updateListener(wm, canvasView, AutoClickService.getParamBound());
+            point.setTouchable(false, wm);
+
+            listCommando.add(point);
+
+            point.setDelay((long) 1);
+            point.setDuration((long) 1);
+
+            /*SimulateTouchAccessibilityService.execCommand(point, new AccessibilityService.GestureResultCallback() {
+                @Override
+                public void onCompleted(GestureDescription gestureDescription) {
+                    super.onCompleted(gestureDescription);
+                    AutoClickService.updateLayoutFlagsOff();
+                    Log.d(LogExt.TAG, "gesture completed");
+                }
+
+                @Override
+                public void onCancelled(GestureDescription gestureDescription) {
+                    super.onCancelled(gestureDescription);
+                    AutoClickService.updateLayoutFlagsOff();
+                    Log.d(LogExt.TAG, "gesture cancelled ");
+                }
+            });
+*/
+
+            point.setDelay(nMsNow);
+            point.setDuration(nDurationMsNow);
+            timerForDurationCancel();
+        }
+        if(pointsCreate == PointsCreate.MultiPoint) {
+            nMsNow = nMs;
+            nDurationMsNow = nDurationMs;
+            Point point = (MultiPoint) Point.PointBuilder.invoke()
+                    .position((int) coordinateXDown.get(coordinateXDown.size() - 1) - pointLocateHelper,
+                            (int) coordinateYDown.get(coordinateXDown.size() - 1) - pointLocateHelper)
+                    .delay(nMsNow).duration(nDurationMs)
+                    .text(String.format("%s", listCommando.size() + 1))
+                    .build(MultiPoint.class);
+
+            multiPoint = (MultiPoint) point;
+            Log.d("1233211", "CreatPoint: ");
+            multiPoint.createPointsForRecordPanelChangeElemenent(0, coordinateXDown.get(0) - pointLocateHelper, coordinateYDown.get(0) - pointLocateHelper);
+            multiPoint.createPointsForRecordPanelChangeElemenent(1, coordinateXDown.get(1) - pointLocateHelper, coordinateYDown.get(1) - pointLocateHelper);
+            if (coordinateXDown.size() > 10)
+                for (int i = 2; i < 10; i++) {
+                    multiPoint.createPointsForRecordPanel(coordinateXDown.get(i) - pointLocateHelper,
+                            coordinateYDown.get(i) - pointLocateHelper);
+                }
+            else
+                for (int i = 2; i < coordinateXDown.size(); i++) {
+                    multiPoint.createPointsForRecordPanel(coordinateXDown.get(i) - pointLocateHelper,
+                            coordinateYDown.get(i) - pointLocateHelper);
+                }
+            multiPoint.attachToWindow(wm, canvasView);
+            multiPoint.updateListener(wm, canvasView, AutoClickService.getParamBound());
+            multiPoint.setTouchable(false, wm);
+
+            listCommando.add(point);
+
+            multiPoint.setDelay((long) 1);
+            multiPoint.setDuration((long) 1);
+
+            SimulateTouchAccessibilityService.execCommand(multiPoint, new AccessibilityService.GestureResultCallback() {
+                @Override
+                public void onCompleted(GestureDescription gestureDescription) {
+                    super.onCompleted(gestureDescription);
+                    AutoClickService.updateLayoutFlagsOff();
+                    Log.d(LogExt.TAG, "gesture completed");
+                }
+
+                @Override
+                public void onCancelled(GestureDescription gestureDescription) {
+                    super.onCancelled(gestureDescription);
+                    AutoClickService.updateLayoutFlagsOff();
+                    Log.d(LogExt.TAG, "gesture cancelled ");
+                }
+            });
+
+            multiPoint.setDelayRecord((int) nMsNow);
+            multiPoint.setDurationRecord((int)  nDurationMsNow);
             timerForDurationCancel();
         }
     }
