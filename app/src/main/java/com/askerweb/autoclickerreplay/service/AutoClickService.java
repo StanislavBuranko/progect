@@ -9,10 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.Gravity;
@@ -34,7 +31,6 @@ import androidx.core.content.ContextCompat;
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.activity.AdActivity;
-import com.askerweb.autoclickerreplay.activity.MainActivity;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
@@ -54,7 +50,6 @@ import com.google.android.gms.ads.InterstitialAd;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -85,7 +80,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 
     @BindView(R.id.group_control)
     View group_control;
-    @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.setting, R.id.close})
+    @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.setting, R.id.close, R.id.record_points_start_pause})
     List<View> controls;
 
     @Inject
@@ -355,7 +350,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 img.setImageResource(R.drawable.ic_path_point);
             }
             else if(clazz.isAssignableFrom(MultiPoint.class)){
-                img.setImageResource(R.drawable.ic_click_point);
+                img.setImageResource(R.drawable.ic_multi_point);
             }
             return v;
         }
@@ -555,9 +550,9 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         context.startService(intent);
     }
 
-    @OnClick(R.id.record_points)
-    public void recordPoints(){
-        if(!openRecordPanel) {
+    @OnClick(R.id.record_points_start_pause)
+    public void recordPoints() {
+        if (!openRecordPanel) {
             RecordPoints.timerStart();
             openRecordPanel = true;
             wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
@@ -565,9 +560,9 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             paramRepeatMacro = Optional
                     .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, 1))
                     .orElse(1);
-
-        }
-        else {
+            controlPanel.findViewById(R.id.record_points_start_pause)
+                    .setBackground(ContextCompat.getDrawable(AutoClickService.this, R.drawable.ic_radio_button));
+        } else {
             RecordPoints.timerCancel();
             paramRepeatMacro = Optional
                     .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, SettingExt.defaultRepeat))
@@ -575,8 +570,9 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
             listCommands.forEach((c) -> c.setTouchable(true, wm));
             openRecordPanel = false;
+            controlPanel.findViewById(R.id.record_points_start_pause)
+                    .setBackground(ContextCompat.getDrawable(AutoClickService.this, R.drawable.ic_radio_button_off));
         }
-
     }
     @Override
     public boolean onTouch(View v, MotionEvent event) {
