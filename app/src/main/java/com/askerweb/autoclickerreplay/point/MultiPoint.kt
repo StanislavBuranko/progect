@@ -5,8 +5,10 @@ import android.app.AlertDialog
 import android.graphics.Path
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
@@ -14,6 +16,7 @@ import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.getWindowsTypeApplicationOverlay
 import com.askerweb.autoclickerreplay.ktExt.logd
+import com.askerweb.autoclickerreplay.point.MultiPoint.ExtendedPinchDialog
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.point.view.ExtendedViewHolder
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView
@@ -23,7 +26,9 @@ import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.dialog_setting_point.*
 import kotlinx.android.synthetic.main.multi_point_dialog.*
+import kotlinx.android.synthetic.main.pinch_dialog_elements.*
 import java.util.*
+import kotlin.math.ceil
 
 class MultiPoint: Point {
 
@@ -38,7 +43,6 @@ class MultiPoint: Point {
         points = Arrays.copyOf(parcelPoints, parcelPoints?.size!!, Array<Point>::class.java)
     }
 
-
     init {
         view.visibility = View.GONE
         points += PointBuilder.invoke()
@@ -46,6 +50,7 @@ class MultiPoint: Point {
                 .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click)!!)
                 .text((listCommands.size + 1).toString())
                 .build(SimplePoint::class.java)
+
         points += PointBuilder.invoke()
                 .position(x + 50, y + 50)
                 .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click)!!)
@@ -54,15 +59,21 @@ class MultiPoint: Point {
         setTextArray = true
     }
 
+    public fun createPointsForRecordPanelChangeElemenent(indexElement: Int, x:Int, y:Int) {
+        points[indexElement].x = x;
+        points[indexElement].y = y;
+    }
+
     public fun createPointsForRecordPanel(x:Int, y:Int) {
         points += PointBuilder.invoke()
                 .position(x, y)
                 .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_click)!!)
                 .text((listCommands.size + 1).toString())
                 .build(SimplePoint::class.java)
+        points.last().updateListener(AutoClickService.getWM(), AutoClickService.getCanvas(), AutoClickService.getParamBound())
     }
 
-    public fun clearArray(){
+    public fun clearArray() {
         val points1: Array<Point> = arrayOf()
         points = points1;
     }
@@ -102,6 +113,7 @@ class MultiPoint: Point {
     override fun updateListener(wm: WindowManager, canvas: PointCanvasView, bounds: Boolean) {
         points.forEach { point -> point.updateListener(wm, canvas, bounds) }
     }
+
     var isAttach = false
     override fun attachToWindow(wm: WindowManager, canvas: PointCanvasView) {
         if(!isAttach) {
@@ -114,6 +126,18 @@ class MultiPoint: Point {
                 showDialog()
                 true
             }
+        }
+    }
+
+    public fun setDelayRecord(delay: Int) {
+        points.forEach { point ->
+            point.delay = delay.toLong();
+        }
+    }
+
+    public fun setDurationRecord(duration: Int) {
+        points.forEach { point ->
+            point.duration = duration.toLong();
         }
     }
 
