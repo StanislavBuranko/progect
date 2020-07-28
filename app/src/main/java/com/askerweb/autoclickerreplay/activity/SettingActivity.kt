@@ -1,7 +1,6 @@
 package com.askerweb.autoclickerreplay.activity
 
 import android.app.AlertDialog
-import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
@@ -9,20 +8,14 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ContextThemeWrapper
-import androidx.core.view.marginBottom
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.ktExt.Dimension
 import com.askerweb.autoclickerreplay.ktExt.loadMacroFromJson
-import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.ktExt.saveMacroToJson
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.android.gms.ads.AdRequest
-import kotlinx.android.synthetic.main.control_panel_service.view.*
 import kotlinx.android.synthetic.main.setting_layout.*;
 import java.io.File
 
@@ -39,10 +32,10 @@ class SettingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.setting_layout)
         save_btn.setOnClickListener {
-            if(!AutoClickService.isRunning()){
+            if(!AutoClickService.isAlive()){
                 AutoClickService.start(this)
             }
-            if(AutoClickService.isRunning() && AutoClickService.getListPoint().size > 0){
+            if(AutoClickService.isAlive() && AutoClickService.getListPoint().size > 0){
                 AutoClickService.requestAction(this, AutoClickService.ACTION_HIDE_VIEWS)
                 val builder = AlertDialog.Builder(this, R.style.AppDialog)
                 val contentView = LayoutInflater.from(this)

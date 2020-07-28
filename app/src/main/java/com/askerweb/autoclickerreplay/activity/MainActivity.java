@@ -1,17 +1,10 @@
 package com.askerweb.autoclickerreplay.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.provider.Settings;
 import android.view.View;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -20,24 +13,14 @@ import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.service.AutoClickService;
-import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.getContext;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,7 +47,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         actionButton.setOnClickListener((v)->{
-            AutoClickService.start(this);
+            if(AutoClickService.isAlive()){
+                AutoClickService.service.stopSelf();
+                actionButton.setImageResource(R.drawable.ic_play);
+            }
+            else {
+                AutoClickService.start(this);
+                actionButton.setImageResource(R.drawable.ic_stop);
+            }
         });
     }
 

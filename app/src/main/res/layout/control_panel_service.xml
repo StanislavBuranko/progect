@@ -56,6 +56,12 @@
     <!--                android:layout_width="match_parent"-->
     <!--                android:layout_height="wrap_content"-->
     <!--                android:background="@android:drawable/star_on"/>-->
+            <Button
+                android:id="@+id/record_points_start_pause"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/ic_radio_button_off" />
 
             <Button
                     android:id="@+id/setting"
@@ -64,12 +70,6 @@
                     android:background="@drawable/ic_settings"
                     android:layout_marginBottom="16dp"/>
 
-            <Button
-                android:id="@+id/record_points_start_pause"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/ic_radio_button_off" />
         </LinearLayout>
 
         <Button
