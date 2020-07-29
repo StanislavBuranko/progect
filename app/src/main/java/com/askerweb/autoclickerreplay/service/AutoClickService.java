@@ -77,6 +77,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     View controlPanel;
     static View recordPanel;
     static PointCanvasView canvasView;
+    RecordPoints recordPoints;
 
     @BindView(R.id.group_control)
     View group_control;
@@ -150,6 +151,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         });
         updateSetting();
         initView();
+        recordPoints = new RecordPoints();
         //start listing change orientation
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
@@ -566,8 +568,9 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 
     }
 
+
     public void openRecord(){
-        RecordPoints.timerStart();
+        recordPoints.timerStart();
         openRecordPanel = true;
         wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
         listCommands.forEach((c) -> c.setTouchable(false, wm));
@@ -579,7 +582,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     }
 
     public void cancelRecord(){
-        RecordPoints.timerCancel();
+        recordPoints.timerStart();
         paramRepeatMacro = Optional
                 .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, SettingExt.defaultRepeat))
                 .orElse(SettingExt.defaultRepeat);
@@ -593,7 +596,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        RecordPoints.onTouch(event,wm, listCommands, canvasView, paramSizePoint);
+        recordPoints.onTouch(event,wm, listCommands, canvasView, paramSizePoint);
         return true;
     }
 

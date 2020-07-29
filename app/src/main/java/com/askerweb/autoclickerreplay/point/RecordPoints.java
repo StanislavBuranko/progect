@@ -16,26 +16,26 @@ import java.util.List;
 
 public class RecordPoints {
 
-    static CountDownTimer timer;
-    static CountDownTimer timerForSwipe;
-    static int xMove, yMove, xMove2, yMove2;
-    public static ArrayList<Integer> coordinateYDown = new ArrayList<Integer>();
-    public static ArrayList<Integer> coordinateXDown = new ArrayList<Integer>();
-    public static ArrayList<Integer> coordinateYUp = new ArrayList<Integer>();
-    public static ArrayList<Integer> coordinateXUp = new ArrayList<Integer>();
-    static long nMs = 0;
-    static long nMsNow = 0;
-    static long nDurationMs = 0;
-    static Boolean actionMove = false;
-    static Boolean workCreatePoint = false;
-    static SwipePoint swipePoint;
-    static PinchPoint pinchPoint;
-    static MultiPoint multiPoint;
-    static int pointLocateHelper = 0;
-    static Boolean timerForSwipeisStart = false;
-    static boolean timerStart = false;
+    CountDownTimer timer;
+    CountDownTimer timerForSwipe;
+    int xMove, yMove, xMove2, yMove2;
+    ArrayList<Integer> coordinateYDown = new ArrayList<Integer>();
+    ArrayList<Integer> coordinateXDown = new ArrayList<Integer>();
+    ArrayList<Integer> coordinateYUp = new ArrayList<Integer>();
+    ArrayList<Integer> coordinateXUp = new ArrayList<Integer>();
+    long nMs = 0;
+    long nMsNow = 0;
+    long nDurationMs = 0;
+    Boolean actionMove = false;
+    Boolean workCreatePoint = false;
+    SwipePoint swipePoint;
+    PinchPoint pinchPoint;
+    MultiPoint multiPoint;
+    int pointLocateHelper = 0;
+    Boolean timerForSwipeisStart = false;
+    boolean timerStart = false;
 
-    static enum PointsCreate{
+    enum PointsCreate{
         Point,
         SwipePoint,
         PinchPoint,
@@ -46,7 +46,7 @@ public class RecordPoints {
     static PointsCreate pointsCreate = PointsCreate.Point;
 
     // start timer for delay
-    public static void timerStart(){
+    public void timerStart(){
         timer = new CountDownTimer(9999 * 1000, 10) {
             @Override
             public void onTick(long l) {
@@ -61,11 +61,11 @@ public class RecordPoints {
         timerStart = true;
     }
     // cancel timer for delay
-    public static void timerCancel(){
+    public void timerCancel(){
         timer.cancel();
     }
     // start timer for duration
-    public static void timerForDurationStart(){
+    public void timerForDurationStart(){
         timerForSwipe = new CountDownTimer(9999 * 1000, 10) {
             @Override
             public void onTick(long l) {
@@ -80,12 +80,12 @@ public class RecordPoints {
         timerStart = true;
     }
     // cancel timer for duration
-    public static void timerForDurationCancel(){
+    public  void timerForDurationCancel(){
         timerForSwipe.cancel();
         nDurationMs = 0;
     }
     // method for Record panel onTouchListener
-    public static void onTouch(MotionEvent event,
+    public  void onTouch(MotionEvent event,
                                WindowManager wm,
                                List<Point> listCommando,
                                PointCanvasView canvasView,
@@ -189,7 +189,7 @@ public class RecordPoints {
         }
     }
     //create points
-    public static  void CreatPoint(WindowManager wm,
+    public void CreatPoint(WindowManager wm,
                                    List<Point> listCommando,
                                    PointCanvasView canvasView,
                                    float paramSizePoint) {
