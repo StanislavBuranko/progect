@@ -338,6 +338,7 @@ class MultiPoint: Point {
                     attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
                     updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
                     super.repeat = points[0].repeat
+                    super.delay = points[0].delay
                 }.setNegativeButton(R.string.cancel) { _, _ ->
                 }
                 .setOnCancelListener { _ ->

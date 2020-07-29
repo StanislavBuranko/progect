@@ -69,27 +69,16 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
     }
     
 
-    public synchronized static void execCommand(PointCommand command, GestureResultCallback callback, Long delay){
-
-        CountDownTimer countDownTimer = new CountDownTimer(delay, 1000) {
-
-            public void onTick(long millisUntilFinished) {
-                //here you can have your logic to set text to edittext
+    public synchronized static void execCommand(PointCommand command, GestureResultCallback callback){
+        if(command != null){
+            GestureDescription gd = command.getCommand();
+            if(gd != null){
+                service.dispatchGesture(gd, callback, null);
             }
-
-            public void onFinish() {
-                if(command != null){
-                    GestureDescription gd = command.getCommand();
-                    if(gd != null){
-                        service.dispatchGesture(gd, callback, null);
-                    }
-                }
-            }
-
-        }.start();
+        }
     }
 
-    public synchronized static void execCommand(PointCommand command, Long delay){
+    public synchronized static void execCommand(PointCommand command){
         execCommand(command,  new GestureResultCallback() {
             @Override
             public void onCompleted(GestureDescription gestureDescription) {
@@ -102,7 +91,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 super.onCancelled(gestureDescription);
                 Log.d(LogExt.TAG, "gesture cancelled ");
             }
-        }, delay);
+        });
     }
 
     private static void requestAction(String action){
@@ -166,8 +155,19 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                             point = listCommand.get(willExec);
                         }
                     }
-                    if(counterRepeatMacro != 0)
-                        SimulateTouchAccessibilityService.execCommand(point, getGestureCallback.apply(point), point.getDelay());
+                    if(counterRepeatMacro != 0) {
+                        Point finalPoint = point;
+                        CountDownTimer countDownTimer = new CountDownTimer(finalPoint.getDelay(), 1000) {
+
+                            public void onTick(long millisUntilFinished) {
+                                //here you can have your logic to set text to edittext
+                            }
+
+                            public void onFinish() {
+                                SimulateTouchAccessibilityService.execCommand(finalPoint, getGestureCallback.apply(finalPoint));
+                            }
+                        }.start();
+                    }
                     else
                         AutoClickService.requestAction(appContext, AutoClickService.ACTION_STOP);
                 }
@@ -192,7 +192,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 }
             }
             if(service.counterRepeatMacro != 0)
-                SimulateTouchAccessibilityService.execCommand(point, getGestureCallback.apply(point), point.getDelay());
+                SimulateTouchAccessibilityService.execCommand(point, getGestureCallback.apply(point));
             else
                 AutoClickService.requestAction(service.appContext, AutoClickService.ACTION_STOP);
         }

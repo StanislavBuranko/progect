@@ -34,7 +34,6 @@ public class RecordPoints {
     static int pointLocateHelper = 0;
     static Boolean timerForSwipeisStart = false;
     static boolean timerStart = false;
-    private static Long delayLong;
 
     static enum PointsCreate{
         Point,
@@ -234,7 +233,7 @@ public class RecordPoints {
                     AutoClickService.updateLayoutFlagsOff();
                     Log.d(LogExt.TAG, "gesture cancelled ");
                 }
-            }, delayLong);
+            });
 
             point.setDelay(nMsNow);
             timerForDurationCancel();
@@ -274,7 +273,7 @@ public class RecordPoints {
                     AutoClickService.updateLayoutFlagsOff();
                     Log.d(LogExt.TAG, "gesture cancelled");
                 }
-            }, delayLong);
+            });
 
             point.setDelay(nMsNow);
             timerForDurationCancel();
@@ -338,7 +337,7 @@ public class RecordPoints {
                     AutoClickService.updateLayoutFlagsOff();
                     Log.d(LogExt.TAG, "gesture cancelled ");
                 }
-            }, delayLong);
+            });
 
             point.setDelay(nMsNow);
             timerForDurationCancel();
@@ -389,11 +388,10 @@ public class RecordPoints {
                     AutoClickService.updateLayoutFlagsOff();
                     Log.d(LogExt.TAG, "gesture cancelled ");
                 }
-            }, delayLong);
+            });
 
             multiPoint.setDelayRecord((int) nMsNow);
             timerForDurationCancel();
         }
     }
-
 }
