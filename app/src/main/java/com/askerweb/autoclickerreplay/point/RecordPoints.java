@@ -44,7 +44,6 @@ public class RecordPoints {
     }
 
     static PointsCreate pointsCreate = PointsCreate.Point;
-
     // start timer for delay
     public void timerStart(){
         timer = new CountDownTimer(9999 * 1000, 10) {
@@ -52,11 +51,8 @@ public class RecordPoints {
             public void onTick(long l) {
                 nMs += 10;
             }
-
             @Override
-            public void onFinish() {
-
-            }
+            public void onFinish() { }
         }.start();
         timerStart = true;
     }
@@ -71,11 +67,8 @@ public class RecordPoints {
             public void onTick(long l) {
                 nDurationMs += 10;
             }
-
             @Override
-            public void onFinish() {
-
-            }
+            public void onFinish() { }
         }.start();
         timerStart = true;
     }
@@ -85,11 +78,8 @@ public class RecordPoints {
         nDurationMs = 0;
     }
     // method for Record panel onTouchListener
-    public  void onTouch(MotionEvent event,
-                               WindowManager wm,
-                               List<Point> listCommando,
-                               PointCanvasView canvasView,
-                               float paramSizePoint) {
+    public  void onTouch(MotionEvent event, WindowManager wm, List<Point> listCommando,
+                               PointCanvasView canvasView, float paramSizePoint) {
         boolean microMove = false;
         int numbPointerUp = 0;
         if(!timerStart)
@@ -185,14 +175,11 @@ public class RecordPoints {
                 coordinateXUp.add((int) event.getX());
                 coordinateYUp.add((int) event.getY());
                 break;
-
         }
     }
     //create points
-    public void CreatPoint(WindowManager wm,
-                                   List<Point> listCommando,
-                                   PointCanvasView canvasView,
-                                   float paramSizePoint) {
+    void CreatPoint(WindowManager wm, List<Point> listCommando,
+                                   PointCanvasView canvasView, float paramSizePoint) {
         //logic for correct spawn points
         if(paramSizePoint == 32)
             pointLocateHelper = 37;
@@ -202,196 +189,183 @@ public class RecordPoints {
             pointLocateHelper = 75;
         //create SimplePoint
         if(pointsCreate == PointsCreate.Point) {
-            nMsNow = nMs;
-            Log.d("123321", "CreatPoint: "+coordinateXDown.size());
-            Point point = Point.PointBuilder.invoke()
-                    .position((int) coordinateXDown.get(coordinateXDown.size()-1)-pointLocateHelper,
-                            (int) coordinateYDown.get(coordinateXDown.size()-1)-pointLocateHelper)
-                    .delay(nMsNow).duration(nDurationMs)
-                    .text(String.format("%s", listCommando.size() + 1))
-                    .build(ClickPoint.class);
-
-            point.attachToWindow(wm, canvasView);
-            point.updateListener(wm, canvasView, AutoClickService.getParamBound());
-            point.setTouchable(false, wm);
-
-            listCommando.add(point);
-
-            point.setDelay((long) 1);
-
-            SimulateTouchAccessibilityService.execCommand(point, new AccessibilityService.GestureResultCallback() {
-                @Override
-                public void onCompleted(GestureDescription gestureDescription) {
-                    super.onCompleted(gestureDescription);
-                    AutoClickService.updateLayoutFlagsOff();
-                    Log.d(LogExt.TAG, "gesture completed");
-                }
-
-                @Override
-                public void onCancelled(GestureDescription gestureDescription) {
-                    super.onCancelled(gestureDescription);
-                    AutoClickService.updateLayoutFlagsOff();
-                    Log.d(LogExt.TAG, "gesture cancelled ");
-                }
-            });
-
-            point.setDelay(nMsNow);
-            timerForDurationCancel();
+            createSimplePoint(wm, listCommando, canvasView, paramSizePoint);
         }
         //create SwipePoint
         if(pointsCreate == PointsCreate.SwipePoint) {
-            nMsNow = nMs;
-            Point point = (SwipePoint) Point.PointBuilder.invoke()
-                    .position((int) coordinateXDown.get(coordinateXDown.size()-1)-pointLocateHelper,
-                            (int) coordinateYDown.get(coordinateXDown.size()-1)-pointLocateHelper)
-                    .delay(nMsNow).duration(nDurationMs)
-                    .text(String.format("%s", listCommando.size() + 1))
-                    .build(SwipePoint.class);
-            swipePoint = (SwipePoint) point;
-            swipePoint.getNextPoint().setX(coordinateXUp.get(coordinateXDown.size()-1)-pointLocateHelper);
-            swipePoint.getNextPoint().setY(coordinateYUp.get(coordinateXDown.size()-1)-pointLocateHelper);
-
-            point.attachToWindow(wm, canvasView);
-            point.updateListener(wm,canvasView, AutoClickService.getParamBound());
-            point.setTouchable(false, wm);
-
-            listCommando.add(point);
-
-            point.setDelay((long) 1);
-
-            SimulateTouchAccessibilityService.execCommand(point, new AccessibilityService.GestureResultCallback() {
-                @Override
-                public void onCompleted(GestureDescription gestureDescription) {
-                    super.onCompleted(gestureDescription);
-                    AutoClickService.updateLayoutFlagsOff();
-                    Log.d(LogExt.TAG, "gesture completed");
-                }
-
-                @Override
-                public void onCancelled(GestureDescription gestureDescription) {
-                    super.onCancelled(gestureDescription);
-                    AutoClickService.updateLayoutFlagsOff();
-                    Log.d(LogExt.TAG, "gesture cancelled");
-                }
-            });
-
-            point.setDelay(nMsNow);
-            timerForDurationCancel();
+            createSwipePoint(wm, listCommando, canvasView, paramSizePoint);
         }
         //create PinchPoint
         if(pointsCreate == PointsCreate.PinchPoint) {
-            nMsNow = nMs;
-            Point point = (PinchPoint) Point.PointBuilder.invoke()
-                    .position(500,
-                            750)
-                    .delay(nMsNow).duration(nDurationMs)
-                    .text(String.format("%s", listCommando.size() + 1))
-                    .build(PinchPoint.class);
-            pinchPoint = (PinchPoint) point;
-
-            if(coordinateYDown.get(0) > coordinateYDown.get(1)) {
-                pinchPoint.getFirstPoint().setX(coordinateXDown.get(0)-pointLocateHelper);
-                pinchPoint.getFirstPoint().setY(coordinateYDown.get(0)-pointLocateHelper);
-                pinchPoint.getSecondPoint().setX(coordinateXDown.get(1)-pointLocateHelper);
-                pinchPoint.getSecondPoint().setY(coordinateYDown.get(1)-pointLocateHelper);
-                if(pinchPoint.getFirstPoint().getX() >= xMove && pinchPoint.getFirstPoint().getY() <= yMove)
-                    pinchPoint.setTypePinch(PinchPoint.PinchDirection.OUT);
-                else
-                    pinchPoint.setTypePinch(PinchPoint.PinchDirection.IN);
-            }
-            else {
-                pinchPoint.getFirstPoint().setX(coordinateXDown.get(1)-pointLocateHelper);
-                pinchPoint.getFirstPoint().setY(coordinateYDown.get(1)-pointLocateHelper);
-                pinchPoint.getSecondPoint().setX(coordinateXDown.get(0)-pointLocateHelper);
-                pinchPoint.getSecondPoint().setY(coordinateYDown.get(0)-pointLocateHelper);
-
-                if(pinchPoint.getFirstPoint().getX() >= xMove2 && pinchPoint.getFirstPoint().getY() <= yMove2)
-                    pinchPoint.setTypePinch(PinchPoint.PinchDirection.OUT);
-                else
-                    pinchPoint.setTypePinch(PinchPoint.PinchDirection.IN);
-            }
-
-            point.setX((pinchPoint.getFirstPoint().getX()+pinchPoint.getSecondPoint().getX())/2);
-            point.setY((pinchPoint.getFirstPoint().getY()+pinchPoint.getSecondPoint().getY())/2);
-
-
-            point.attachToWindow(wm, canvasView);
-            point.updateListener(wm, canvasView, AutoClickService.getParamBound());
-            point.setTouchable(false, wm);
-
-            listCommando.add(point);
-
-            point.setDelay((long) 1);
-
-            SimulateTouchAccessibilityService.execCommand(point, new AccessibilityService.GestureResultCallback() {
-                @Override
-                public void onCompleted(GestureDescription gestureDescription) {
-                    super.onCompleted(gestureDescription);
-                    AutoClickService.updateLayoutFlagsOff();
-                    Log.d(LogExt.TAG, "gesture completed");
-                }
-
-                @Override
-                public void onCancelled(GestureDescription gestureDescription) {
-                    super.onCancelled(gestureDescription);
-                    AutoClickService.updateLayoutFlagsOff();
-                    Log.d(LogExt.TAG, "gesture cancelled ");
-                }
-            });
-
-            point.setDelay(nMsNow);
-            timerForDurationCancel();
+            createPinchPoint(wm, listCommando, canvasView, paramSizePoint);
         }
         //create MultiPoint
         if(pointsCreate == PointsCreate.MultiPoint) {
-            nMsNow = nMs;
-            Point point = (MultiPoint) Point.PointBuilder.invoke()
-                    .position((int) coordinateXDown.get(coordinateXDown.size() - 1) - pointLocateHelper,
-                            (int) coordinateYDown.get(coordinateXDown.size() - 1) - pointLocateHelper)
-                    .delay(nMsNow).duration(nDurationMs)
-                    .text(String.format("%s", listCommando.size() + 1))
-                    .build(MultiPoint.class);
-
-            multiPoint = (MultiPoint) point;
-            Log.d("1233211", "CreatPoint: ");
-            multiPoint.createPointsForRecordPanelChangeElemenent(0, coordinateXDown.get(0) - pointLocateHelper, coordinateYDown.get(0) - pointLocateHelper);
-            multiPoint.createPointsForRecordPanelChangeElemenent(1, coordinateXDown.get(1) - pointLocateHelper, coordinateYDown.get(1) - pointLocateHelper);
-            if (coordinateXDown.size() > 10)
-                for (int i = 2; i < 10; i++) {
-                    multiPoint.createPointsForRecordPanel(coordinateXDown.get(i) - pointLocateHelper,
-                            coordinateYDown.get(i) - pointLocateHelper);
-                }
-            else
-                for (int i = 2; i < coordinateXDown.size(); i++) {
-                    multiPoint.createPointsForRecordPanel(coordinateXDown.get(i) - pointLocateHelper,
-                            coordinateYDown.get(i) - pointLocateHelper);
-                }
-            multiPoint.attachToWindow(wm, canvasView);
-            multiPoint.updateListener(wm, canvasView, AutoClickService.getParamBound());
-            multiPoint.setTouchable(false, wm);
-
-            listCommando.add(point);
-
-            multiPoint.setDelay((long) 1);
-
-            SimulateTouchAccessibilityService.execCommand(multiPoint, new AccessibilityService.GestureResultCallback() {
-                @Override
-                public void onCompleted(GestureDescription gestureDescription) {
-                    super.onCompleted(gestureDescription);
-                    AutoClickService.updateLayoutFlagsOff();
-                    Log.d(LogExt.TAG, "gesture completed");
-                }
-
-                @Override
-                public void onCancelled(GestureDescription gestureDescription) {
-                    super.onCancelled(gestureDescription);
-                    AutoClickService.updateLayoutFlagsOff();
-                    Log.d(LogExt.TAG, "gesture cancelled ");
-                }
-            });
-
-            multiPoint.setDelayRecord((int) nMsNow);
-            timerForDurationCancel();
+            createMultiPoint(wm, listCommando, canvasView, paramSizePoint);
         }
+    }
+
+    void createSimplePoint(WindowManager wm, List<Point> listCommando,
+                          PointCanvasView canvasView, float paramSizePoint){
+        nMsNow = nMs;
+        Point point = Point.PointBuilder.invoke()
+                .position((int) coordinateXDown.get(coordinateXDown.size()-1)-pointLocateHelper,
+                        (int) coordinateYDown.get(coordinateXDown.size()-1)-pointLocateHelper)
+                .delay(nMsNow).duration(nDurationMs)
+                .text(String.format("%s", listCommando.size() + 1))
+                .build(ClickPoint.class);
+        point.attachToWindow(wm, canvasView);
+        point.updateListener(wm, canvasView, AutoClickService.getParamBound());
+        point.setTouchable(false, wm);
+        listCommando.add(point);
+        point.setDelay((long) 1);
+        SimulateTouchAccessibilityService.execCommand(point, new AccessibilityService.GestureResultCallback() {
+            @Override
+            public void onCompleted(GestureDescription gestureDescription) {
+                super.onCompleted(gestureDescription);
+                AutoClickService.updateLayoutFlagsOff();
+                Log.d(LogExt.TAG, "gesture completed");
+            }
+            @Override
+            public void onCancelled(GestureDescription gestureDescription) {
+                super.onCancelled(gestureDescription);
+                AutoClickService.updateLayoutFlagsOff();
+                Log.d(LogExt.TAG, "gesture cancelled ");
+            }
+        });
+        point.setDelay(nMsNow);
+        timerForDurationCancel();
+    }
+    void createSwipePoint(WindowManager wm, List<Point> listCommando,
+                           PointCanvasView canvasView, float paramSizePoint){
+        nMsNow = nMs;
+        Point point = (SwipePoint) Point.PointBuilder.invoke()
+                .position((int) coordinateXDown.get(coordinateXDown.size()-1)-pointLocateHelper,
+                        (int) coordinateYDown.get(coordinateXDown.size()-1)-pointLocateHelper)
+                .delay(nMsNow).duration(nDurationMs)
+                .text(String.format("%s", listCommando.size() + 1))
+                .build(SwipePoint.class);
+        swipePoint = (SwipePoint) point;
+        swipePoint.getNextPoint().setX(coordinateXUp.get(coordinateXDown.size()-1)-pointLocateHelper);
+        swipePoint.getNextPoint().setY(coordinateYUp.get(coordinateXDown.size()-1)-pointLocateHelper);
+        point.attachToWindow(wm, canvasView);
+        point.updateListener(wm,canvasView, AutoClickService.getParamBound());
+        point.setTouchable(false, wm);
+        listCommando.add(point);
+        point.setDelay((long) 1);
+        SimulateTouchAccessibilityService.execCommand(point, new AccessibilityService.GestureResultCallback() {
+            @Override
+            public void onCompleted(GestureDescription gestureDescription) {
+                super.onCompleted(gestureDescription);
+                AutoClickService.updateLayoutFlagsOff();
+                Log.d(LogExt.TAG, "gesture completed");
+            }
+            @Override
+            public void onCancelled(GestureDescription gestureDescription) {
+                super.onCancelled(gestureDescription);
+                AutoClickService.updateLayoutFlagsOff();
+                Log.d(LogExt.TAG, "gesture cancelled");
+            }
+        });
+        point.setDelay(nMsNow);
+        timerForDurationCancel();
+    }
+    void createPinchPoint(WindowManager wm, List<Point> listCommando,
+                          PointCanvasView canvasView, float paramSizePoint){
+        nMsNow = nMs;
+        Point point = (PinchPoint) Point.PointBuilder.invoke()
+                .position(500,
+                        750)
+                .delay(nMsNow).duration(nDurationMs)
+                .text(String.format("%s", listCommando.size() + 1))
+                .build(PinchPoint.class);
+        pinchPoint = (PinchPoint) point;
+        if(coordinateYDown.get(0) > coordinateYDown.get(1)) {
+            pinchPoint.getFirstPoint().setX(coordinateXDown.get(0)-pointLocateHelper);
+            pinchPoint.getFirstPoint().setY(coordinateYDown.get(0)-pointLocateHelper);
+            pinchPoint.getSecondPoint().setX(coordinateXDown.get(1)-pointLocateHelper);
+            pinchPoint.getSecondPoint().setY(coordinateYDown.get(1)-pointLocateHelper);
+            if(pinchPoint.getFirstPoint().getX() >= xMove && pinchPoint.getFirstPoint().getY() <= yMove)
+                pinchPoint.setTypePinch(PinchPoint.PinchDirection.OUT);
+            else
+                pinchPoint.setTypePinch(PinchPoint.PinchDirection.IN);
+        }
+        else {
+            pinchPoint.getFirstPoint().setX(coordinateXDown.get(1)-pointLocateHelper);
+            pinchPoint.getFirstPoint().setY(coordinateYDown.get(1)-pointLocateHelper);
+            pinchPoint.getSecondPoint().setX(coordinateXDown.get(0)-pointLocateHelper);
+            pinchPoint.getSecondPoint().setY(coordinateYDown.get(0)-pointLocateHelper);
+            if(pinchPoint.getFirstPoint().getX() >= xMove2 && pinchPoint.getFirstPoint().getY() <= yMove2)
+                pinchPoint.setTypePinch(PinchPoint.PinchDirection.OUT);
+            else
+                pinchPoint.setTypePinch(PinchPoint.PinchDirection.IN);
+        }
+        point.setX((pinchPoint.getFirstPoint().getX()+pinchPoint.getSecondPoint().getX())/2);
+        point.setY((pinchPoint.getFirstPoint().getY()+pinchPoint.getSecondPoint().getY())/2);
+        point.attachToWindow(wm, canvasView);
+        point.updateListener(wm, canvasView, AutoClickService.getParamBound());
+        point.setTouchable(false, wm);
+        listCommando.add(point);
+        point.setDelay((long) 1);
+        SimulateTouchAccessibilityService.execCommand(point, new AccessibilityService.GestureResultCallback() {
+            @Override
+            public void onCompleted(GestureDescription gestureDescription) {
+                super.onCompleted(gestureDescription);
+                AutoClickService.updateLayoutFlagsOff();
+                Log.d(LogExt.TAG, "gesture completed");
+            }
+            @Override
+            public void onCancelled(GestureDescription gestureDescription) {
+                super.onCancelled(gestureDescription);
+                AutoClickService.updateLayoutFlagsOff();
+                Log.d(LogExt.TAG, "gesture cancelled ");
+            }
+        });
+        point.setDelay(nMsNow);
+        timerForDurationCancel();
+    }
+    void createMultiPoint(WindowManager wm, List<Point> listCommando,
+                          PointCanvasView canvasView, float paramSizePoint){
+        nMsNow = nMs;
+        Point point = (MultiPoint) Point.PointBuilder.invoke()
+                .position((int) coordinateXDown.get(coordinateXDown.size() - 1) - pointLocateHelper,
+                        (int) coordinateYDown.get(coordinateXDown.size() - 1) - pointLocateHelper)
+                .delay(nMsNow).duration(nDurationMs)
+                .text(String.format("%s", listCommando.size() + 1))
+                .build(MultiPoint.class);
+        multiPoint = (MultiPoint) point;
+        multiPoint.createPointsForRecordPanelChangeElemenent(0, coordinateXDown.get(0) - pointLocateHelper, coordinateYDown.get(0) - pointLocateHelper);
+        multiPoint.createPointsForRecordPanelChangeElemenent(1, coordinateXDown.get(1) - pointLocateHelper, coordinateYDown.get(1) - pointLocateHelper);
+        if (coordinateXDown.size() > 10)
+            for (int i = 2; i < 10; i++) {
+                multiPoint.createPointsForRecordPanel(coordinateXDown.get(i) - pointLocateHelper,
+                        coordinateYDown.get(i) - pointLocateHelper);
+            }
+        else
+            for (int i = 2; i < coordinateXDown.size(); i++) {
+                multiPoint.createPointsForRecordPanel(coordinateXDown.get(i) - pointLocateHelper,
+                        coordinateYDown.get(i) - pointLocateHelper);
+            }
+        multiPoint.attachToWindow(wm, canvasView);
+        multiPoint.updateListener(wm, canvasView, AutoClickService.getParamBound());
+        multiPoint.setTouchable(false, wm);
+        listCommando.add(point);
+        multiPoint.setDelay((long) 1);
+        SimulateTouchAccessibilityService.execCommand(multiPoint, new AccessibilityService.GestureResultCallback() {
+            @Override
+            public void onCompleted(GestureDescription gestureDescription) {
+                super.onCompleted(gestureDescription);
+                AutoClickService.updateLayoutFlagsOff();
+                Log.d(LogExt.TAG, "gesture completed");
+            }
+            @Override
+            public void onCancelled(GestureDescription gestureDescription) {
+                super.onCancelled(gestureDescription);
+                AutoClickService.updateLayoutFlagsOff();
+                Log.d(LogExt.TAG, "gesture cancelled ");
+            }
+        });
+        multiPoint.setDelayRecord((int) nMsNow);
+        timerForDurationCancel();
     }
 }

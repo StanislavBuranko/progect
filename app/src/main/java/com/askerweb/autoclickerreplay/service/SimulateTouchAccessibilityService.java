@@ -24,7 +24,8 @@ import java.util.function.Function;
 public class SimulateTouchAccessibilityService extends AccessibilityService {
 
     private static SimulateTouchAccessibilityService service;
-    
+    public static boolean isActionStop = false;
+
     Context appContext = App.appComponent.getAppContext();
 
     public final static String ACTION_COMPLETE = "ACTION_COMPLETE_POINT";
@@ -109,6 +110,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
         service.getApplicationContext().startService(intent);
     }
     public static void requestStop(){
+        isActionStop = true;
         requestAction(AutoClickService.ACTION_STOP);
     }
     public static void requestContinue() {
@@ -164,7 +166,12 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                             }
 
                             public void onFinish() {
-                                SimulateTouchAccessibilityService.execCommand(finalPoint, getGestureCallback.apply(finalPoint));
+                                if(!isActionStop) {
+                                    SimulateTouchAccessibilityService.execCommand(finalPoint, getGestureCallback.apply(finalPoint));
+                                }
+                                else
+                                    isActionStop = false;
+
                             }
                         }.start();
                     }
