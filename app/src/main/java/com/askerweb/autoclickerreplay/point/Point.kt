@@ -266,8 +266,8 @@ abstract class Point : PointCommand, Parcelable, Serializable{
                 if (editDelay.text.toString() != "")
                     if (editDelay.text.toString().toInt() < 0)
                         editDelay.setText((0).toString())
-                    else if (editDelay.text.toString().toInt() > 10000)
-                        editDelay.setText((10000).toString())
+                    else if (editDelay.text.toString().toInt() > 30000)
+                        editDelay.setText((30000).toString())
                 editDelay.setSelection(editDelay.text.length)
             }
 
@@ -275,8 +275,8 @@ abstract class Point : PointCommand, Parcelable, Serializable{
                 if (editDuration.text.toString() != "")
                     if (editDuration.text.toString().toInt() < 0)
                         editDuration.setText((0).toString())
-                    else if (editDuration.text.toString().toInt() > 10000)
-                        editDuration.setText((10000).toString())
+                    else if (editDuration.text.toString().toInt() > 30000)
+                        editDuration.setText((30000).toString())
                 editDuration.setSelection(editDuration.text.length)
             }
 
@@ -284,8 +284,8 @@ abstract class Point : PointCommand, Parcelable, Serializable{
                 if (editRepeat.text.toString() != "")
                     if (editRepeat.text.toString().toInt() < 0)
                         editRepeat.setText((0).toString())
-                    else if (editRepeat.text.toString().toInt() > 10000)
-                        editRepeat.setText((10000).toString())
+                    else if (editRepeat.text.toString().toInt() > 999999)
+                        editRepeat.setText((999999).toString())
                 editRepeat.setSelection(editRepeat.text.length)
             }
 

@@ -31,53 +31,66 @@ class SettingActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        var isOpenLoadDialog = false
+        var isOpenSaveDialog = false
         super.onCreate(savedInstanceState)
         setContentView(R.layout.setting_layout)
         save_btn.setOnClickListener {
-            if(!AutoClickService.isAlive()){
-                AutoClickService.start(this)
-            }
-            if(AutoClickService.isAlive() && AutoClickService.getListPoint().size > 0){
-                AutoClickService.requestAction(this, AutoClickService.ACTION_HIDE_VIEWS)
-                val builder = AlertDialog.Builder(this, R.style.AppDialog)
-                val contentView = LayoutInflater.from(this)
-                        .inflate(R.layout.dialog_edit_text, null, false)
-                val editNameFile = contentView.findViewById<EditText>(R.id.editText)
-                editNameFile.setText(getString(R.string.untitled))
-                val dialog = builder.setTitle(getString(R.string.title_save_script))
-                        .setView(contentView)
-                        .setPositiveButton(getString(R.string.save)) { d, _ ->
-                            saveMacroToJson(AutoClickService.getListPoint(), editNameFile.text.toString())
-                            d.cancel()
-                        }
-                        .setNegativeButton(getString(R.string.cancel)){ d, _ ->
-                            d.cancel()
-                        }
-                        .setOnCancelListener { AutoClickService.requestAction(this, AutoClickService.ACTION_SHOW_VIEWS) }
-                        .create()
-                dialog.show()
-            }
-            else{
-                Toast.makeText(this, R.string.toast_empty_script, Toast.LENGTH_LONG).show()
+            if(!isOpenSaveDialog) {
+                isOpenSaveDialog = true
+                if (!AutoClickService.isAlive()) {
+                    AutoClickService.start(this)
+                }
+                if (AutoClickService.isAlive() && AutoClickService.getListPoint().size > 0) {
+                    AutoClickService.requestAction(this, AutoClickService.ACTION_HIDE_VIEWS)
+                    val builder = AlertDialog.Builder(this, R.style.AppDialog)
+                    val contentView = LayoutInflater.from(this)
+                            .inflate(R.layout.dialog_edit_text, null, false)
+                    val editNameFile = contentView.findViewById<EditText>(R.id.editText)
+                    editNameFile.setText(getString(R.string.untitled))
+                    val dialog = builder.setTitle(getString(R.string.title_save_script))
+                            .setView(contentView)
+                            .setPositiveButton(getString(R.string.save)) { d, _ ->
+                                saveMacroToJson(AutoClickService.getListPoint(), editNameFile.text.toString())
+                                d.cancel()
+                                isOpenSaveDialog = false
+                            }
+                            .setNegativeButton(getString(R.string.cancel)) { d, _ ->
+                                d.cancel()
+                                isOpenSaveDialog = false
+                            }
+                            .setOnCancelListener {
+                                isOpenSaveDialog = false
+                                AutoClickService.requestAction(this, AutoClickService.ACTION_SHOW_VIEWS) }
+                            .create()
+                    dialog.show()
+                } else {
+                    Toast.makeText(this, R.string.toast_empty_script, Toast.LENGTH_LONG).show()
+                    isOpenSaveDialog = false
+                }
             }
         }
         load_btn.setOnClickListener {
-            AutoClickService.start(this)
-            val dir = mutableListOf<File>(*filesDir.listFiles()!!)
-            if(dir.isNotEmpty()){
-                AutoClickService.requestAction(this, AutoClickService.ACTION_HIDE_VIEWS)
-                val adapter = ScriptSavedAdapterFiles(dir, LayoutInflater.from(this))
-                val dialog = AlertDialog.Builder(this,  R.style.AppDialog)
-                        .setTitle(resources.getString(R.string.load_script))
-                        .setAdapter(adapter){_,_->}
-                        .setOnCancelListener { AutoClickService.requestAction(this, AutoClickService.ACTION_SHOW_VIEWS) }
-                        .create()
-                adapter.callbackDelete = { if(dir.isEmpty()) dialog.cancel() }
-                adapter.callbackDownload = { dialog.cancel() }
-                dialog.show()
-            }
-            else{
-                Toast.makeText(this, R.string.toast_havent_saved_script, Toast.LENGTH_LONG).show()
+            if(!isOpenLoadDialog) {
+                isOpenLoadDialog = true
+                AutoClickService.start(this)
+                val dir = mutableListOf<File>(*filesDir.listFiles()!!)
+                if (dir.isNotEmpty()) {
+                    AutoClickService.requestAction(this, AutoClickService.ACTION_HIDE_VIEWS)
+                    val adapter = ScriptSavedAdapterFiles(dir, LayoutInflater.from(this))
+                    val dialog = AlertDialog.Builder(this, R.style.AppDialog)
+                            .setTitle(resources.getString(R.string.load_script))
+                            .setAdapter(adapter) { _, _ -> isOpenLoadDialog = false}
+                            .setOnCancelListener { isOpenLoadDialog = false
+                                AutoClickService.requestAction(this, AutoClickService.ACTION_SHOW_VIEWS) }
+                            .create()
+                    adapter.callbackDelete = { if (dir.isEmpty()) dialog.cancel() }
+                    adapter.callbackDownload = { dialog.cancel() }
+                    dialog.show()
+                } else {
+                    Toast.makeText(this, R.string.toast_havent_saved_script, Toast.LENGTH_LONG).show()
+                    isOpenLoadDialog = false
+                }
             }
         }
         turn_off_ad.setOnClickListener {
