@@ -26,6 +26,7 @@
     <string name="swap">invert</string>
     <string name="ms">millisecond</string>
     <string name="times">times</string>
+    <string name="disconnect_error">Disconnect error</string>
 
     <string name="title_repeat_preference_point">Number of repetitions (one per minute)</string>
     <string name="title_delay_preference_point">Delay</string>

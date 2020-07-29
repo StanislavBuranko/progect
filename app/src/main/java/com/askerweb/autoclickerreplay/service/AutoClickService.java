@@ -224,6 +224,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             a.detachToWindow(wm, canvasView);
         }
         wm.removeView(controlPanel);
+        wm.removeView(recordPanel);
         wm.removeView(canvasView);
         listCommands.clear();
         super.onDestroy();
@@ -263,6 +264,9 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 
 //    @OnClick(R.id.start_pause)
     public void startPauseCommand(){
+        if(openRecordPanel){
+            cancelRecord();
+        }
         String action = SimulateTouchAccessibilityService.isPlaying() ? ACTION_STOP : ACTION_START;
         requestAction(this, action);
     }
@@ -404,7 +408,6 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         if(SimulateTouchAccessibilityService.isPlaying()){
             requestAction(this, ACTION_STOP);
         }
-        wm.removeView(recordPanel);
         stopSelf();
     }
 
@@ -433,7 +436,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 break;
             case ACTION_START:
                 startCount++;
-                if(interstitialAd.isLoaded() && startCount >= 2){
+                if(App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2){
                     hideViews();
                     // request to show ad
                     Intent intent1 = new Intent(this, AdActivity.class);
@@ -553,30 +556,39 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     @OnClick(R.id.record_points_start_pause)
     public void recordPoints(){
         if(!openRecordPanel) {
-            RecordPoints.timerStart();
-            openRecordPanel = true;
-            wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
-            listCommands.forEach((c) -> c.setTouchable(false, wm));
-            paramRepeatMacro = Optional
-                    .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, 1))
-                    .orElse(1);
-            controlPanel.findViewById(R.id.record_points_start_pause)
-                    .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_radio_button));
-
+            openRecord();
         }
         else {
-            RecordPoints.timerCancel();
-            paramRepeatMacro = Optional
-                    .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, SettingExt.defaultRepeat))
-                    .orElse(SettingExt.defaultRepeat);
-            wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
-            listCommands.forEach((c) -> c.setTouchable(true, wm));
-            openRecordPanel = false;
-            controlPanel.findViewById(R.id.record_points_start_pause)
-                    .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_radio_button_off));
+            cancelRecord();
         }
 
     }
+
+    public void openRecord(){
+        RecordPoints.timerStart();
+        openRecordPanel = true;
+        wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
+        listCommands.forEach((c) -> c.setTouchable(false, wm));
+        paramRepeatMacro = Optional
+                .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, 1))
+                .orElse(1);
+        controlPanel.findViewById(R.id.record_points_start_pause)
+                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_radio_button));
+    }
+
+    public void cancelRecord(){
+        RecordPoints.timerCancel();
+        paramRepeatMacro = Optional
+                .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, SettingExt.defaultRepeat))
+                .orElse(SettingExt.defaultRepeat);
+        wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
+        listCommands.forEach((c) -> c.setTouchable(true, wm));
+        openRecordPanel = false;
+        controlPanel.findViewById(R.id.record_points_start_pause)
+                .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_radio_button_off));
+    }
+
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         RecordPoints.onTouch(event,wm, listCommands, canvasView, paramSizePoint);

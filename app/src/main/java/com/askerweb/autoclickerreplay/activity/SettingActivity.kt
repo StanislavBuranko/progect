@@ -10,9 +10,11 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.android.billingclient.api.Purchase
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.loadMacroFromJson
+import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.ktExt.saveMacroToJson
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.android.gms.ads.AdRequest
@@ -84,11 +86,15 @@ class SettingActivity : AppCompatActivity() {
         _handlerBoughtAd = Handler{
             adBanner.visibility = GONE
             adBanner.destroy()
-            false
+            turn_off_ad.visibility = GONE
+            true
         }
         if(App.isShowAd()) {
-            adBanner.visibility = VISIBLE
             adBanner.loadAd(AdRequest.Builder().build())
+        }
+        else{
+            adBanner.visibility = GONE
+            turn_off_ad.visibility = GONE
         }
     }
 

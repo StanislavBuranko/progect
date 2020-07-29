@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -60,7 +61,7 @@ public class App extends Application {
     public static PurchasesUpdatedListener purchasesListener = new PurchasesUpdatedListener() {
         @Override
         public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> list) {
-            if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK && list != null) {
+            if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK && list != null && list.size() > 0) {
                 payTurnOffAd();
             }
         }
@@ -69,16 +70,13 @@ public class App extends Application {
     public static BillingClientStateListener billingStateListener = new BillingClientStateListener() {
         @Override
         public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
-            LogExt.logd("setat");
             if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                LogExt.logd("setat e");
-
                 getInstance().querySkuDetails(); // query get unit product
                 List<Purchase> purchasesList = getInstance().queryPurchases(); // query get bought unit
                 for (int i = 0; i < purchasesList.size(); i++) {
                     String purchaseId = purchasesList.get(i).getSku();
                     if(purchaseId.equals(getInstance().getString(R.string.id_sku_turn_off_ad))) {
-                        payTurnOffAd();
+                            payTurnOffAd();
                     }
                 }
             }
@@ -86,7 +84,7 @@ public class App extends Application {
 
         @Override
         public void onBillingServiceDisconnected() {
-
+            Toast.makeText(App.getInstance(), R.string.disconnect_error, Toast.LENGTH_LONG).show();
         }
     };
 

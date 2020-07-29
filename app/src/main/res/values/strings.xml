@@ -27,6 +27,7 @@
     <string name="swap">Инвертировать</string>
     <string name="ms">мс</string>
     <string name="times">раз</string>
+    <string name="disconnect_error">Ошибка соединения</string>
 
     <string name="title_repeat_preference_point">Количество повторений(мин. 1 раз)</string>
     <string name="title_delay_preference_point">Задержка перед нажатием</string>
