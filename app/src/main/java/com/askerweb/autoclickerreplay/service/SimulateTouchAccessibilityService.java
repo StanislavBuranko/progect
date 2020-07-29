@@ -4,6 +4,7 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
 import android.content.Context;
 import android.content.Intent;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -68,16 +69,27 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
     }
     
 
-    public synchronized static void execCommand(PointCommand command, GestureResultCallback callback){
-        if(command != null){
-            GestureDescription gd = command.getCommand();
-            if(gd != null){
-                service.dispatchGesture(gd, callback, null);
+    public synchronized static void execCommand(PointCommand command, GestureResultCallback callback, Long delay){
+
+        CountDownTimer countDownTimer = new CountDownTimer(delay, 1000) {
+
+            public void onTick(long millisUntilFinished) {
+                //here you can have your logic to set text to edittext
             }
-        }
+
+            public void onFinish() {
+                if(command != null){
+                    GestureDescription gd = command.getCommand();
+                    if(gd != null){
+                        service.dispatchGesture(gd, callback, null);
+                    }
+                }
+            }
+
+        }.start();
     }
 
-    public synchronized static void execCommand(PointCommand command){
+    public synchronized static void execCommand(PointCommand command, Long delay){
         execCommand(command,  new GestureResultCallback() {
             @Override
             public void onCompleted(GestureDescription gestureDescription) {
@@ -90,7 +102,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 super.onCancelled(gestureDescription);
                 Log.d(LogExt.TAG, "gesture cancelled ");
             }
-        });
+        }, delay);
     }
 
     private static void requestAction(String action){
@@ -155,7 +167,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                         }
                     }
                     if(counterRepeatMacro != 0)
-                        SimulateTouchAccessibilityService.execCommand(point, getGestureCallback.apply(point));
+                        SimulateTouchAccessibilityService.execCommand(point, getGestureCallback.apply(point), point.getDelay());
                     else
                         AutoClickService.requestAction(appContext, AutoClickService.ACTION_STOP);
                 }
@@ -180,7 +192,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 }
             }
             if(service.counterRepeatMacro != 0)
-                SimulateTouchAccessibilityService.execCommand(point, getGestureCallback.apply(point));
+                SimulateTouchAccessibilityService.execCommand(point, getGestureCallback.apply(point), point.getDelay());
             else
                 AutoClickService.requestAction(service.appContext, AutoClickService.ACTION_STOP);
         }

@@ -80,7 +80,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
             view.text = value
         }
 
-    var delay by Delegates.notNull<Long>()
+    public var delay by Delegates.notNull<Long>()
     var duration by Delegates.notNull<Long>()
     public var repeat by Delegates.notNull<Int>()
 
@@ -266,8 +266,8 @@ abstract class Point : PointCommand, Parcelable, Serializable{
                 if (editDelay.text.toString() != "")
                     if (editDelay.text.toString().toInt() < 0)
                         editDelay.setText((0).toString())
-                    else if (editDelay.text.toString().toInt() > 30000)
-                        editDelay.setText((30000).toString())
+                    else if (editDelay.text.toString().toInt() > 9999999)
+                        editDelay.setText((9999999).toString())
                 editDelay.setSelection(editDelay.text.length)
             }
 
@@ -275,8 +275,8 @@ abstract class Point : PointCommand, Parcelable, Serializable{
                 if (editDuration.text.toString() != "")
                     if (editDuration.text.toString().toInt() < 0)
                         editDuration.setText((0).toString())
-                    else if (editDuration.text.toString().toInt() > 30000)
-                        editDuration.setText((30000).toString())
+                    else if (editDuration.text.toString().toInt() > 60000)
+                        editDuration.setText((60000).toString())
                 editDuration.setSelection(editDuration.text.length)
             }
 

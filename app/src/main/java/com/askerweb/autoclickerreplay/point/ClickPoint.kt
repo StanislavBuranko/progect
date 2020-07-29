@@ -19,7 +19,7 @@ class ClickPoint : Point {
         path.moveTo(xTouch.toFloat(), yTouch.toFloat())
         val builder = GestureDescription.Builder()
         return builder
-                .addStroke(GestureDescription.StrokeDescription(path, delay, duration))
+                .addStroke(GestureDescription.StrokeDescription(path, 0, duration))
                 .build()
     }
 

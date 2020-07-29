@@ -182,7 +182,7 @@ class MultiPoint: Point {
         for (n in 0..points.size - 1) {
             val path = Path()
             path.moveTo(points[n].xTouch.toFloat(), points[n].yTouch.toFloat())
-            builder.addStroke(GestureDescription.StrokeDescription(path, points[n].delay, points[n].duration))
+            builder.addStroke(GestureDescription.StrokeDescription(path, 0, points[n].duration))
         }
         return builder.build()
     }
@@ -336,6 +336,7 @@ class MultiPoint: Point {
                     holder.saveEditDialog()
                     detachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
                     attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())
+                    updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
                     super.repeat = points[0].repeat
                 }.setNegativeButton(R.string.cancel) { _, _ ->
                 }

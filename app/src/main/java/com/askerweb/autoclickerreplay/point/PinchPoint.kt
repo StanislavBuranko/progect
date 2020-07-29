@@ -223,8 +223,8 @@ class PinchPoint:Point {
                 path2.lineTo(xTouch, yTouch)
                 val builder = GestureDescription.Builder()
                 return builder
-                        .addStroke(GestureDescription.StrokeDescription(path, delay, duration))
-                        .addStroke(GestureDescription.StrokeDescription(path2, delay, duration))
+                        .addStroke(GestureDescription.StrokeDescription(path, 0, duration))
+                        .addStroke(GestureDescription.StrokeDescription(path2, 0, duration))
                         .build()
             }
         },
@@ -238,8 +238,8 @@ class PinchPoint:Point {
                 path2.lineTo(secondPoint.xTouch.toFloat(), secondPoint.yTouch.toFloat())
                 val builder = GestureDescription.Builder()
                 return builder
-                        .addStroke(GestureDescription.StrokeDescription(path, delay, duration))
-                        .addStroke(GestureDescription.StrokeDescription(path2, delay, duration))
+                        .addStroke(GestureDescription.StrokeDescription(path, 0, duration))
+                        .addStroke(GestureDescription.StrokeDescription(path2, 0, duration))
                         .build()
             }
         };

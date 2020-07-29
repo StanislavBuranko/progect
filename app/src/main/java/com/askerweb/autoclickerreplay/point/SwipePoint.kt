@@ -135,7 +135,7 @@ class SwipePoint : Point {
         path.lineTo(nextPoint.xTouch.toFloat(), nextPoint.yTouch.toFloat())
         val builder = GestureDescription.Builder()
         return builder
-                .addStroke(GestureDescription.StrokeDescription(path, delay, duration))
+                .addStroke(GestureDescription.StrokeDescription(path, 0, duration))
                 .build()
     }
 
