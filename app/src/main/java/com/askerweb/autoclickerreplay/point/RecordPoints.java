@@ -2,32 +2,20 @@ package com.askerweb.autoclickerreplay.point;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
-import android.content.Context;
-import android.content.Intent;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.WindowManager;
-
-import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
-import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView;
 import com.askerweb.autoclickerreplay.service.AutoClickService;
 import com.askerweb.autoclickerreplay.service.SimulateTouchAccessibilityService;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class RecordPoints {
 
-    public static boolean creatPointStart;
     static CountDownTimer timer;
     static CountDownTimer timerForSwipe;
     static int xMove, yMove, xMove2, yMove2;
@@ -72,7 +60,7 @@ public class RecordPoints {
         }.start();
         timerStart = true;
     }
-    // canel timer for delay
+    // cancel timer for delay
     public static void timerCancel(){
         timer.cancel();
     }
@@ -91,12 +79,12 @@ public class RecordPoints {
         }.start();
         timerStart = true;
     }
-    // canel timer for duration
+    // cancel timer for duration
     public static void timerForDurationCancel(){
         timerForSwipe.cancel();
         nDurationMs = 0;
     }
-
+    // method for Record panel onTouchListener
     public static void onTouch(MotionEvent event,
                                WindowManager wm,
                                List<Point> listCommando,
@@ -106,6 +94,7 @@ public class RecordPoints {
         int numbPointerUp = 0;
         if(!timerStart)
             timerStart();
+        //logic for create point
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 xMove = 0;
@@ -121,7 +110,8 @@ public class RecordPoints {
                 coordinateXUp.clear();
                 coordinateXDown.add((int) event.getX());
                 coordinateYDown.add((int) event.getY());
-                Log.d("123321", "CreatPoint: " + coordinateXDown.get(coordinateXDown.size() - 1) + " " + coordinateYDown.get(coordinateXDown.size() - 1));
+                Log.d("Add point(ACTION_DOWN)", "x: " + coordinateXDown.get(coordinateXDown.size() - 1)
+                        + " y: " + coordinateYDown.get(coordinateXDown.size() - 1));
                 if (timerForSwipeisStart)
                     timerForSwipe.cancel();
                 timerForDurationStart();
@@ -129,7 +119,8 @@ public class RecordPoints {
             case MotionEvent.ACTION_POINTER_DOWN:
                 coordinateXDown.add((int) event.getX(event.getActionIndex()));
                 coordinateYDown.add((int) event.getY(event.getActionIndex()));
-                Log.d("123321", "CreatPoint: " + coordinateXDown.get(coordinateXDown.size() - 1) + " " + coordinateYDown.get(coordinateXDown.size() - 1));
+                Log.d("Add point(ACTION_POINTER_DOWN)", "x: "
+                        + coordinateXDown.get(coordinateXDown.size() - 1) + " y: " + coordinateYDown.get(coordinateXDown.size() - 1));
                 break;
             case MotionEvent.ACTION_MOVE:
                 actionMove = true;
@@ -141,7 +132,10 @@ public class RecordPoints {
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                Log.d("123321123", "onTouch: xDown:" + coordinateXDown.get(0) + " yDown:" + coordinateYDown.get(0) + " xMove:" + xMove + " yMove:" + yMove);
+                Log.d("Add point(ACTION_UP)", "xDown:" + coordinateXDown.get(0) +
+                        " yDown:" + coordinateYDown.get(0) +
+                        " xMove:" + xMove +
+                        " yMove:" + yMove);
                 if (coordinateYDown.size() == 2)
                     if (coordinateXDown.get(0) - 75 <= xMove
                             && xMove <= coordinateXDown.get(0) + 75
@@ -163,7 +157,6 @@ public class RecordPoints {
                             && coordinateYDown.get(coordinateYDown.size()-1) - 75 <= yMove
                             && yMove <= coordinateYDown.get(coordinateYDown.size()-1) + 75) {
                         pointsCreate = PointsCreate.Point;
-                        isPointCreate = true;
                     }
                     else if(actionMove && !isPointCreate)
                         pointsCreate = PointsCreate.SwipePoint;
@@ -178,7 +171,6 @@ public class RecordPoints {
                     pointsCreate = PointsCreate.Point;
                 if(!workCreatePoint) {
                     workCreatePoint = true;
-                    creatPointStart = true;
                     AutoClickService.updateLayoutFlagsOn();
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
@@ -196,18 +188,19 @@ public class RecordPoints {
 
         }
     }
-
+    //create points
     public static  void CreatPoint(WindowManager wm,
                                    List<Point> listCommando,
                                    PointCanvasView canvasView,
                                    float paramSizePoint) {
+        //logic for correct spawn points
         if(paramSizePoint == 32)
             pointLocateHelper = 37;
         else if(paramSizePoint == 40)
             pointLocateHelper = 50;
         else if(paramSizePoint == 56)
             pointLocateHelper = 75;
-
+        //create SimplePoint
         if(pointsCreate == PointsCreate.Point) {
             nMsNow = nMs;
             Log.d("123321", "CreatPoint: "+coordinateXDown.size());
@@ -245,6 +238,7 @@ public class RecordPoints {
             point.setDelay(nMsNow);
             timerForDurationCancel();
         }
+        //create SwipePoint
         if(pointsCreate == PointsCreate.SwipePoint) {
             nMsNow = nMs;
             Point point = (SwipePoint) Point.PointBuilder.invoke()
@@ -284,6 +278,7 @@ public class RecordPoints {
             point.setDelay(nMsNow);
             timerForDurationCancel();
         }
+        //create PinchPoint
         if(pointsCreate == PointsCreate.PinchPoint) {
             nMsNow = nMs;
             Point point = (PinchPoint) Point.PointBuilder.invoke()
@@ -347,6 +342,7 @@ public class RecordPoints {
             point.setDelay(nMsNow);
             timerForDurationCancel();
         }
+        //create MultiPoint
         if(pointsCreate == PointsCreate.MultiPoint) {
             nMsNow = nMs;
             Point point = (MultiPoint) Point.PointBuilder.invoke()
