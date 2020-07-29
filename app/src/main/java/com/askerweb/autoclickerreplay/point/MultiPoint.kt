@@ -242,31 +242,7 @@ class MultiPoint: Point {
                         editNumbMultiPoint.setText((2).toString())
                     else if (editNumbMultiPoint.text.toString().toInt() > 10)
                         editNumbMultiPoint.setText((10).toString())
-            }
-
-
-            editDelay.addTextChangedListener {
-                if (editDelay.text.toString() != "")
-                    if (editDelay.text.toString().toInt() < 0)
-                        editDelay.setText((0).toString())
-                    else if (editDelay.text.toString().toInt() > 10000)
-                        editDelay.setText((100000).toString())
-            }
-
-            editDuration.addTextChangedListener {
-                if (editDuration.text.toString() != "")
-                    if (editDuration.text.toString().toInt() < 0)
-                        editDuration.setText((0).toString())
-                    else if (editDuration.text.toString().toInt() > 10000)
-                        editDuration.setText((100000).toString())
-            }
-
-            editRepeat.addTextChangedListener {
-                if (editRepeat.text.toString() != "")
-                    if (editRepeat.text.toString().toInt() < 0)
-                        editRepeat.setText((0).toString())
-                    else if (editRepeat.text.toString().toInt() > 10000)
-                        editRepeat.setText((100000).toString())
+                editNumbMultiPoint.setSelection(editNumbMultiPoint.text.length)
             }
 
             editDelay.doAfterTextChanged {

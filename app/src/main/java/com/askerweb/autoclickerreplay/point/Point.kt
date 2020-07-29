@@ -14,6 +14,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
@@ -258,6 +259,34 @@ abstract class Point : PointCommand, Parcelable, Serializable{
 
             editRepeat.doAfterTextChanged{
                 requireSettingEdit()
+            }
+
+
+            editDelay.addTextChangedListener {
+                if (editDelay.text.toString() != "")
+                    if (editDelay.text.toString().toInt() < 0)
+                        editDelay.setText((0).toString())
+                    else if (editDelay.text.toString().toInt() > 10000)
+                        editDelay.setText((10000).toString())
+                editDelay.setSelection(editDelay.text.length)
+            }
+
+            editDuration.addTextChangedListener {
+                if (editDuration.text.toString() != "")
+                    if (editDuration.text.toString().toInt() < 0)
+                        editDuration.setText((0).toString())
+                    else if (editDuration.text.toString().toInt() > 10000)
+                        editDuration.setText((10000).toString())
+                editDuration.setSelection(editDuration.text.length)
+            }
+
+            editRepeat.addTextChangedListener {
+                if (editRepeat.text.toString() != "")
+                    if (editRepeat.text.toString().toInt() < 0)
+                        editRepeat.setText((0).toString())
+                    else if (editRepeat.text.toString().toInt() > 10000)
+                        editRepeat.setText((10000).toString())
+                editRepeat.setSelection(editRepeat.text.length)
             }
 
         }
