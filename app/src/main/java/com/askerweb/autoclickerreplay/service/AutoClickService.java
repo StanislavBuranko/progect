@@ -408,6 +408,8 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         if(SimulateTouchAccessibilityService.isPlaying()){
             requestAction(this, ACTION_STOP);
         }
+        if(openRecordPanel)
+            cancelRecord();
         stopSelf();
     }
 
