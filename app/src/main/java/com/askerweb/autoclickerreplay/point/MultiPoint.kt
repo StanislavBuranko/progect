@@ -226,13 +226,13 @@ class MultiPoint: Point {
 
             btn_delete.setOnClickListener {
                 // Delete this point
-                AutoClickService.requestAction(appContext, AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, this@MultiPoint)
+                AutoClickService.requestAction(points[0].appContext, AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, this@MultiPoint)
                 dialog?.cancel()
             }
 
             btn_duplicate.setOnClickListener{
                 // Duplicate this point
-                AutoClickService.requestAction(appContext, AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, this@MultiPoint)
+                AutoClickService.requestAction(points[0].appContext, AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, this@MultiPoint)
                 dialog?.cancel()
             }
 
