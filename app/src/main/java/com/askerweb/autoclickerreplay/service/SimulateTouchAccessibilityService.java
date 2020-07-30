@@ -24,7 +24,7 @@ import java.util.function.Function;
 public class SimulateTouchAccessibilityService extends AccessibilityService {
 
     private static SimulateTouchAccessibilityService service;
-    public static boolean isActionStop = false;
+    static CountDownTimer countDownTimer;
 
     Context appContext = App.appComponent.getAppContext();
 
@@ -110,7 +110,6 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
         service.getApplicationContext().startService(intent);
     }
     public static void requestStop(){
-        isActionStop = true;
         requestAction(AutoClickService.ACTION_STOP);
     }
     public static void requestContinue() {
@@ -139,9 +138,9 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 }, 40);
                 break;
             case AutoClickService.ACTION_STOP:
+                countDownTimer.cancel();
                 isPlaying = false;
                 stopSelf();
-                isActionStop = false;
                 break;
             case ACTION_COMPLETE:
                 if(isPlaying){
@@ -160,16 +159,14 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                     }
                     if(counterRepeatMacro != 0) {
                         Point finalPoint = point;
-                        CountDownTimer countDownTimer = new CountDownTimer(finalPoint.getDelay(), 1000) {
+                        countDownTimer = new CountDownTimer(finalPoint.getDelay(), 1000) {
 
                             public void onTick(long millisUntilFinished) {
                                 //here you can have your logic to set text to edittext
                             }
 
                             public void onFinish() {
-                                if(!isActionStop) {
-                                    SimulateTouchAccessibilityService.execCommand(finalPoint, getGestureCallback.apply(finalPoint));
-                                }
+                                SimulateTouchAccessibilityService.execCommand(finalPoint, getGestureCallback.apply(finalPoint));
                             }
                         }.start();
                     }
