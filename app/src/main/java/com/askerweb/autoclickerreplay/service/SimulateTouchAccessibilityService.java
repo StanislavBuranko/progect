@@ -141,6 +141,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
             case AutoClickService.ACTION_STOP:
                 isPlaying = false;
                 stopSelf();
+                isActionStop = false;
                 break;
             case ACTION_COMPLETE:
                 if(isPlaying){
@@ -169,9 +170,6 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                                 if(!isActionStop) {
                                     SimulateTouchAccessibilityService.execCommand(finalPoint, getGestureCallback.apply(finalPoint));
                                 }
-                                else
-                                    isActionStop = false;
-
                             }
                         }.start();
                     }
