@@ -106,6 +106,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     public static final WindowManager.LayoutParams paramsRecordPanelFlagsOn =
             UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, Gravity.CENTER,  WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 
+    int lastOrientation = 1;
     // update listener after change orientation
     public final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -113,7 +114,9 @@ public class AutoClickService extends Service implements View.OnTouchListener {
             if(isAlive() && SimulateTouchAccessibilityService.isPlaying()){
                 startPauseCommand();
             }
-            listCommands.forEach(AutoClickService.this::swapPointOrientation);
+            if(getResources().getConfiguration().orientation != lastOrientation)
+                listCommands.forEach(AutoClickService.this::swapPointOrientation);
+            lastOrientation = getResources().getConfiguration().orientation;
         }
     };
 
@@ -134,6 +137,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
 
     @Override
     public void onCreate() {
+        lastOrientation = getResources().getConfiguration().orientation;
         super.onCreate();
         service = this;
         App.initServiceComponent(service);
