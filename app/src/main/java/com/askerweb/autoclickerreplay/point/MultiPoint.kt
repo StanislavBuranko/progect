@@ -224,18 +224,6 @@ class MultiPoint: Point {
                 true
             }
 
-            btn_delete.setOnClickListener {
-                // Delete this point
-                AutoClickService.requestAction(points[0].appContext, AutoClickService.ACTION_DELETE_POINT, AutoClickService.KEY_POINT, this@MultiPoint)
-                dialog?.cancel()
-            }
-
-            btn_duplicate.setOnClickListener{
-                // Duplicate this point
-                AutoClickService.requestAction(points[0].appContext, AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, this@MultiPoint)
-                dialog?.cancel()
-            }
-
             editNumbMultiPoint.addTextChangedListener {
                 if (editNumbMultiPoint.text.toString() != "")
                     if (editNumbMultiPoint.text.toString().toInt() < 2)
@@ -329,6 +317,7 @@ class MultiPoint: Point {
         val viewContent: View = createViewDialog()
         val holder = createHolderDialog(viewContent)
         holder.updateViewDialogParam()
+        super.appContext = points[0].appContext
         val dialog = AlertDialog.Builder(view.context)
                 .setTitle(view.context.getString(R.string.setting_point))
                 .setView(viewContent)
