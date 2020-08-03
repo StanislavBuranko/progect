@@ -315,6 +315,7 @@ class PathPoint : Point {
                     }
                     coordinateXMove.size.logd("SizeXArray")
                     coordinateYMove.size.logd("SizeYArray")
+                    updateListener(AutoClickService.getWM(), AutoClickService.getCanvas(),AutoClickService.getParamBound())
                 }
                 MotionEvent.ACTION_MOVE-> {
                     path.lineTo(event.rawX, event.rawY)
