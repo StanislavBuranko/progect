@@ -41,10 +41,13 @@ class AdActivity : AppCompatActivity() {
         super.onResume()
         "onResume".logd()
         val ad = intent.getStringExtra("ad_request")
+        "ad_request:$ad".logd()
         if (ad != null && ad.equals("true", ignoreCase = true)) {
             interstitialAd.show()
+            "showed Ad".logd()
         }
         else{
+            "show main activity".logd()
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
