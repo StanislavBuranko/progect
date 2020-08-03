@@ -34,8 +34,6 @@ class MultiPoint: Point {
 
     private val listCommands:MutableList<Point> = App.serviceComponent.getListPoint()
 
-    var isDelete = false
-
     public var points: Array<Point> = arrayOf()
 
     constructor(parcel: Parcel) : super(parcel) {
@@ -103,6 +101,8 @@ class MultiPoint: Point {
         obj.add("MultiPoints", objArray)
         return obj
     }
+
+
 
     override fun setVisible(visible: Int) {
         points.forEach { it.setVisible(visible) }

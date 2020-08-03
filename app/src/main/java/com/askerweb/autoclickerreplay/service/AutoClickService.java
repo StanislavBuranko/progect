@@ -294,7 +294,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         listTypes.add(ClickPoint.class);
         listTypes.add(SwipePoint.class);
         listTypes.add(PinchPoint.class);
-//        listTypes.add(PathPoint.class);
+        //listTypes.add(PathPoint.class);
         listTypes.add(MultiPoint.class);
         View title = UtilsApp.getDialogTitle(this, getString(R.string.sel_type_goal));
         TypePointAdapter adapter = new TypePointAdapter(new ContextThemeWrapper(this, R.style.AppDialog), listTypes);
@@ -539,7 +539,12 @@ public class AutoClickService extends Service implements View.OnTouchListener {
     }
 
     void swapPointOrientation(Point p){
-        p.swapPointOrientation();
+        if(p.getClass() == PathPoint.class)
+        {
+
+        }
+        else
+            p.swapPointOrientation();
         p.updateViewLayout(wm, paramSizePoint);
         canvasView.invalidate();
     }
