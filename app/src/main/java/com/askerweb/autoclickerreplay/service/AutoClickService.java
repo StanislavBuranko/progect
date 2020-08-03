@@ -294,7 +294,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         listTypes.add(ClickPoint.class);
         listTypes.add(SwipePoint.class);
         listTypes.add(PinchPoint.class);
-        //listTypes.add(PathPoint.class);
+        listTypes.add(PathPoint.class);
         listTypes.add(MultiPoint.class);
         View title = UtilsApp.getDialogTitle(this, getString(R.string.sel_type_goal));
         TypePointAdapter adapter = new TypePointAdapter(new ContextThemeWrapper(this, R.style.AppDialog), listTypes);
@@ -444,7 +444,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 break;
             case ACTION_START:
                 startCount++;
-                if(App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2){
+                if(/*App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2*/true){
                     hideViews();
                     // request to show ad
                     Intent intent1 = new Intent(this, AdActivity.class);
