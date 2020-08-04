@@ -6,6 +6,8 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.ContentValues.TAG
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
 import android.graphics.Typeface
@@ -42,6 +44,11 @@ fun checkPermissionOverlay(context: Context?) : Boolean {
 }
 
 
+fun isIntentAvailable(intent: Intent?, context: Context): Boolean {
+    return intent != null && context.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY).size > 0
+}
+
+
 fun checkAccessibilityPermission(context: Context?, service: Class<out AccessibilityService>) : Boolean {
     val am = context!!.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
     val enabledServices = am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
@@ -50,6 +57,7 @@ fun checkAccessibilityPermission(context: Context?, service: Class<out Accessibi
         val enabledServiceInfo: ServiceInfo = enabledService.resolveInfo.serviceInfo
         if (enabledServiceInfo.packageName == context.packageName && enabledServiceInfo.name == service.name) return true
     }
+
 
     var accessibilityEnabled = 0
     val serviceName: String = context.packageName + "/" + SimulateTouchAccessibilityService::class.java.canonicalName
@@ -95,7 +103,6 @@ fun checkAllPermission(context: Context?) : Boolean {
     }
     Log.println(Log.ASSERT, "appAutoClicker", "accessibility simulateTouch:" + checkAccessibilityPermission(context, SimulateTouchAccessibilityService::class.java))
     allPermission = allPermission && checkAccessibilityPermission(context, SimulateTouchAccessibilityService::class.java)
-
     return allPermission
 }
 
