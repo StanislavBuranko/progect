@@ -150,7 +150,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 interstitialAd.loadAd(new AdRequest.Builder().build());
                 AdActivity.getInstance()
                         .getClosedInterstitialAd()
-                        .sendEmptyMessageDelayed(0, 0);
+                        .sendEmptyMessage(0);
                 runMacroAfterAd();
             }
         });
@@ -445,11 +445,11 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 break;
             case ACTION_START:
                 startCount++;
-                if(/*App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2*/true){
+                if(App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2){
                     hideViews();
                     // request to show ad
                     Intent intent1 = new Intent(this, AdActivity.class);
-                    intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                    intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent1.putExtra("ad_request", "true");
                     startActivity(intent1);
                 }

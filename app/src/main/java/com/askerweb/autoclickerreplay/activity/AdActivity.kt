@@ -23,11 +23,12 @@ class AdActivity : AppCompatActivity() {
             get() = _instance
     }
 
-    val closedInterstitialAd = Handler(Handler.Callback { msg: Message? ->
+    val closedInterstitialAd = Handler(Handler.Callback {
         "closedAd".logd()
-        moveTaskToBack(true)
         intent.putExtra("ad_request", "")
-        false
+        moveTaskToBack(true)
+        finish()
+        true
     })
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -62,11 +62,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        String ad = getIntent().getStringExtra("ad_request");
-        if(ad != null && !ad.isEmpty()){
-            interstitialAd.show();
-            getIntent().putExtra("ad_request", "");
-        }
     }
 
     @Override
