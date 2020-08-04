@@ -22,8 +22,7 @@
 
         <service
             android:name=".service.AutoClickService"
-            android:enabled="true"
-            android:exported="false">
+            android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.CONFIGURATION_CHANGED"/>
             </intent-filter>

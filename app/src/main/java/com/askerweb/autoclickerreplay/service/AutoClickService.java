@@ -31,6 +31,7 @@ import androidx.core.content.ContextCompat;
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.activity.AdActivity;
+import com.askerweb.autoclickerreplay.activity.SettingActivity;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
@@ -149,7 +150,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 interstitialAd.loadAd(new AdRequest.Builder().build());
                 AdActivity.getInstance()
                         .getClosedInterstitialAd()
-                        .sendEmptyMessageDelayed(0, 0);
+                        .sendEmptyMessage(0);
                 runMacroAfterAd();
             }
         });
@@ -444,15 +445,13 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                 break;
             case ACTION_START:
                 startCount++;
-                if(/*App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2*/true){
+                if(App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2){
                     hideViews();
                     // request to show ad
                     Intent intent1 = new Intent(this, AdActivity.class);
-                    intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                            Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                    intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent1.putExtra("ad_request", "true");
                     startActivity(intent1);
-                    LogExt.logd("showed Ad");
                 }
                 else
                     runMacro();
@@ -526,6 +525,8 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         paramSizeControl = Optional
                 .ofNullable(SettingExt.getSetting(getString(R.string.key_preference_size_control_panel), SettingExt.defaultSizeControl))
                 .orElse(SettingExt.defaultSizeControl);
+        LogExt.logd(paramSizeControl);
+        LogExt.logd("d:"+ SettingExt.defaultSizeControl);
     }
 
     void updatePoint(@NotNull Point c){

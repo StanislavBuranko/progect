@@ -32,7 +32,6 @@ import com.askerweb.autoclickerreplay.service.AutoClickService;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.RequestConfiguration;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -102,12 +101,12 @@ public class App extends Application {
         instance = this;
         mSkuIds = Collections.singletonList(getString(R.string.id_sku_turn_off_ad));
         MobileAds.initialize(instance);
-        List<String> android_id = Arrays.asList("B661284821DE7327318792508C54E72D", "E64E5E2E51D532E497C5C69BF2EAD5BC");
-        MobileAds.setRequestConfiguration(
-                new RequestConfiguration.Builder()
-                        .setTestDeviceIds(android_id)
-                        .build()
-        );
+//        List<String> android_id = Arrays.asList("B661284821DE7327318792508C54E72D", "521F79B5CA10AB87BA447FFC6CFE7197");
+//        MobileAds.setRequestConfiguration(
+//                new RequestConfiguration.Builder()
+//                        .setTestDeviceIds(android_id)
+//                        .build()
+//        );
         appComponent = DaggerAppComponent.builder()
                 .applicationModule(new ApplicationModule(instance))
                 .build();
