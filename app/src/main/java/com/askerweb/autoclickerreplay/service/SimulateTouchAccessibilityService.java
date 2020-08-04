@@ -7,8 +7,10 @@ import android.content.Intent;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.Toast;
 
 import com.askerweb.autoclickerreplay.App;
+import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.point.Point;
 import com.askerweb.autoclickerreplay.point.PointCommand;
@@ -138,7 +140,13 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 }, 40);
                 break;
             case AutoClickService.ACTION_STOP:
-                countDownTimer.cancel();
+                if(listCommand.size() > 0) {
+                    countDownTimer.cancel();
+                }
+                else {
+                    Toast toast = Toast.makeText(this, R.string.error_listcomand_null, Toast.LENGTH_LONG);
+                    toast.show();
+                }
                 isPlaying = false;
                 stopSelf();
                 break;
@@ -159,16 +167,21 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                     }
                     if(counterRepeatMacro != 0) {
                         Point finalPoint = point;
-                        countDownTimer = new CountDownTimer(finalPoint.getDelay(), 1000) {
+                        if(listCommand.size() > 0) {
+                            countDownTimer = new CountDownTimer(finalPoint.getDelay(), 1000) {
 
-                            public void onTick(long millisUntilFinished) {
-                                //here you can have your logic to set text to edittext
-                            }
+                                public void onTick(long millisUntilFinished) {
+                                    //here you can have your logic to set text to edittext
+                                }
 
-                            public void onFinish() {
-                                SimulateTouchAccessibilityService.execCommand(finalPoint, getGestureCallback.apply(finalPoint));
-                            }
-                        }.start();
+                                public void onFinish() {
+                                    SimulateTouchAccessibilityService.execCommand(finalPoint, getGestureCallback.apply(finalPoint));
+                                }
+                            }.start();
+                        }
+                        else {
+                            AutoClickService.requestAction(appContext, AutoClickService.ACTION_STOP);
+                        }
                     }
                     else
                         AutoClickService.requestAction(appContext, AutoClickService.ACTION_STOP);

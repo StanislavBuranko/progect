@@ -14,24 +14,17 @@ class PathOnTouchListener private constructor(point: PathPoint,
                                               wm: WindowManager,
                                               canvas: PointCanvasView,
                                               screenWidth:Int = canvas.measuredWidth,
-                                              screenHeight:Int = canvas.measuredHeight,
-                                              path: Path,
-                                              coordinateXMove: Array<Int>,
-                                              coordinateYMove: Array<Int>)
+                                              screenHeight:Int = canvas.measuredHeight)
     : PointOnTouchListener(point, wm, canvas, screenWidth, screenHeight){
 
 
-    private var initialFirstX: Int = 0
-    private var initialFirstY: Int = 0
-    private var initialSecondX: Int = 0
-    private var initialSecondY: Int = 0
+    private var initialEndPointX: Int = 0
+    private var initialEndPointY: Int = 0
 
     override var initPositionTouch = { x:Float, y:Float ->
         super.initPositionTouch(x,y)
-        initialFirstX = point.x
-        initialFirstY = point.y
-        initialSecondX = point.endPoint.x
-        initialSecondY = point.endPoint.y
+        initialEndPointX = point.endPoint.x
+        initialEndPointY = point.endPoint.y
     }
 
     override var updateView = {
@@ -43,6 +36,31 @@ class PathOnTouchListener private constructor(point: PathPoint,
     override var calcNewPositionAndSet = { xDiff:Int, yDiff:Int, v: View ->
         var xTempSuper = super.x
         var yTempSuper = super.y
+        super.calcNewPositionAndSet(xDiff, yDiff, v)
+        val paramEndPoint = point.endPoint.params
+        val newXEndPoint = initialEndPointX + xDiff
+        val newYEndPoint = initialEndPointY + yDiff
+        paramEndPoint.x = if(canMoveX(newXEndPoint, point.endPoint.width)) newXEndPoint
+        else paramEndPoint.x
+        paramEndPoint.y = if(canMoveY(newYEndPoint, point.endPoint.height)) newYEndPoint
+        else paramEndPoint.y
+
+        var chekOffset = false;
+        for (n in 0..point.coordinateXMove.size-1) {
+            if(canMoveX(point.coordinateXMove[n]-xDiff, 0)){
+            }
+            else{
+                chekOffset = true;
+            }
+        }
+        if(!chekOffset)
+            point.path.offset(-(xTempSuper - super.x).toFloat(), -(yTempSuper - super.y).toFloat())
+    }
+
+
+    /*override var calcNewPositionAndSet = { xDiff:Int, yDiff:Int, v: View ->
+        var xTempSuper = super.x
+        var yTempSuper = super.y
         var xTempEndPoint = point.endPoint.x
         var yTempEndPoint = point.endPoint.y
         var screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels
@@ -50,11 +68,11 @@ class PathOnTouchListener private constructor(point: PathPoint,
         var checkCoordinate = false
         var checkPlusCoordinate = false
         var checkMinusCoordinate = false
-        "${coordinateXMove.size}".logd("SizeArray")
+        "${point.coordinateXMove.size}".logd("SizeArray")
         "${screenHeight}".logd("screenHeight")
         "${screenWidth}".logd("screenWidth")
-        "${coordinateYMove[1]+point.offsetY}".logd("coordinateYMove[n]")
-        "${coordinateXMove[1]+point.offsetX}".logd("coordinateXMove[n]")
+        "${point.coordinateYMove[1]+point.offsetY}".logd("coordinateYMove[n]")
+        "${point.coordinateXMove[1]+point.offsetX}".logd("coordinateXMove[n]")
         "${point.offsetX}".logd("offsetX")
         "${point.offsetY}".logd("offsetY")
         "${x}".logd("X")
@@ -62,58 +80,81 @@ class PathOnTouchListener private constructor(point: PathPoint,
 
         super.calcNewPositionAndSet(xDiff, yDiff, v)
         point.offsetX += (xTempSuper - super.x)
-        point.offsetY += (xTempSuper - super.x)
+        point.offsetY += (yTempSuper - super.y)
         point.endPoint.x -= (xTempSuper - super.x)
         point.endPoint.y -= (yTempSuper - super.y)
-        path.offset(-(xTempSuper - super.x).toFloat(), -(yTempSuper - super.y).toFloat())
-        checkPlusCoordinate = false
-        checkMinusCoordinate = false
 
-        for(n in 0..coordinateXMove.size-1) {
-            if(screenHeight-10 < coordinateYMove[n]+point.offsetY) {
+        for(n in 0..point.coordinateXMove.size-1) {
+            if(screenHeight-10 < point.coordinateYMove[n]+point.offsetY) {
                 point.y -= 50
                 point.endPoint.y -= 50
-                path.offset(0f, -50f)
+                for (n in 0..point.coordinateYMove.size-1)
+                {
+                    point.coordinateYMove[n] -= 50;
+                }
                 checkCoordinate = true
+                break;
             }
-            if(coordinateYMove[n]+point.offsetY < 0) {
-                point.y -= 50
-                point.endPoint.y -= 50
-                path.offset(0f, -50f)
-                checkCoordinate = true
-            }
-            /*if(0 > coordinateYMove[n]-point.offsetY) {
+            if(point.coordinateYMove[n]-point.offsetY < 0) {
                 point.y += 50
                 point.endPoint.y += 50
-                path.offset(0f, +50f)
+                for (n in 0..point.coordinateYMove.size-1)
+                {
+                    point.coordinateYMove[n] += 50;
+                }
                 checkCoordinate = true
+                break;
             }
-            if(screenWidth-10 <= coordinateXMove[n]-point.offsetX && screenWidth+100 > coordinateXMove[n]-point.offsetX) {
+            if(screenWidth-10 < point.coordinateXMove[n]+point.offsetX) {
                 point.x -= 50
                 point.endPoint.x -= 50
-                path.offset(-50f, 0f)
+                for (n in 0..point.coordinateXMove.size-1)
+                {
+                    point.coordinateXMove[n] -= 50;
+                }
                 checkCoordinate = true
+                break;
             }
-            if(0 > coordinateXMove[n]-point.offsetX) {
+            if(point.coordinateXMove[n]-point.offsetX < 0) {
                 point.x += 50
                 point.endPoint.x += 50
-                path.offset(50f, 0f)
+                for (n in 0..point.coordinateXMove.size-1)
+                {
+                    point.coordinateXMove[n] += 50;
+                }
                 checkCoordinate = true
-            }*/
+                break;
+            }
         }
 
-        if (checkCoordinate == false) {
+        if (checkCoordinate == true) {
+            point.path.reset()
+            var isFirstPointParcel = true
+            for (n in 0..point.coordinateXMove.size-1){
+                "${point.coordinateXMove[n]}".logd("parcelXRead")
+                "${point.coordinateYMove[n]}".logd("parcelYRead")
+                if(isFirstPointParcel) {
+                    point.path.moveTo(point.coordinateXMove[n].toFloat(), point.coordinateYMove[n].toFloat())
+                    isFirstPointParcel = false
+                }
+                else
+                    point.path.lineTo(point.coordinateXMove[n].toFloat(), point.coordinateYMove[n].toFloat())
+            }
 
+            point.x = point.coordinateXMove[0];
+            point.y = point.coordinateYMove[0];
+            point.endPoint.x = point.coordinateXMove.last();
+            point.endPoint.y = point.coordinateYMove.last();
         }
         checkCoordinate = false
-    }
+    }*/
 
 
     companion object{
         @JvmStatic fun create(point: PathPoint, wm: WindowManager, canvas: PointCanvasView, bounds:Boolean, path: Path, coordinateXMove: Array<Int>, coordinateYMove: Array<Int>): PointOnTouchListener {
             return if (bounds)
-                PathOnTouchListener(point, wm, canvas, -1, -1, path, coordinateXMove, coordinateYMove)
-            else PathOnTouchListener(point, wm, canvas, -1, -1, path, coordinateXMove, coordinateYMove)
+                PathOnTouchListener(point, wm, canvas)
+            else PathOnTouchListener(point, wm, canvas, -1, -1)
         }
     }
 }

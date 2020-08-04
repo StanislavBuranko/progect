@@ -80,13 +80,11 @@ public class FragmentPermission extends Fragment {
                 View.VISIBLE : View.GONE;
         block_overlay_permission.setVisibility(overlay);
         block_accessibility.setVisibility(accessibility);
-        Log.d("123", "checkAllows: "+!UtilsApp.checkPermissionOverlay(getContext()));
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @OnClick(R.id.btn_get_permission_overlay)
-    void getPermissionOverlay(){
+    void getPermissionOverlay() {
         Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:" + getContext().getPackageName()));
         startActivityForResult(intent, 1);
