@@ -44,15 +44,11 @@ public class MiuiCheckPermission {
      */
     public static int getMiuiVersion() {
         String version = getSystemProperty("ro.miui.ui.version.name");
-        if (version != null) {
-            try {
-                return Integer.parseInt(version.substring(1));
-            } catch (Exception e) {
-                Log.e(TAG, "get miui version code error, version : " + version);
-                Log.e(TAG, Log.getStackTraceString(e));
-            }
-        }
-        return -1;
+        Log.d(TAG, "getMiuiVersion: "+version.length());
+        if(version == "")
+            return version.length();
+        else
+            return version.length();
     }
 
     private static boolean isIntentAvailable(Intent intent, Context context) {

@@ -72,7 +72,7 @@ public class FragmentPermission extends Fragment {
     }
 
     void checkAllows(){
-        if(getMiuiVersion() != -1) {
+        if(getMiuiVersion() != 0) {
             block_pop_up_windows_miui.setVisibility(View.VISIBLE);
         }
         int overlay = !UtilsApp.checkPermissionOverlay(getContext()) ? View.VISIBLE : View.GONE;
