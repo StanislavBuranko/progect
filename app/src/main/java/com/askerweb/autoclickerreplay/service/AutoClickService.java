@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.provider.Settings;
@@ -455,37 +456,13 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                         .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_play));
                 group_control.setVisibility(View.VISIBLE);
                 SimulateTouchAccessibilityService.requestStop();
+                checkPermPopUP = false;
                 break;
             case ACTION_START:
                 startCount++;
-                if(App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2){
+                if(/*App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2*/true){
                     if(getMiuiVersion() != 0) {
-                        try {
-                            Intent intent1 = new Intent(this, ChekPermPopUp.class);
-                            startActivity(intent1);
-                        } catch (Throwable t) {
-                        }
-                        if (checkPermPopUP) {
-                            hideViews();
-                            Intent intent2 = new Intent(this, AdActivity.class);
-                            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            intent2.putExtra("ad_request", "true");
-                            startActivity(intent2);
-                        } else {
-                            DialogInterface.OnClickListener click = new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                }
-                            };
-
-                            AlertDialog dialog = new AlertDialog.Builder(this)
-                                    .setTitle(this.getString(R.string.error_pop_up))
-                                    .setMessage(R.string.pop_up_info)
-                                    .setPositiveButton(R.string.ok, click)
-                                    .create();
-                            dialog.getWindow().setType(getWindowsTypeApplicationOverlay());
-                            dialog.show();
-                        }
+                       ifMiui();
                     }
                     else {
                         hideViews();
@@ -517,6 +494,48 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 break;
         }
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    public void ifMiui(){
+        Intent intent1 = new Intent(this, ChekPermPopUp.class);
+        intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent1);
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
+                intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent1);
+            }
+        }, 500);
+
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startMain);
+        handler = new Handler();
+        handler.postDelayed(() -> {
+            if (checkPermPopUP) {
+                hideViews();
+                Intent intent2 = new Intent(getApplicationContext(), AdActivity.class);
+                intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent2.putExtra("ad_request", "true");
+                startActivity(intent2);
+            } else {
+                DialogInterface.OnClickListener click = (dialogInterface, i) -> {
+                    dialogInterface.cancel();
+                };
+
+                AlertDialog dialog = new AlertDialog.Builder(getApplicationContext())
+                        .setTitle(getApplicationContext().getString(R.string.error_pop_up))
+                        .setMessage(R.string.pop_up_info)
+                        .setPositiveButton(R.string.ok, click)
+                        .create();
+                dialog.getWindow().setType(getWindowsTypeApplicationOverlay());
+                dialog.show();
+            }
+        }, 500);
     }
 
     private void runMacro(){
