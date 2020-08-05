@@ -298,14 +298,14 @@ class PathPoint : Point {
                     else if(AutoClickService.getParamSizePoint() == 56)
                         pointLocateHelper = 75;
                     x = event.x.toInt() - pointLocateHelper
-                    y = event.y.toInt() - pointLocateHelper
+                    y = event.y.toInt() + pointLocateHelper
                     path.moveTo(event.rawX, event.rawY)
                 }
                 MotionEvent.ACTION_UP->{
                     detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
                     wasDraw = true
-                    endPoint.x = event.rawX.toInt() - pointLocateHelper
-                    endPoint.y = event.rawY.toInt() - pointLocateHelper
+                    endPoint.x = coordinateXMove.last() - pointLocateHelper
+                    endPoint.y = coordinateYMove.last() + pointLocateHelper
                     attachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
                     coordinateXMove.forEach { xMove ->
                        xMove.toString().logd("xMove")
