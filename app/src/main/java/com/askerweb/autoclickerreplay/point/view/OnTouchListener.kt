@@ -15,8 +15,8 @@ abstract class OnTouchListener(private val wm: WindowManager,
 
     private var timerLongClick: Timer? = null
 
-    private var initialX = 0
-    private var initialY = 0
+    var initialX = 0
+    var initialY = 0
     private var initialTouchX = 0f
     private var initialTouchY = 0f
 

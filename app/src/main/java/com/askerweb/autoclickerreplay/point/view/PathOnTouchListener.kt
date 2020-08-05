@@ -8,6 +8,7 @@ import android.view.WindowManager
 import com.askerweb.autoclickerreplay.ktExt.getWindowsParameterLayout
 import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.point.PathPoint
+import com.askerweb.autoclickerreplay.service.AutoClickService
 
 
 class PathOnTouchListener private constructor(point: PathPoint,
@@ -32,29 +33,80 @@ class PathOnTouchListener private constructor(point: PathPoint,
         wm.updateViewLayout(point.endPoint.view, point.endPoint.params)
         canvas.invalidate()
     }
-
+    var pointLocateHelper  = 0 ;
     override var calcNewPositionAndSet = { xDiff:Int, yDiff:Int, v: View ->
-        var xTempSuper = super.x
-        var yTempSuper = super.y
-        super.calcNewPositionAndSet(xDiff, yDiff, v)
-        val paramEndPoint = point.endPoint.params
-        val newXEndPoint = initialEndPointX + xDiff
-        val newYEndPoint = initialEndPointY + yDiff
-        paramEndPoint.x = if(canMoveX(newXEndPoint, point.endPoint.width)) newXEndPoint
-        else paramEndPoint.x
-        paramEndPoint.y = if(canMoveY(newYEndPoint, point.endPoint.height)) newYEndPoint
-        else paramEndPoint.y
+        val paramPoint = point.params
+        val newXPoint = super.initialX + xDiff
+        val newYPoint = super.initialY + yDiff
+        paramPoint.x = if(canMoveX(newXPoint, point.width)) newXPoint
+        else paramPoint.x
+        paramPoint.y = if(canMoveY(newYPoint, point.height)) newYPoint
+        else paramPoint.y
 
+
+
+
+
+        if(AutoClickService.getParamSizePoint() == 32)
+            pointLocateHelper = 37;
+        else if(AutoClickService.getParamSizePoint() == 40)
+            pointLocateHelper = 50;
+        else if(AutoClickService.getParamSizePoint() == 56)
+            pointLocateHelper = 75;
         var chekOffset = false;
         for (n in 0..point.coordinateXMove.size-1) {
-            if(canMoveX(point.coordinateXMove[n]-xDiff, 0)){
+            if(canMoveX(point.coordinateXMove[n], point.endPoint.width)){
+            }
+            else{
+                chekOffset = true;
+            }
+            if(canMoveY(point.coordinateYMove[n], point.endPoint.height)){
             }
             else{
                 chekOffset = true;
             }
         }
-        if(!chekOffset)
-            point.path.offset(-(xTempSuper - super.x).toFloat(), -(yTempSuper - super.y).toFloat())
+        if(!chekOffset) {
+            val xTemp = point.x
+            val yTemp = point.y
+
+            val paramPoint = point.params
+            val newXPoint = initialX + xDiff
+            val newYPoint = initialY + yDiff
+            paramPoint.x = if(canMoveX(newXPoint, point.width)) newXPoint
+            else paramPoint.x
+            paramPoint.y = if(canMoveY(newYPoint, point.height)) newYPoint
+            else paramPoint.y
+
+            val paramEndPoint = point.endPoint.params
+            val newXEndPoint = initialEndPointX + xDiff
+            val newYEndPoint = initialEndPointY + yDiff
+            paramEndPoint.x = if(canMoveX(newXEndPoint, point.endPoint.width)) newXEndPoint
+            else paramEndPoint.x
+            paramEndPoint.y = if(canMoveY(newYEndPoint, point.endPoint.height)) newYEndPoint
+            else paramEndPoint.y
+
+            for (n in 0..point.coordinateXMove.size-1){
+                point.coordinateXMove[n] -= (xTemp-point.x)
+                point.coordinateYMove[n] -= (yTemp-point.y)
+            }
+            //point.path.offset()
+            point.path.reset()
+            var isFirstPointParcel = true
+            for (n in 0..point.coordinateXMove.size-1){
+                if(isFirstPointParcel) {
+                    point.path.moveTo(point.coordinateXMove[n].toFloat(), point.coordinateYMove[n].toFloat())
+                    isFirstPointParcel = false
+                }
+                else
+                    point.path.lineTo(point.coordinateXMove[n].toFloat(), point.coordinateYMove[n].toFloat())
+            }
+
+            point.x =  point.coordinateXMove[0] - pointLocateHelper
+            point.y =  point.coordinateYMove[0] - pointLocateHelper
+            point.endPoint.x =  point.coordinateXMove.last() - pointLocateHelper
+            point.endPoint.y =  point.coordinateYMove.last() - pointLocateHelper
+        }
     }
 
 
