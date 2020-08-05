@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
@@ -295,7 +296,7 @@ public class AutoClickService extends Service implements View.OnTouchListener {
         listTypes.add(ClickPoint.class);
         listTypes.add(SwipePoint.class);
         listTypes.add(PinchPoint.class);
-        listTypes.add(PathPoint.class);
+//        listTypes.add(PathPoint.class);
         listTypes.add(MultiPoint.class);
         View title = UtilsApp.getDialogTitle(this, getString(R.string.sel_type_goal));
         TypePointAdapter adapter = new TypePointAdapter(new ContextThemeWrapper(this, R.style.AppDialog), listTypes);
@@ -452,6 +453,15 @@ public class AutoClickService extends Service implements View.OnTouchListener {
                     intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent1.putExtra("ad_request", "true");
                     startActivity(intent1);
+                    AlertDialog dialog = new AlertDialog.Builder(this).create();
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @Override
+                        public void onShow(DialogInterface dialog) {
+                            // здесь каллбэк <---
+                            dialog.cancel();
+                        }
+                    });
+                    dialog.show();
                 }
                 else
                     runMacro();
