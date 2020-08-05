@@ -79,4 +79,8 @@
     <string name="Banner_in_Setting_Unit_Ad_ID" translatable="false">ca-app-pub-8943838769488807/9648189572</string>
 
     <string name="id_sku_turn_off_ad" translatable="false">turn_off_ad</string>
+    <string name="pop_up_info" translatable="false">Пожалуйста дайте разрешение на отображение всплывающие окон, когда приложение запущено в фоне. Перейдите в Настройки->Приложения->Разрешения->Другие разрешения->Найдите там AutoClickerReplay. Выдайте разрешение "Отображать вспывающие окна, когда запущено в фоновом режиме."</string>
+    <string name="ok" translatable="false">Ок</string>
+    <string name="error_pop_up" translatable="false">Ошибка разрешения</string>
+    <string name="error_listcomand_null" translatable="false">Сценарий пуст</string>
 </resources>
