@@ -10,11 +10,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -26,7 +23,6 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,9 +32,7 @@ import androidx.core.content.ContextCompat;
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.activity.AdActivity;
-import com.askerweb.autoclickerreplay.activity.ChekPermPopUp;
-import com.askerweb.autoclickerreplay.activity.MainActivity;
-import com.askerweb.autoclickerreplay.activity.SettingActivity;
+import com.askerweb.autoclickerreplay.activity.CheckPermPopUp;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
@@ -75,8 +69,6 @@ import butterknife.OnLongClick;
 import butterknife.Unbinder;
 import butterknife.ViewCollections;
 
-import static androidx.core.app.ActivityCompat.startActivityForResult;
-import static com.askerweb.autoclickerreplay.ktExt.MiuiCheckPermission.applyMiuiPermission;
 import static com.askerweb.autoclickerreplay.ktExt.MiuiCheckPermission.getMiuiVersion;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.getWindowsTypeApplicationOverlay;
 
@@ -460,17 +452,11 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 startCount++;
                 if(App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2){
                     if(getMiuiVersion() != 0) {
-                        try {
-                            Intent intent1 = new Intent(this, ChekPermPopUp.class);
-                            startActivity(intent1);
-                        } catch (Throwable t) {
-                        }
+                        Intent intent1 = new Intent(this, CheckPermPopUp.class);
+                        intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent1);
                         if (checkPermPopUP) {
-                            hideViews();
-                            Intent intent2 = new Intent(this, AdActivity.class);
-                            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            intent2.putExtra("ad_request", "true");
-                            startActivity(intent2);
+                            showAdBeforeRunMacro();
                         } else {
                             DialogInterface.OnClickListener click = new DialogInterface.OnClickListener() {
                                 @Override
@@ -488,11 +474,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                         }
                     }
                     else {
-                        hideViews();
-                        Intent intent2 = new Intent(this, AdActivity.class);
-                        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent2.putExtra("ad_request", "true");
-                        startActivity(intent2);
+                        showAdBeforeRunMacro();
                     }
                 }
                 else
@@ -517,6 +499,14 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 break;
         }
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void showAdBeforeRunMacro(){
+        hideViews();
+        Intent intent2 = new Intent(this, AdActivity.class);
+        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent2.putExtra("ad_request", "true");
+        startActivity(intent2);
     }
 
     private void runMacro(){

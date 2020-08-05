@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.askerweb.autoclickerreplay.service.AutoClickService.checkPermPopUP
 
-class ChekPermPopUp : AppCompatActivity() {
+class CheckPermPopUp : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
