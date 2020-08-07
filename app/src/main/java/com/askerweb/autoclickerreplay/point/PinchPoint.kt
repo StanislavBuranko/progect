@@ -12,6 +12,7 @@ import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
 import com.askerweb.autoclickerreplay.point.view.*
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
@@ -216,31 +217,30 @@ class PinchPoint:Point {
         IN{
             override fun getCommand(xTouch:Float, yTouch:Float, firstPoint:Point, secondPoint:Point, delay:Long, duration:Long): GestureDescription? {
                 val path = Path()
-                path.moveTo(firstPoint.xTouch.toFloat(), firstPoint.yTouch.toFloat())
-                path.lineTo(xTouch, yTouch)
+                path.moveTo(firstPoint.xTouch.toFloat()+getNavigationBar(), firstPoint.yTouch.toFloat())
+                path.lineTo(xTouch+getNavigationBar(), yTouch)
                 val path2 = Path()
-                path2.moveTo(secondPoint.xTouch.toFloat(), secondPoint.yTouch.toFloat())
-                path2.lineTo(xTouch, yTouch)
+                path2.moveTo(secondPoint.xTouch.toFloat()+getNavigationBar(), secondPoint.yTouch.toFloat())
+                path2.lineTo(xTouch+getNavigationBar(), yTouch)
                 val builder = GestureDescription.Builder()
-                return builder
-                        .addStroke(GestureDescription.StrokeDescription(path, 0, duration))
+                builder.addStroke(GestureDescription.StrokeDescription(path, 0, duration))
                         .addStroke(GestureDescription.StrokeDescription(path2, 0, duration))
-                        .build()
+                return builder.build()
+
             }
         },
         OUT{
             override fun getCommand(xTouch:Float, yTouch:Float, firstPoint:Point, secondPoint:Point, delay:Long, duration:Long): GestureDescription? {
                 val path = Path()
-                path.moveTo(xTouch, yTouch)
-                path.lineTo(firstPoint.xTouch.toFloat(), firstPoint.yTouch.toFloat())
+                path.moveTo(xTouch+getNavigationBar(), yTouch)
+                path.lineTo(firstPoint.xTouch.toFloat()+getNavigationBar(), firstPoint.yTouch.toFloat())
                 val path2 = Path()
-                path2.moveTo(xTouch, yTouch)
-                path2.lineTo(secondPoint.xTouch.toFloat(), secondPoint.yTouch.toFloat())
+                path2.moveTo(xTouch+getNavigationBar(), yTouch)
+                path2.lineTo(secondPoint.xTouch.toFloat()+getNavigationBar(), secondPoint.yTouch.toFloat())
                 val builder = GestureDescription.Builder()
-                return builder
-                        .addStroke(GestureDescription.StrokeDescription(path, 0, duration))
+                builder.addStroke(GestureDescription.StrokeDescription(path, 0, duration))
                         .addStroke(GestureDescription.StrokeDescription(path2, 0, duration))
-                        .build()
+                return builder.build()
             }
         };
         abstract fun getCommand(xTouch:Float, yTouch:Float, firstPoint:Point, secondPoint:Point, delay:Long, duration:Long): GestureDescription?

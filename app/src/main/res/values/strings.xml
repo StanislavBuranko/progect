@@ -7,9 +7,7 @@
         для работы приложения, приложение не как не пользуется уязвимостями и не использует данное
         разрешение для получения ваших данных.
     </string>
-    <string name="pop_up_description">
-        Так же пожалуйста добавьте разрешение отображение всплывающего окна, когда приложение запущенно в фоновом режиме.
-    </string>
+
     <string name="accessibility_service_description">
         Так же пожалуйста добавьте наше приложение в сервисы специальных возможностей, это позволит
         приложению имитировать нажатие на экран без рут прав. Приложение не как не пользуется данной
@@ -52,6 +50,7 @@
 
     <string name="title_bounds_preference">Вкл. границы для целей</string>
     <string name="key_preference_bounds_on">bounds_on</string>
+    <string name="key_preference_cutout_on">cutout_on</string>
 
     <string name="toast_empty_script">В сценарии ничего нету</string>
     <string name="toast_havent_saved_script">Нет сохраненных сценариев</string>
@@ -73,14 +72,18 @@
 
     <string name="plus" translatable="false">+</string>
     <string name="minus" translatable="false">—</string>
-    <string name="delete_multi_point" translatable="false">Удалить мулти поинт</string>
+    <string name="delete_multi_point">Удалить мулти поинт</string>
 
     <string name="Interstitial_Unit_Ad_ID" translatable="false">ca-app-pub-8943838769488807/5167779275</string>
     <string name="Banner_in_Setting_Unit_Ad_ID" translatable="false">ca-app-pub-8943838769488807/9648189572</string>
 
     <string name="id_sku_turn_off_ad" translatable="false">turn_off_ad</string>
-    <string name="pop_up_info" translatable="false">Пожалуйста дайте разрешение на отображение всплывающие окон, когда приложение запущено в фоне. Перейдите в Настройки->Приложения->Разрешения->Другие разрешения->Найдите там AutoClickerReplay. Выдайте разрешение "Отображать вспывающие окна, когда запущено в фоновом режиме."</string>
-    <string name="ok" translatable="false">Ок</string>
-    <string name="error_pop_up" translatable="false">Ошибка разрешения</string>
-    <string name="error_listcomand_null" translatable="false">Сценарий пуст</string>
+    <string name="pop_up_info">Пожалуйста дайте разрешение на отображение всплывающие окон, когда приложение запущено в фоне. Перейдите в Настройки->Приложения->Разрешения->Другие разрешения->Найдите там AutoClickerReplay. Выдайте разрешение "Отображать вспывающие окна, когда запущено в фоновом режиме."</string>
+    <string name="ok">Ок</string>
+    <string name="error_pop_up">Ошибка разрешения</string>
+    <string name="error_listcomand_null">Сценарий пуст</string>
+    <string name="there_is">Есть</string>
+    <string name="no">Нету</string>
+    <string name="question_cutout">Есть ли вырез в экране?</string>
+    <string name="cutout">Вырез в экране</string>
 </resources>

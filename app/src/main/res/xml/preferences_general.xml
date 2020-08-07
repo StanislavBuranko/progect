@@ -35,6 +35,14 @@
         android:title="@string/title_size_control_panel_preference"
         android:defaultValue="16"
         app:iconSpaceReserved="false" />
+    <com.takisoft.preferencex.SwitchPreferenceCompat
+        android:id="@+id/switchPreferenceCutout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="false"
+        android:key="@string/key_preference_cutout_on"
+        android:title="@string/question_cutout"
+        app:iconSpaceReserved="false" />
 
 
 </PreferenceScreen>

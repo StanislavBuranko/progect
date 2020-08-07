@@ -14,6 +14,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
 import com.askerweb.autoclickerreplay.ktExt.getWindowsTypeApplicationOverlay
 import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.point.MultiPoint.ExtendedPinchDialog
@@ -183,7 +184,7 @@ class MultiPoint: Point {
         val builder = GestureDescription.Builder()
         for (n in 0..points.size - 1) {
             val path = Path()
-            path.moveTo(points[n].xTouch.toFloat(), points[n].yTouch.toFloat())
+            path.moveTo(points[n].xTouch.toFloat()+ getNavigationBar(), points[n].yTouch.toFloat())
             builder.addStroke(GestureDescription.StrokeDescription(path, 0, points[n].duration))
         }
         return builder.build()

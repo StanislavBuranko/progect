@@ -4,6 +4,9 @@ import android.accessibilityservice.GestureDescription
 import android.graphics.Path
 import android.os.Parcel
 import android.os.Parcelable
+import com.askerweb.autoclickerreplay.ktExt.context
+import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
+import com.askerweb.autoclickerreplay.ktExt.logd
 import com.google.gson.JsonObject
 
 class ClickPoint : Point {
@@ -16,7 +19,7 @@ class ClickPoint : Point {
 
     override fun getCommand():GestureDescription? {
         val path = Path()
-        path.moveTo(xTouch.toFloat(), yTouch.toFloat())
+        path.moveTo(xTouch.toFloat() + getNavigationBar(), yTouch.toFloat())
         val builder = GestureDescription.Builder()
         return builder
                 .addStroke(GestureDescription.StrokeDescription(path, 0, duration))

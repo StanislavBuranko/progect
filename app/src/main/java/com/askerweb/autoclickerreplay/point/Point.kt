@@ -5,6 +5,7 @@ package com.askerweb.autoclickerreplay.point
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable

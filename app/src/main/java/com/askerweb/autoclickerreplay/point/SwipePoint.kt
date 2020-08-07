@@ -12,6 +12,7 @@ import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
 import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.point.view.ExtendedViewHolder
@@ -133,10 +134,11 @@ class SwipePoint : Point {
         val path = Path()
         path.moveTo(xTouch.toFloat(), yTouch.toFloat())
         path.lineTo(nextPoint.xTouch.toFloat(), nextPoint.yTouch.toFloat())
+        path.offset(getNavigationBar().toFloat(), 0f)
         val builder = GestureDescription.Builder()
-        return builder
-                .addStroke(GestureDescription.StrokeDescription(path, 0, duration))
-                .build()
+        builder.addStroke(GestureDescription.StrokeDescription(path, 0, duration))
+        path.offset(-getNavigationBar().toFloat(), 0f)
+        return builder.build()
     }
 
     override fun createHolderDialog(viewContent: View): AbstractViewHolderDialog {

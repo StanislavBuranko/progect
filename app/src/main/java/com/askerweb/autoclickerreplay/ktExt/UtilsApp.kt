@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.content.res.Resources
 import android.graphics.PixelFormat
 import android.graphics.Typeface
 import android.os.Build
@@ -18,14 +19,15 @@ import android.text.TextUtils.SimpleStringSplitter
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
-import android.view.Gravity
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.view.accessibility.AccessibilityManager
 import android.widget.TextView
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.point.Point
+import com.askerweb.autoclickerreplay.service.AutoClickService
+import com.askerweb.autoclickerreplay.service.AutoClickService.getParamCutout
+import com.askerweb.autoclickerreplay.service.AutoClickService.getWM
 import com.askerweb.autoclickerreplay.service.SimulateTouchAccessibilityService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -109,17 +111,37 @@ fun checkAllPermission(context: Context?) : Boolean {
 fun getWindowsTypeApplicationOverlay() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_PHONE
 
+fun getParamOverlayFlags() = if (!getParamCutout())
+    standardOverlayFlags else standardOverlayFlagsForCutout
+
 const val standardOverlayFlags =
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 WindowManager.LayoutParams.FLAG_FULLSCREEN or
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 
+const val standardOverlayFlagsForCutout =
+        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+
+fun isRotatinNavigateLeft(): Boolean {
+    return getWM().defaultDisplay.rotation == Surface.ROTATION_270
+}
+fun getNavigationBar(): Int {
+    if(isRotatinNavigateLeft()) {
+        val resources: Resources = context.resources
+        val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        if (resourceId > 0) {
+            return resources.getDimensionPixelSize(resourceId)
+        }
+    }
+    return 0
+}
 @JvmOverloads
 fun getWindowsParameterLayout(_width:Float,
                                             _height: Float,
                                             gravity: Int = Gravity.START,
-                                            _flags: Int = standardOverlayFlags,
+                                            _flags: Int = getParamOverlayFlags(),
                                             _types:Int = getWindowsTypeApplicationOverlay(),
                                             constDim: Boolean = true) : WindowManager.LayoutParams{
     val width =

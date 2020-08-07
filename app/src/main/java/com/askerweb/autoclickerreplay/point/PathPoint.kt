@@ -2,16 +2,14 @@ package com.askerweb.autoclickerreplay.point
 
 import android.accessibilityservice.GestureDescription
 import android.graphics.Path
-import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
-import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.PathParser
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
 import com.askerweb.autoclickerreplay.ktExt.getWindowsParameterLayout
 import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.point.view.*
@@ -20,16 +18,13 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.dialog_setting_point.*
-import kotlinx.android.synthetic.main.swipe_dialog_elements.*
-import java.io.Serializable
 import java.util.*
 import kotlin.math.ceil
-import kotlin.math.log
 
 class PathPoint : Point {
 
-    public var coordinateXMove: Array<Int> = arrayOf()
-    public var coordinateYMove: Array<Int> = arrayOf()
+    public var coordinateXMove: Array<Float> = arrayOf()
+    public var coordinateYMove: Array<Float> = arrayOf()
     var wasDraw = false
 
     var path = Path()
@@ -50,114 +45,70 @@ class PathPoint : Point {
 
     constructor(builder: PointBuilder): super(builder)
 
+    var isFirstSwap = true
     constructor(parcel: Parcel):super(parcel) {
-        val endPoint:SimplePoint = parcel.readParcelable(SimplePoint::class.java.classLoader)!!
-        this.endPoint.x = endPoint.x
-        this.endPoint.y = endPoint.y
-        this.endPoint.height = ceil(endPoint.height / AutoClickService.getService().resources.displayMetrics.density).toInt()
-        this.endPoint.width = ceil(endPoint.width / AutoClickService.getService().resources.displayMetrics.density).toInt()
 
         var parcelXArray = parcel.readArray(Int::class.java.classLoader)
-        coordinateXMove = Arrays.copyOf(parcelXArray, parcelXArray?.size!!, Array<Int>::class.java)
+        coordinateXMove = Arrays.copyOf(parcelXArray, parcelXArray?.size!!, Array<Float>::class.java)
 
         var parcelYArray = parcel.readArray(Int::class.java.classLoader)
-        coordinateYMove = Arrays.copyOf(parcelYArray, parcelYArray?.size!!, Array<Int>::class.java)
+        coordinateYMove = Arrays.copyOf(parcelYArray, parcelYArray?.size!!, Array<Float>::class.java)
 
-        var offsetX = parcel.readInt()
-        this.offsetX = offsetX
-
-        var offsetY = parcel.readInt()
-        this.offsetY = offsetY
-        "${offsetX} ${offsetY}".logd("offsetXYRead")
-
-        var isFirstPointParcel = true
-        for (n in 0..coordinateXMove.size-1){
-            "${coordinateXMove[n]}".logd("parcelXRead")
-            "${coordinateYMove[n]}".logd("parcelYRead")
-            if(isFirstPointParcel) {
-                path.moveTo(coordinateXMove[n].toFloat()-offsetX, coordinateYMove[n].toFloat()-offsetY)
-                isFirstPointParcel = false
+        isFirstSwap = parcel.readBoolean()
+        this.path.reset();
+        if (isFirstSwap) {
+            "123".logd("firstYes")
+            path.moveTo(coordinateXMove[0].toFloat(), coordinateYMove[0].toFloat())
+            for (n in 1..coordinateXMove.size - 1) {
+                path.lineTo(coordinateXMove[n].toFloat(), coordinateYMove[n].toFloat())
             }
-            else
-                path.lineTo(coordinateXMove[n].toFloat()-offsetX, coordinateYMove[n].toFloat()-offsetY)
+        } else {
+            "123".logd("firstNo")
+            path.moveTo(coordinateYMove[0].toFloat(), coordinateXMove[0].toFloat())
+            for (n in 1..coordinateXMove.size - 1) {
+                path.lineTo(coordinateYMove[n].toFloat(), coordinateXMove[n].toFloat())
+            }
         }
     }
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {
         super.writeToParcel(dest, flags)
-        dest?.writeParcelable(endPoint, flags)
         dest?.writeArray(coordinateXMove)
         dest?.writeArray(coordinateYMove)
-        "${offsetX} ${offsetY}".logd("offsetXYWrite")
-        dest?.writeInt(offsetX)
-        dest?.writeInt(offsetY)
+        dest?.writeBoolean(isFirstSwap)
     }
 
     constructor(json: JsonObject):super(json){
-       /* val firstPointJson =
-                gson.fromJson(json.get("PathPoint").asString, JsonObject::class.java)
-        val firstPoint =
-                PointBuilder.invoke().buildFrom(SimplePoint::class.java, firstPointJson)
-        super.x = firstPoint.x
-        super.y = firstPoint.y
-        super.height = ceil(firstPoint.height / AutoClickService.getService().resources.displayMetrics.density).toInt()
-        super.width = ceil(firstPoint.width / AutoClickService.getService().resources.displayMetrics.density).toInt()*/
-
-        /*val endPointJson =
-                gson.fromJson(json.get("EndPoint"), SimplePoint::class.java)
-        val endPoint =
-                PointBuilder.invoke().buildFrom(SimplePoint::class.java, endPointJson)
-        this.endPoint.x = endPoint.x
-        this.endPoint.y = endPoint.y
-        this.endPoint.height = ceil(endPoint.height / AutoClickService.getService().resources.displayMetrics.density).toInt()
-        this.endPoint.width = ceil(endPoint.width / AutoClickService.getService().resources.displayMetrics.density).toInt()*/
-
         val coordinateXJson =
                 gson.fromJson(json.get("PathPointsGestureX"), JsonArray::class.java)
-        var coordinateX: Array<Int> = arrayOf()
         coordinateXJson.forEach{
-            "${gson.fromJson(it,JsonObject::class.java).get("coordinateX").toString()}".logd("gsonReadCoordinateX")
-            coordinateX += gson.fromJson(it,JsonObject::class.java).get("coordinateX").toString().toInt()
+            coordinateXMove += gson.fromJson(it,JsonObject::class.java).get("coordinateX").toString().toFloat()
         }
-        coordinateXMove = coordinateX
 
         val coordinateYJson =
             gson.fromJson(json.get("PathPointsGestureY"), JsonArray::class.java)
-        var coordinateY: Array<Int> = arrayOf()
         coordinateYJson.forEach{
             "${gson.fromJson(it, JsonObject::class.java).get("coordinateY").toString()}".logd("gsonReadCoordinateY")
-            coordinateY += gson.fromJson(it,JsonObject::class.java).get("coordinateY").toString().toInt()
+            coordinateYMove += gson.fromJson(it,JsonObject::class.java).get("coordinateY").toString().toFloat()
         }
-        coordinateYMove = coordinateY
 
         val pathJson = gson.fromJson(json.get("Path"), Path::class.java)
         path = pathJson
-        Log.d("123",""+gson.fromJson(json.get("OffsetX"), JsonObject::class.java))
-        val offsetX = gson.fromJson(json.get("OffsetX"), JsonObject::class.java)
-        this.offsetX = offsetX["offsetX"].asInt
-        val offsetY = gson.fromJson(json.get("OffsetY"), JsonObject::class.java)
-        this.offsetY = offsetY["offsetY"].asInt
         wasDraw = true;
 
-        var isFirstPointParcel = true
-        for (n in 0..coordinateXMove.size-1){
-            "${coordinateXMove[n]}".logd("parcelXRead")
-            "${coordinateYMove[n]}".logd("parcelYRead")
-            if(isFirstPointParcel) {
-                path.moveTo(coordinateXMove[n].toFloat()-this.offsetX.toString().toInt(), coordinateYMove[n].toFloat()-this.offsetY.toString().toInt())
-                isFirstPointParcel = false
-            }
-            else
-                path.lineTo(coordinateXMove[n].toFloat()-this.offsetX.toString().toInt(), coordinateYMove[n].toFloat()-this.offsetY.toString().toInt())
+        path.moveTo(coordinateXMove[0].toFloat(), coordinateYMove[0].toFloat())
+        for (n in 1..coordinateXMove.size - 1) {
+            path.lineTo(coordinateXMove[n].toFloat(), coordinateYMove[n].toFloat())
         }
+
         if(AutoClickService.getParamSizePoint() == 32)
             pointLocateHelper = 37;
         else if(AutoClickService.getParamSizePoint() == 40)
             pointLocateHelper = 50;
         else if(AutoClickService.getParamSizePoint() == 56)
             pointLocateHelper = 75;
-        endPoint.x = coordinateXMove.last() - pointLocateHelper
-        endPoint.y = coordinateYMove.last() - pointLocateHelper
+        endPoint.x = coordinateXMove.last().toInt() - pointLocateHelper
+        endPoint.y = coordinateYMove.last().toInt() - pointLocateHelper
     }
 
     override fun toJsonObject():JsonObject{
@@ -175,20 +126,7 @@ class PathPoint : Point {
         }
         obj.add("PathPointsGestureY", objArrayY)
         obj.add("Path", pathToJsonObject())
-        obj.add("OffsetX", offsetXToJsonObject())
-        obj.add("OffsetY", offsetYToJsonObject())
-        return obj
-    }
 
-    fun offsetXToJsonObject():JsonObject{
-        val obj = JsonObject()
-        obj.addProperty("offsetX", offsetX)
-        return obj
-    }
-
-    fun offsetYToJsonObject():JsonObject{
-        val obj = JsonObject()
-        obj.addProperty("offsetY", offsetY)
         return obj
     }
 
@@ -198,41 +136,39 @@ class PathPoint : Point {
         return obj
     }
 
-    fun toJsonObjectCoordinateXY(n:Int, coordinate:Array<Int>, string: String):JsonObject {
+    fun toJsonObjectCoordinateXY(n:Int, coordinate: Array<Float>, string: String):JsonObject {
         val obj = super.toJsonObject()
         obj.addProperty(string, coordinate[n])
         return  obj
     }
 
-    var firstSwapOrientation = true
+    var swapOrientation = false
     override fun swapPointOrientation() {
-        var temp = super.x
-        super.x = super.y
-        super.y = temp
-        temp = endPoint.x
-        endPoint.x = endPoint.y
-        endPoint.y = endPoint.x
         path.reset()
-        var isFirstPointSwap = true
-        if(firstSwapOrientation) {
-            for (n in 0..coordinateXMove.size - 1) {
-                if (isFirstPointSwap) {
-                    path.moveTo(coordinateYMove[n].toFloat(), coordinateXMove[n].toFloat())
-                    isFirstPointSwap = false
-                } else
-                    path.lineTo(coordinateYMove[n].toFloat(), coordinateXMove[n].toFloat())
+        if(!swapOrientation) {
+            path.moveTo(coordinateYMove[0].toFloat(), coordinateXMove[0].toFloat())
+            for (n in 1..coordinateXMove.size - 1) {
+                path.lineTo(coordinateYMove[n].toFloat(), coordinateXMove[n].toFloat())
             }
+            y = coordinateXMove[0].toInt() - pointLocateHelper
+            x = coordinateYMove[0].toInt() - pointLocateHelper
+            endPoint.y = coordinateXMove.last().toInt() - pointLocateHelper
+            endPoint.x = coordinateYMove.last().toInt() - pointLocateHelper
+            swapOrientation = true
+            isFirstSwap = false
         }
         else {
-            for (n in 0..coordinateXMove.size - 1) {
-                if (isFirstPointSwap) {
-                    path.moveTo(coordinateXMove[n].toFloat(), coordinateYMove[n].toFloat())
-                    isFirstPointSwap = false
-                } else
-                    path.lineTo(coordinateXMove[n].toFloat(), coordinateYMove[n].toFloat())
+            path.moveTo(coordinateXMove[0].toFloat(), coordinateYMove[0].toFloat())
+            for (n in 1..coordinateXMove.size - 1) {
+                path.lineTo(coordinateXMove[n].toFloat(), coordinateYMove[n].toFloat())
             }
+            x = coordinateXMove[0].toInt() - pointLocateHelper
+            y = coordinateYMove[0].toInt() - pointLocateHelper
+            endPoint.x = coordinateXMove.last().toInt() - pointLocateHelper
+            endPoint.y = coordinateYMove.last().toInt() - pointLocateHelper
+            swapOrientation = false
+            isFirstSwap = true
         }
-
     }
 
     override fun attachToWindow(wm: WindowManager, canvas: PointCanvasView) {
@@ -256,10 +192,13 @@ class PathPoint : Point {
         super.updateViewLayout(wm, size)
     }
 
-    var offsetX = 0;
-    var offsetY = 0;
+    override fun setVisible(visible:Int) {
+        view.visibility = visible
+        endPoint.view.visibility = visible
+    }
+
     override fun updateListener(wm: WindowManager, canvas: PointCanvasView, bounds: Boolean) {
-        val l = PathOnTouchListener.create(this, wm, canvas, bounds, path, coordinateXMove, coordinateYMove);
+        val l = PathOnTouchListener.create(this, wm, canvas, bounds);
         endPoint.view.setOnTouchListener(l);
         super.view.setOnTouchListener(l);
         panel.setOnTouchListener(DrawPathOnTouchListener())
@@ -267,8 +206,9 @@ class PathPoint : Point {
 
     override fun getCommand(): GestureDescription? {
         val builder = GestureDescription.Builder()
-        "${offsetX} ${offsetY}".logd("offsetXYgesture")
+        path.offset(getNavigationBar().toFloat(), 0f)
         builder.addStroke(GestureDescription.StrokeDescription(path, 0, super.duration))
+        path.offset(-getNavigationBar().toFloat(), 0f)
         return builder.build()
     }
 
@@ -297,31 +237,34 @@ class PathPoint : Point {
                         pointLocateHelper = 50;
                     else if(AutoClickService.getParamSizePoint() == 56)
                         pointLocateHelper = 75;
-                    x = event.x.toInt() - pointLocateHelper
-                    y = event.y.toInt() + pointLocateHelper
-                    path.moveTo(event.rawX, event.rawY)
+                    x = event.getX().toInt() - pointLocateHelper
+                    y = event.getY().toInt() - pointLocateHelper
+                    path.moveTo(event.getX(), event.getY())
+                    coordinateXMove += event.getX()
+                    coordinateYMove += event.getY()
                 }
                 MotionEvent.ACTION_UP->{
                     detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
                     wasDraw = true
-                    endPoint.x = coordinateXMove.last() - pointLocateHelper
-                    endPoint.y = coordinateYMove.last() + pointLocateHelper
+                    if(coordinateXMove.size == 1)
+                    {
+                        path.lineTo((coordinateXMove.last()+100).toFloat(), (coordinateYMove.last()+100).toFloat())
+                        coordinateXMove += coordinateXMove.last()+100
+                        coordinateYMove += coordinateYMove.last()+100
+                    }
+                    endPoint.x = coordinateXMove.last().toInt() - pointLocateHelper
+                    endPoint.y = coordinateYMove.last().toInt() - pointLocateHelper
                     attachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
-                    coordinateXMove.forEach { xMove ->
-                       xMove.toString().logd("xMove")
-                    }
-                    coordinateXMove.forEach { yMove ->
-                        yMove.toString().logd("yMove")
-                    }
-                    coordinateXMove.size.logd("SizeXArray")
-                    coordinateYMove.size.logd("SizeYArray")
                     updateListener(AutoClickService.getWM(), AutoClickService.getCanvas(),AutoClickService.getParamBound())
+                    for (n in 0..coordinateXMove.size-1) {
+                        coordinateXMove[n].logd("X")
+                        coordinateYMove[n].logd("Y")
+                    }
                 }
                 MotionEvent.ACTION_MOVE-> {
-                    path.lineTo(event.rawX, event.rawY)
-                    "${event.rawX} ${event.rawY}".logd("startPoint")
-                    coordinateXMove += event.getX().toInt()
-                    coordinateYMove += event.getY().toInt()
+                    path.lineTo(event.getX(), event.getY())
+                    coordinateXMove += event.rawX - getNavigationBar()
+                    coordinateYMove += event.rawY
                     AutoClickService.getCanvas().invalidate()
                 }
             }
