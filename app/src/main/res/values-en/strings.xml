@@ -74,5 +74,10 @@
     <string name="question_cutout">Is there a cutout in the screen?</string>
     <string name="cutout">Screen cutout</string>
     <string name="key_preference_cutout_on">cutout_on</string>
+    <string name="numberPoint">№</string>
+    <string name="delay">Delay</string>
+    <string name="duration">Duration</string>
+    <string name="repeat">Numer repeat</string>
+    <string name="pointType">Type point</string>
 
 </resources>

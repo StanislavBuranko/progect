@@ -10,12 +10,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -27,7 +24,6 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,11 +35,12 @@ import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.activity.AdActivity;
 import com.askerweb.autoclickerreplay.activity.ChekPermPopUp;
 import com.askerweb.autoclickerreplay.activity.MainActivity;
-import com.askerweb.autoclickerreplay.activity.SettingActivity;
+import com.askerweb.autoclickerreplay.activity.TablePointsActivity;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
 import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
+import com.askerweb.autoclickerreplay.point.HomePoint;
 import com.askerweb.autoclickerreplay.point.ClickPoint;
 import com.askerweb.autoclickerreplay.point.MultiPoint;
 import com.askerweb.autoclickerreplay.point.PathPoint;
@@ -65,7 +62,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.LongFunction;
 
 import javax.inject.Inject;
 
@@ -77,8 +73,6 @@ import butterknife.OnLongClick;
 import butterknife.Unbinder;
 import butterknife.ViewCollections;
 
-import static androidx.core.app.ActivityCompat.startActivityForResult;
-import static com.askerweb.autoclickerreplay.ktExt.MiuiCheckPermission.applyMiuiPermission;
 import static com.askerweb.autoclickerreplay.ktExt.MiuiCheckPermission.getMiuiVersion;
 import static com.askerweb.autoclickerreplay.ktExt.SettingExt.KEY_CUTOUT_ON;
 import static com.askerweb.autoclickerreplay.ktExt.SettingExt.defaultCutoutOn;
@@ -156,6 +150,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     public final static String ACTION_SHOW_VIEWS = "ACTION_SHOW_VIEWS";
 
     public final static String ACTIVITY_SETTING = "com.askerweb.autoclicker.setting";
+    public final static String ACTIVITY_SETTING_TABLE = "com.askerweb.autoclicker.settingPoints";
 
     public static long startCount = 0;
 
@@ -286,6 +281,10 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         return service.listCommands;
     }
 
+    public static View getControlPanel(){
+        return service.controlPanel;
+    }
+
     public static WindowManager getWM(){
         return service.wm;
     }
@@ -327,6 +326,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         listTypes.add(PinchPoint.class);
         listTypes.add(PathPoint.class);
         listTypes.add(MultiPoint.class);
+        listTypes.add(HomePoint.class);
         View title = UtilsApp.getDialogTitle(this, getString(R.string.sel_type_goal));
         TypePointAdapter adapter = new TypePointAdapter(new ContextThemeWrapper(this, R.style.AppDialog), listTypes);
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -393,6 +393,9 @@ public class AutoClickService extends Service implements View.OnTouchListener{
             else if(clazz.isAssignableFrom(MultiPoint.class)){
                 img.setImageResource(R.drawable.ic_multi_point);
             }
+            else if(clazz.isAssignableFrom(HomePoint.class)){
+                img.setImageResource(R.drawable.ic_home_point);
+            }
             return v;
         }
     }
@@ -408,6 +411,14 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     @OnClick(R.id.setting)
     public void showSetting(){
         Intent intent = new Intent(ACTIVITY_SETTING);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.setting_points)
+    public void showSettingPoints(){
+        hideViews();
+        Intent intent = new Intent(ACTIVITY_SETTING_TABLE);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
     }
@@ -456,9 +467,9 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         canvasView.invalidate();
     }
 
-    public void showViews(){
-        controlPanel.setVisibility(View.VISIBLE);
-        listCommands.forEach((c)->c.setVisible(View.VISIBLE));
+    public static void showViews(){
+        AutoClickService.getControlPanel().setVisibility(View.VISIBLE);
+        AutoClickService.getListPoint().forEach((c)->c.setVisible(View.VISIBLE));
         canvasView.invalidate();
     }
 

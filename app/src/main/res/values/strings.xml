@@ -86,4 +86,11 @@
     <string name="no">Нету</string>
     <string name="question_cutout">Есть ли вырез в экране?</string>
     <string name="cutout">Вырез в экране</string>
+    <string name="numberPoint">№</string>
+    <string name="xPoint" translatable="false">X</string>
+    <string name="yPoint" translatable="false">Y</string>
+    <string name="delay">Задержка</string>
+    <string name="duration">Удерживание</string>
+    <string name="repeat">Количество наж.</string>
+    <string name="pointType">Тип</string>
 </resources>

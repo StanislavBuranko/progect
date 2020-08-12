@@ -2,10 +2,9 @@
 
 package com.askerweb.autoclickerreplay.point
 
-import android.app.Activity
 import android.app.AlertDialog
+import android.app.Application
 import android.content.Context
-import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
@@ -13,13 +12,16 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.widget.EditText
+import android.widget.TableLayout
+import android.widget.TableRow
+import android.widget.TextView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.di.ActivityComponent
 import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView
@@ -32,6 +34,8 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.synthetic.main.dialog_setting_point.*
 import java.io.Serializable
+import java.security.AccessController.getContext
+import java.util.zip.Inflater
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.properties.Delegates
@@ -81,9 +85,9 @@ abstract class Point : PointCommand, Parcelable, Serializable{
             view.text = value
         }
 
-    public var delay by Delegates.notNull<Long>()
+    var delay by Delegates.notNull<Long>()
     var duration by Delegates.notNull<Long>()
-    public var repeat by Delegates.notNull<Int>()
+    var repeat by Delegates.notNull<Int>()
 
     @IgnoredOnParcel @Transient
     var counterRepeat:Int = 0
@@ -206,7 +210,9 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         return obj
     }
 
-    private fun showEditDialog(){
+    open fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {}
+
+    open fun showEditDialog(){
         val viewContent: View = createViewDialog()
         val holder = createHolderDialog(viewContent)
         holder.updateViewDialogParam()
@@ -299,9 +305,9 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         }
 
         override fun saveEditDialog(){
-            point.delay = editDelay.text.toString().toLong()
-            point.duration = editDuration.text.toString().toLong()
-            point.repeat = editRepeat.text.toString().toInt()
+            point.delay = if(editDelay.text.toString() != "") editDelay.text.toString().toLong() else 0
+            point.duration = if(editDuration.text.toString() != "") editDuration.text.toString().toLong() else 0
+            point.repeat = if(editRepeat.text.toString() != "") editRepeat.text.toString().toInt() else 0
         }
 
         override fun requireSettingEdit(){

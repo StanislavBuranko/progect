@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.LinearLayout
+import android.widget.*
 import androidx.core.content.ContextCompat
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
@@ -17,8 +17,8 @@ import com.askerweb.autoclickerreplay.point.view.*
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
-import kotlin.math.ceil
 import kotlinx.android.synthetic.main.pinch_dialog_elements.*
+import kotlin.math.ceil
 
 class PinchPoint:Point {
 
@@ -102,7 +102,58 @@ class PinchPoint:Point {
         super.updateViewLayout(wm, size)
     }
 
+    override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
+        val trStart = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
+        val edNumberPoint = trStart.findViewById(R.id.numberPoint) as EditText
+        edNumberPoint.setText(super.text)
 
+        val tvSelectClass = trStart.findViewById(R.id.selectClass) as TextView
+        tvSelectClass.setText("PinchPoint")
+
+        val edXPoint = trStart.findViewById(R.id.xPoint) as EditText
+        edXPoint.setText(super.x.toString())
+
+        val edYPoint = trStart.findViewById(R.id.yPoint) as EditText
+        edYPoint.setText(super.y.toString())
+
+        val edDelayPoint = trStart.findViewById(R.id.delayPoint) as EditText
+        edDelayPoint.setText(super.delay.toString())
+
+        val edDurationPoint = trStart.findViewById(R.id.durationPoint) as EditText
+        edDurationPoint.setText(super.duration.toString())
+
+        val edRepeatPoint = trStart.findViewById(R.id.repeatPoint) as EditText
+        edRepeatPoint.setText(super.repeat.toString())
+        tableLayout.addView(trStart)
+
+        val trFirst = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
+        val edNumberPointFirst = trFirst.findViewById<View>(R.id.numberPoint) as EditText
+        edNumberPointFirst.setText(super.text)
+
+        val tvSelectClassFirst = trFirst.findViewById<View>(R.id.selectClass) as TextView
+        tvSelectClassFirst.setText("PinchPoint")
+
+        val edXPointFirst = trFirst.findViewById<View>(R.id.xPoint) as EditText
+        edXPointFirst.setText(firstPoint.x.toString())
+
+        val edYPointFirst = trFirst.findViewById<View>(R.id.yPoint) as EditText
+        edYPointFirst.setText(firstPoint.y.toString())
+        tableLayout.addView(trFirst)
+
+        val trSecond = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
+        val edNumberPointSecond = trSecond.findViewById<View>(R.id.numberPoint) as EditText
+        edNumberPointSecond.setText(super.text)
+
+        val tvSelectClassSecond = trSecond.findViewById<View>(R.id.selectClass) as TextView
+        tvSelectClassSecond.setText("PichPoint")
+
+        val edXPointSecond = trSecond.findViewById<View>(R.id.xPoint) as EditText
+        edXPointSecond.setText(secondPoint.x.toString())
+
+        val edYPointSecond = trSecond.findViewById<View>(R.id.yPoint) as EditText
+        edYPointSecond.setText(secondPoint.y.toString())
+        tableLayout.addView(trSecond)
+    }
 
     override fun attachToWindow(wm: WindowManager, canvas: PointCanvasView) {
         super.attachToWindow(wm, canvas)

@@ -5,10 +5,11 @@ import android.app.AlertDialog
 import android.graphics.Path
 import android.os.Parcel
 import android.os.Parcelable
-import android.util.Log
-import android.view.*
-import android.widget.LinearLayout
-import androidx.appcompat.view.ContextThemeWrapper
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
@@ -17,7 +18,6 @@ import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
 import com.askerweb.autoclickerreplay.ktExt.getWindowsTypeApplicationOverlay
 import com.askerweb.autoclickerreplay.ktExt.logd
-import com.askerweb.autoclickerreplay.point.MultiPoint.ExtendedPinchDialog
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.point.view.ExtendedViewHolder
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView
@@ -27,9 +27,8 @@ import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.dialog_setting_point.*
 import kotlinx.android.synthetic.main.multi_point_dialog.*
-import kotlinx.android.synthetic.main.pinch_dialog_elements.*
 import java.util.*
-import kotlin.math.ceil
+
 
 class MultiPoint: Point {
 
@@ -180,6 +179,43 @@ class MultiPoint: Point {
         dest?.writeParcelableArray(points, flags)
     }
 
+    override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
+        val tr = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
+        val tvNumberPoint = tr.findViewById<View>(R.id.numberPoint) as EditText
+        tvNumberPoint.setText(points.last().text)
+
+        val tvSelectClass = tr.findViewById<View>(R.id.selectClass) as TextView
+        tvSelectClass.setText("MultiPoint")
+
+        val tvXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
+        tvXPoint.setText(points[0].x.toString())
+
+        val tvYPoint = tr.findViewById<View>(R.id.yPoint) as EditText
+        tvYPoint.setText(points[0].y.toString())
+
+        val tvDelayPoint = tr.findViewById<View>(R.id.delayPoint) as EditText
+        tvDelayPoint.setText(points[0].delay.toString())
+
+        val tvDurationPoint = tr.findViewById<View>(R.id.durationPoint) as EditText
+        tvDurationPoint.setText(points[0].duration.toString())
+
+        val tvRepeatPoint = tr.findViewById<View>(R.id.repeatPoint) as EditText
+        tvRepeatPoint.setText(points[0].repeat.toString())
+        tableLayout.addView(tr)
+        for (i in 1..points.size-1) {
+            val trArray = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
+            val tvNumberPoint1 = trArray.findViewById<View>(R.id.numberPoint) as EditText
+            tvNumberPoint1.setText(points[i].text)
+            val tvSelectClass1 = trArray.findViewById<View>(R.id.selectClass) as TextView
+            tvSelectClass1.setText("MultiPoint")
+            val tvXPoint1 = trArray.findViewById<View>(R.id.xPoint) as EditText
+            tvXPoint1.setText(points[i].x.toString())
+            val tvYPoint1 = trArray.findViewById<View>(R.id.yPoint) as EditText
+            tvYPoint1.setText(points[i].y.toString())
+            tableLayout.addView(trArray)
+        }
+    }
+
     override fun getCommand(): GestureDescription? {
         val builder = GestureDescription.Builder()
         for (n in 0..points.size - 1) {
@@ -287,9 +323,9 @@ class MultiPoint: Point {
             }
         }
         points.forEach { point ->
-            point.delay = editDelay.text.toString().toLong()
-            point.duration = editDuration.text.toString().toLong()
-            point.repeat = editRepeat.text.toString().toInt()
+            point.delay = if(editDelay.text.toString() != "") editDelay.text.toString().toLong() else 0
+            point.duration = if(editDuration.text.toString() != "") editDuration.text.toString().toLong() else 0
+            point.repeat = if(editRepeat.text.toString() != "") editRepeat.text.toString().toInt() else 0
         }
     }
 

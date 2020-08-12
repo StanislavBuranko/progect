@@ -64,6 +64,14 @@
                 android:background="@drawable/ic_radio_button_off" />
 
             <Button
+                android:id="@+id/setting_points"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/ic_settings"
+                android:visibility="gone" />
+
+            <Button
                     android:id="@+id/setting"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

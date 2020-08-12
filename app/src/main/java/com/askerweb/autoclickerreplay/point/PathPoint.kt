@@ -1,11 +1,13 @@
 package com.askerweb.autoclickerreplay.point
 
 import android.accessibilityservice.GestureDescription
+import android.graphics.Matrix
+import android.graphics.Paint
 import android.graphics.Path
 import android.os.Parcel
 import android.os.Parcelable
 import android.view.*
-import android.widget.LinearLayout
+import android.widget.*
 import androidx.core.content.ContextCompat
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
@@ -19,7 +21,11 @@ import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.dialog_setting_point.*
 import java.util.*
+import kotlin.math.atan2
 import kotlin.math.ceil
+import kotlin.math.cos
+import kotlin.math.sin
+
 
 class PathPoint : Point {
 
@@ -30,7 +36,7 @@ class PathPoint : Point {
     var path = Path()
     val endPoint = PointBuilder.invoke()
             .position(x,y)
-            .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.point_click)!!)
+            .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_path_end)!!)
             .build(SimplePoint::class.java)
 
     val panel = LinearLayout(AutoClickService.getService().applicationContext)
@@ -38,6 +44,8 @@ class PathPoint : Point {
             WindowManager.LayoutParams.MATCH_PARENT.toFloat(),
             WindowManager.LayoutParams.MATCH_PARENT.toFloat(),
             Gravity.CENTER)
+
+    //override val drawableViewDefault = ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_path_start)!!
 
     init{
         panel.setOnTouchListener(DrawPathOnTouchListener())
@@ -204,6 +212,45 @@ class PathPoint : Point {
         panel.setOnTouchListener(DrawPathOnTouchListener())
     }
 
+    override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
+        val trStart: TableRow = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
+        val edNumberPoint: EditText = trStart.findViewById(R.id.numberPoint) as EditText
+        edNumberPoint.setText(super.text)
+
+        val tvSelectClass: TextView = trStart.findViewById(R.id.selectClass) as TextView
+        tvSelectClass.setText("PathPoint")
+
+        val edXPoint: EditText = trStart.findViewById(R.id.xPoint) as EditText
+        edXPoint.setText(super.x.toString())
+
+        val edYPoint: EditText = trStart.findViewById(R.id.yPoint) as EditText
+        edYPoint.setText(super.y.toString())
+
+        val edDelayPoint: EditText = trStart.findViewById(R.id.delayPoint) as EditText
+        edDelayPoint.setText(super.delay.toString())
+
+        val edDurationPoint: EditText = trStart.findViewById(R.id.durationPoint) as EditText
+        edDurationPoint.setText(super.duration.toString())
+
+        val edRepeatPoint: EditText = trStart.findViewById(R.id.repeatPoint) as EditText
+        edRepeatPoint.setText(super.repeat.toString())
+        tableLayout.addView(trStart)
+
+        val trEnd: TableRow = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
+        val edNumberPointEnd: EditText = trEnd.findViewById(R.id.numberPoint) as EditText
+        edNumberPointEnd.setText(super.text)
+
+        val tvSelectClassEnd: TextView = trEnd.findViewById(R.id.selectClass) as TextView
+        tvSelectClassEnd.setText("PathPoint")
+
+        val edXPointEnd: EditText = trEnd.findViewById(R.id.xPoint) as EditText
+        edXPointEnd.setText(endPoint.x.toString())
+
+        val edYPointEnd: EditText = trEnd.findViewById(R.id.yPoint) as EditText
+        edYPointEnd.setText(endPoint.x.toString())
+        tableLayout.addView(trEnd)
+    }
+
     override fun getCommand(): GestureDescription? {
         val builder = GestureDescription.Builder()
         path.offset(getNavigationBar().toFloat(), 0f)
@@ -246,8 +293,7 @@ class PathPoint : Point {
                 MotionEvent.ACTION_UP->{
                     detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
                     wasDraw = true
-                    if(coordinateXMove.size == 1)
-                    {
+                    if(coordinateXMove.size == 1) {
                         path.lineTo((coordinateXMove.last()+100).toFloat(), (coordinateYMove.last()+100).toFloat())
                         coordinateXMove += coordinateXMove.last()+100
                         coordinateYMove += coordinateYMove.last()+100
@@ -256,10 +302,6 @@ class PathPoint : Point {
                     endPoint.y = coordinateYMove.last().toInt() - pointLocateHelper
                     attachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
                     updateListener(AutoClickService.getWM(), AutoClickService.getCanvas(),AutoClickService.getParamBound())
-                    for (n in 0..coordinateXMove.size-1) {
-                        coordinateXMove[n].logd("X")
-                        coordinateYMove[n].logd("Y")
-                    }
                 }
                 MotionEvent.ACTION_MOVE-> {
                     path.lineTo(event.getX(), event.getY())
@@ -271,6 +313,17 @@ class PathPoint : Point {
             return true
         }
     }
+
+    fun initArrowDraw(p:Path, size:Float):Path{
+        return with(p){
+            lineTo(-size, -size)
+            lineTo(35f, 0f)
+            lineTo(-35f, 35f)
+            close()
+            this
+        }
+    }
+
 
     override fun createHolderDialog(viewContent: View): AbstractViewHolderDialog {
         val holder = super.createHolderDialog(viewContent)
