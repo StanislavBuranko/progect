@@ -60,8 +60,8 @@
         <activity android:name=".activity.AdActivity"
             android:label="Ad">
         </activity>
-        <activity android:name=".activity.ChekPermPopUp"
-            android:label="ChekPermPopUp">
+        <activity android:name=".activity.CheckPermPopUp"
+            android:label="CheckPermPopUp">
         </activity>
     </application>
 </manifest>

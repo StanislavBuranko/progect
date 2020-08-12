@@ -33,13 +33,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.activity.AdActivity;
-import com.askerweb.autoclickerreplay.activity.ChekPermPopUp;
+import com.askerweb.autoclickerreplay.activity.CheckPermPopUp;
 import com.askerweb.autoclickerreplay.activity.MainActivity;
-import com.askerweb.autoclickerreplay.activity.SettingActivity;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
@@ -76,8 +76,6 @@ import butterknife.OnLongClick;
 import butterknife.Unbinder;
 import butterknife.ViewCollections;
 
-import static androidx.core.app.ActivityCompat.startActivityForResult;
-import static com.askerweb.autoclickerreplay.ktExt.MiuiCheckPermission.applyMiuiPermission;
 import static com.askerweb.autoclickerreplay.ktExt.MiuiCheckPermission.getMiuiVersion;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.getWindowsTypeApplicationOverlay;
 
@@ -146,8 +144,6 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     public final static String ACTION_SHOW_VIEWS = "ACTION_SHOW_VIEWS";
 
     public final static String ACTIVITY_SETTING = "com.askerweb.autoclicker.setting";
-
-    public static long startCount = 0;
 
     @Override
     public void onCreate() {
@@ -252,6 +248,15 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
     public static boolean getParamBound(){
         return service.paramBoundsOn;
+    }
+
+    public int getCounterRunMacro(){
+        return PreferenceManager.getDefaultSharedPreferences(this).getInt("counterRunMacro", 0);
+    }
+
+    public int incCounterRunMacro(){
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt("counterRunMacro", getCounterRunMacro() + 1).apply();
+        return getCounterRunMacro();
     }
 
     public static int getParamRepeatMacro(){
@@ -459,17 +464,13 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 checkPermPopUP = false;
                 break;
             case ACTION_START:
-                startCount++;
-                if(/*App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2*/true){
+                int startCount = incCounterRunMacro();
+                if(App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2){
                     if(getMiuiVersion() != 0) {
                        ifMiui();
                     }
                     else {
-                        hideViews();
-                        Intent intent2 = new Intent(this, AdActivity.class);
-                        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent2.putExtra("ad_request", "true");
-                        startActivity(intent2);
+                        showAdBeforeRunMacro();
                     }
                 }
                 else
@@ -497,17 +498,15 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     }
 
     public void ifMiui(){
-        Intent intent1 = new Intent(this, ChekPermPopUp.class);
+        Intent intent1 = new Intent(this, CheckPermPopUp.class);
         intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent1);
 
         Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
-                intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent1);
-            }
+        handler.postDelayed(() -> {
+            Intent intent11 = new Intent(getApplicationContext(), MainActivity.class);
+            intent11.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent11);
         }, 500);
 
         Intent startMain = new Intent(Intent.ACTION_MAIN);
@@ -517,11 +516,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         handler = new Handler();
         handler.postDelayed(() -> {
             if (checkPermPopUP) {
-                hideViews();
-                Intent intent2 = new Intent(getApplicationContext(), AdActivity.class);
-                intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent2.putExtra("ad_request", "true");
-                startActivity(intent2);
+                showAdBeforeRunMacro();
             } else {
                 DialogInterface.OnClickListener click = (dialogInterface, i) -> {
                     dialogInterface.cancel();
@@ -536,6 +531,14 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 dialog.show();
             }
         }, 500);
+    }
+
+    private void showAdBeforeRunMacro(){
+        hideViews();
+        Intent intent2 = new Intent(getApplicationContext(), AdActivity.class);
+        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent2.putExtra("ad_request", "true");
+        startActivity(intent2);
     }
 
     private void runMacro(){
