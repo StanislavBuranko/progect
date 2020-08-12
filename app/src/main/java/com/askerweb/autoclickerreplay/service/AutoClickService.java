@@ -10,12 +10,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -27,23 +24,23 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.core.content.ContextCompat;
-import androidx.preference.PreferenceManager;
 
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.activity.AdActivity;
-import com.askerweb.autoclickerreplay.activity.CheckPermPopUp;
+import com.askerweb.autoclickerreplay.activity.ChekPermPopUp;
 import com.askerweb.autoclickerreplay.activity.MainActivity;
+import com.askerweb.autoclickerreplay.activity.TablePointsActivity;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
 import com.askerweb.autoclickerreplay.ktExt.UtilsApp;
+import com.askerweb.autoclickerreplay.point.HomePoint;
 import com.askerweb.autoclickerreplay.point.ClickPoint;
 import com.askerweb.autoclickerreplay.point.MultiPoint;
 import com.askerweb.autoclickerreplay.point.PathPoint;
@@ -77,7 +74,11 @@ import butterknife.Unbinder;
 import butterknife.ViewCollections;
 
 import static com.askerweb.autoclickerreplay.ktExt.MiuiCheckPermission.getMiuiVersion;
+import static com.askerweb.autoclickerreplay.ktExt.SettingExt.KEY_CUTOUT_ON;
+import static com.askerweb.autoclickerreplay.ktExt.SettingExt.defaultCutoutOn;
+import static com.askerweb.autoclickerreplay.ktExt.SettingExt.getSetting;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.getWindowsTypeApplicationOverlay;
+import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.standardOverlayFlags;
 
 @SuppressLint("ClickableViewAccessibility")
 public class AutoClickService extends Service implements View.OnTouchListener{
@@ -103,6 +104,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     public InterstitialAd interstitialAd;
 
     public Boolean paramBoundsOn;
+    public Boolean paramCutoutOn;
     public Integer paramRepeatMacro;
     public Integer paramSizePoint;
     public Integer paramSizeControl;
@@ -110,15 +112,17 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
 
     public static final WindowManager.LayoutParams paramsControlPanel =
-            UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
+                    Gravity.START, standardOverlayFlags);
     public static final WindowManager.LayoutParams paramsRecordPanelFlagsOff =
             UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, Gravity.CENTER);
-    public static final WindowManager.LayoutParams paramsCanvas =
+    public static WindowManager.LayoutParams paramsCanvas =
             UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, Gravity.CENTER);
     public static final WindowManager.LayoutParams paramsRecordPanelFlagsOn =
             UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT, Gravity.CENTER,  WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 
     int lastOrientation = 1;
+    public int orientGradus = 0;
     // update listener after change orientation
     public final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -133,6 +137,8 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     };
 
 
+
+
     public final static String KEY_POINT = "point";
 
     public final static String ACTION_STOP = "ACTION_STOP";
@@ -144,11 +150,15 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     public final static String ACTION_SHOW_VIEWS = "ACTION_SHOW_VIEWS";
 
     public final static String ACTIVITY_SETTING = "com.askerweb.autoclicker.setting";
+    public final static String ACTIVITY_SETTING_TABLE = "com.askerweb.autoclicker.settingPoints";
+
+    public static long startCount = 0;
 
     @Override
     public void onCreate() {
         lastOrientation = getResources().getConfiguration().orientation;
         super.onCreate();
+        updateSetting();
         service = this;
         App.initServiceComponent(service);
         App.serviceComponent.inject(service);
@@ -163,7 +173,6 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 runMacroAfterAd();
             }
         });
-        updateSetting();
         initView();
         recordPoints = new RecordPoints();
         //start listing change orientation
@@ -259,6 +268,12 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         return getCounterRunMacro();
     }
 
+    public static boolean getParamCutout(){
+        return Optional
+                .ofNullable(getSetting(KEY_CUTOUT_ON, defaultCutoutOn))
+                .orElse(defaultCutoutOn);
+    }
+
     public static int getParamRepeatMacro(){
         return service.paramRepeatMacro;
     }
@@ -275,9 +290,14 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         return service.listCommands;
     }
 
+    public static View getControlPanel(){
+        return service.controlPanel;
+    }
+
     public static WindowManager getWM(){
         return service.wm;
     }
+
 
     public static PointCanvasView getCanvas(){
         return service.canvasView;
@@ -313,8 +333,9 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         listTypes.add(ClickPoint.class);
         listTypes.add(SwipePoint.class);
         listTypes.add(PinchPoint.class);
-        //listTypes.add(PathPoint.class);
+        listTypes.add(PathPoint.class);
         listTypes.add(MultiPoint.class);
+        listTypes.add(HomePoint.class);
         View title = UtilsApp.getDialogTitle(this, getString(R.string.sel_type_goal));
         TypePointAdapter adapter = new TypePointAdapter(new ContextThemeWrapper(this, R.style.AppDialog), listTypes);
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -381,6 +402,9 @@ public class AutoClickService extends Service implements View.OnTouchListener{
             else if(clazz.isAssignableFrom(MultiPoint.class)){
                 img.setImageResource(R.drawable.ic_multi_point);
             }
+            else if(clazz.isAssignableFrom(HomePoint.class)){
+                img.setImageResource(R.drawable.ic_home_point);
+            }
             return v;
         }
     }
@@ -396,6 +420,14 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     @OnClick(R.id.setting)
     public void showSetting(){
         Intent intent = new Intent(ACTIVITY_SETTING);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.setting_points)
+    public void showSettingPoints(){
+        hideViews();
+        Intent intent = new Intent(ACTIVITY_SETTING_TABLE);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
     }
@@ -444,9 +476,9 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         canvasView.invalidate();
     }
 
-    public void showViews(){
-        controlPanel.setVisibility(View.VISIBLE);
-        listCommands.forEach((c)->c.setVisible(View.VISIBLE));
+    public static void showViews(){
+        AutoClickService.getControlPanel().setVisibility(View.VISIBLE);
+        AutoClickService.getListPoint().forEach((c)->c.setVisible(View.VISIBLE));
         canvasView.invalidate();
     }
 
@@ -484,6 +516,13 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 break;
             case ACTION_UPDATE_SETTING: //update after change setting
                 updateSetting();
+                paramsCanvas = UtilsApp.getWindowsParameterLayout(
+                        WindowManager.LayoutParams.MATCH_PARENT,
+                        WindowManager.LayoutParams.MATCH_PARENT,
+                        Gravity.CENTER);
+                paramsCanvas.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+                canvasView.setLayoutParams(paramsCanvas);
+                wm.updateViewLayout(canvasView, paramsCanvas);
                 listCommands.forEach(this::updatePoint);
                 setControlSize();
                 break;
@@ -578,17 +617,20 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
     void updateSetting(){
         paramBoundsOn = Optional
-                .ofNullable(SettingExt.getSetting(SettingExt.KEY_BOUNDS_ON, SettingExt.defaultBoundsOn))
+                .ofNullable(getSetting(SettingExt.KEY_BOUNDS_ON, SettingExt.defaultBoundsOn))
                 .orElse(SettingExt.defaultBoundsOn);
         paramRepeatMacro = Optional
-                .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, SettingExt.defaultRepeat))
+                .ofNullable(getSetting(SettingExt.KEY_REPEAT, SettingExt.defaultRepeat))
                 .orElse(SettingExt.defaultRepeat);
         paramSizePoint = Optional
-                .ofNullable(SettingExt.getSetting(getString(R.string.key_preference_size_point), SettingExt.defaultSizePoint))
+                .ofNullable(getSetting(getString(R.string.key_preference_size_point), SettingExt.defaultSizePoint))
                 .orElse(SettingExt.defaultSizePoint);
         paramSizeControl = Optional
-                .ofNullable(SettingExt.getSetting(getString(R.string.key_preference_size_control_panel), SettingExt.defaultSizeControl))
+                .ofNullable(getSetting(getString(R.string.key_preference_size_control_panel), SettingExt.defaultSizeControl))
                 .orElse(SettingExt.defaultSizeControl);
+        paramCutoutOn = Optional
+                .ofNullable(getSetting(SettingExt.KEY_CUTOUT_ON, SettingExt.defaultCutoutOn))
+                .orElse(SettingExt.defaultCutoutOn);
         LogExt.logd(paramSizeControl);
         LogExt.logd("d:"+ SettingExt.defaultSizeControl);
     }
@@ -604,12 +646,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     }
 
     void swapPointOrientation(Point p){
-        if(p.getClass() == PathPoint.class)
-        {
-
-        }
-        else
-            p.swapPointOrientation();
+        p.swapPointOrientation();
         p.updateViewLayout(wm, paramSizePoint);
         canvasView.invalidate();
     }
@@ -649,7 +686,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOff);
         listCommands.forEach((c) -> c.setTouchable(false, wm));
         paramRepeatMacro = Optional
-                .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, 1))
+                .ofNullable(getSetting(SettingExt.KEY_REPEAT, 1))
                 .orElse(1);
         controlPanel.findViewById(R.id.record_points_start_pause)
                 .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_radio_button));
@@ -658,7 +695,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     public void cancelRecord(){
         recordPoints.timerStart();
         paramRepeatMacro = Optional
-                .ofNullable(SettingExt.getSetting(SettingExt.KEY_REPEAT, SettingExt.defaultRepeat))
+                .ofNullable(getSetting(SettingExt.KEY_REPEAT, SettingExt.defaultRepeat))
                 .orElse(SettingExt.defaultRepeat);
         wm.updateViewLayout(recordPanel, paramsRecordPanelFlagsOn);
         listCommands.forEach((c) -> c.setTouchable(true, wm));

@@ -8,10 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.LinearLayout
+import android.widget.*
 import androidx.core.content.ContextCompat
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
 import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.point.view.ExtendedViewHolder
@@ -19,11 +20,12 @@ import com.askerweb.autoclickerreplay.point.view.PointCanvasView
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
-import kotlin.math.ceil
 import kotlinx.android.synthetic.main.swipe_dialog_elements.*
+import kotlin.math.ceil
+
 
 class SwipePoint : Point {
-   val nextPoint: Point =  PointBuilder.invoke()
+    val nextPoint: Point =  PointBuilder.invoke()
             .position(params.x+50, params.y)
             .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.point_click)!!)
             .build(SimplePoint::class.java)
@@ -111,6 +113,45 @@ class SwipePoint : Point {
         dest?.writeParcelable(nextPoint, flags)
     }
 
+    override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
+        val trStart = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
+        val edNumberPoint = trStart.findViewById(R.id.numberPoint) as EditText
+        edNumberPoint.setText(super.text)
+
+        val tvSelectClass = trStart.findViewById(R.id.selectClass) as TextView
+        tvSelectClass.setText("SwipePoint")
+
+        val edXPoint = trStart.findViewById(R.id.xPoint) as EditText
+        edXPoint.setText(super.x.toString())
+
+        val edYPoint = trStart.findViewById(R.id.yPoint) as EditText
+        edYPoint.setText(super.y.toString())
+
+        val edDelayPoint = trStart.findViewById(R.id.delayPoint) as EditText
+        edDelayPoint.setText(super.delay.toString())
+
+        val edDurationPoint = trStart.findViewById(R.id.durationPoint) as EditText
+        edDurationPoint.setText(super.duration.toString())
+
+        val edRepeatPoint = trStart.findViewById(R.id.repeatPoint) as EditText
+        edRepeatPoint.setText(super.repeat.toString())
+        tableLayout.addView(trStart)
+
+        val trEnd = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
+        val edNumberPointEnd = trEnd.findViewById(R.id.numberPoint) as EditText
+        edNumberPointEnd.setText(super.text)
+
+        val tvSelectClassEnd = trEnd.findViewById(R.id.selectClass) as TextView
+        tvSelectClassEnd.setText("SwipePoint")
+
+        val edXPointEnd = trEnd.findViewById(R.id.xPoint) as EditText
+        edXPointEnd.setText(nextPoint.x.toString())
+
+        val edYPointEnd = trEnd.findViewById(R.id.yPoint) as EditText
+        edYPointEnd.setText(nextPoint.y.toString())
+        tableLayout.addView(trEnd)
+    }
+
     override fun setTouchable(touchable: Boolean, wm:WindowManager){
         if(touchable){
             params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
@@ -128,15 +169,18 @@ class SwipePoint : Point {
         wm.updateViewLayout(nextPoint.view, nextPoint.params)
     }
 
+
+
     override fun getCommand() : GestureDescription {
         "swipe from $xTouch $yTouch to ${nextPoint.xTouch} ${nextPoint.yTouch}".logd()
         val path = Path()
         path.moveTo(xTouch.toFloat(), yTouch.toFloat())
         path.lineTo(nextPoint.xTouch.toFloat(), nextPoint.yTouch.toFloat())
+        path.offset(getNavigationBar().toFloat(), 0f)
         val builder = GestureDescription.Builder()
-        return builder
-                .addStroke(GestureDescription.StrokeDescription(path, 0, duration))
-                .build()
+        builder.addStroke(GestureDescription.StrokeDescription(path, 0, duration))
+        path.offset(-getNavigationBar().toFloat(), 0f)
+        return builder.build()
     }
 
     override fun createHolderDialog(viewContent: View): AbstractViewHolderDialog {

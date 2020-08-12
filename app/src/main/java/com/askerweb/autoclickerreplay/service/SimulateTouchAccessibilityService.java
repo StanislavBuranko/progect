@@ -12,12 +12,12 @@ import android.widget.Toast;
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
+import com.askerweb.autoclickerreplay.point.HomePoint;
 import com.askerweb.autoclickerreplay.point.Point;
 import com.askerweb.autoclickerreplay.point.PointCommand;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -121,7 +121,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
     public static boolean isPlaying() {
         return service != null && service.isPlaying;
     }
-
+    private boolean isStartTimer = false;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(intent.getAction() == null) return super.onStartCommand(intent, flags, startId);
@@ -140,8 +140,9 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 }, 40);
                 break;
             case AutoClickService.ACTION_STOP:
-                if(listCommand.size() > 0) {
+                if(isStartTimer) {
                     countDownTimer.cancel();
+                    isStartTimer = false;
                 }
                 else {
                     Toast toast = Toast.makeText(this, R.string.error_listcomand_null, Toast.LENGTH_LONG);
@@ -151,39 +152,44 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 stopSelf();
                 break;
             case ACTION_COMPLETE:
-                if(isPlaying){
+                if(isPlaying) {
                     Point point = null;
-                    if(counterRepeatMacro != 0 && listCommand.size() > 0){
+                    if (counterRepeatMacro != 0 && listCommand.size() > 0) {
                         point = listCommand.get(willExec);
-                        if(point.getCounterRepeat() == point.getRepeat()){
+                        if (point.getCounterRepeat() == point.getRepeat()) {
                             point.setCounterRepeat(0);
                             willExec++;
-                            if(willExec > listCommand.size() - 1){
-                                if(counterRepeatMacro > 0) counterRepeatMacro--;
+                            if (willExec > listCommand.size() - 1) {
+                                if (counterRepeatMacro > 0) counterRepeatMacro--;
                                 willExec = 0;
                             }
                             point = listCommand.get(willExec);
                         }
                     }
-                    if(counterRepeatMacro != 0) {
+                    if (counterRepeatMacro != 0) {
                         Point finalPoint = point;
-                        if(listCommand.size() > 0) {
+
+                        if (listCommand.size() > 0) {
                             countDownTimer = new CountDownTimer(finalPoint.getDelay(), 1000) {
 
                                 public void onTick(long millisUntilFinished) {
+                                    isStartTimer = true;
                                     //here you can have your logic to set text to edittext
                                 }
 
                                 public void onFinish() {
-                                    SimulateTouchAccessibilityService.execCommand(finalPoint, getGestureCallback.apply(finalPoint));
+                                    if (finalPoint.getClass() == HomePoint.class) {
+                                        ((HomePoint) finalPoint).getCommandMain();
+                                        finalPoint.setCounterRepeat(finalPoint.getCounterRepeat() + 1);
+                                        requestContinue();
+                                    }
+                                    else
+                                        SimulateTouchAccessibilityService.execCommand(finalPoint, getGestureCallback.apply(finalPoint));
                                 }
                             }.start();
-                        }
-                        else {
+                        } else
                             AutoClickService.requestAction(appContext, AutoClickService.ACTION_STOP);
-                        }
-                    }
-                    else
+                    } else
                         AutoClickService.requestAction(appContext, AutoClickService.ACTION_STOP);
                 }
                 break;

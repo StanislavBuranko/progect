@@ -64,9 +64,20 @@
     <string name="setting">Setting</string>
 
     <string name="turn_off_ad">Turn off ad</string>
-
-    <string name="pop_up_description">
-
-    </string>
+    <string name="ok" translatable="false">Ok</string>
+    <string name="error_pop_up" translatable="false">Permission error</string>
+    <string name="error_listcomand_null" translatable="false">Script is empty</string>
+    <string name="pop_up_info" translatable="false">Please give permission to display pop-up windows when the application is running in the background. Go to settings - apps - permissions - other permissions - find AutoClickerReplay there. Give permission to \\\'Display pop-ups when running in the background\'</string>
+    <string name="there_is">There\'s</string>
+    <string name="no">No</string>
+    <string name="delete_multi_point">Delete multi point</string>
+    <string name="question_cutout">Is there a cutout in the screen?</string>
+    <string name="cutout">Screen cutout</string>
+    <string name="key_preference_cutout_on">cutout_on</string>
+    <string name="numberPoint">№</string>
+    <string name="delay">Delay</string>
+    <string name="duration">Duration</string>
+    <string name="repeat">Numer repeat</string>
+    <string name="pointType">Type point</string>
 
 </resources>
