@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableRow xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <Button
-        android:id="@+id/butttonHideShowRow"
-        android:layout_column="0"
-        android:width="50dp"
-        android:height="50dp"
-        android:background="@drawable/ic_open_minimal"></Button>
+    <LinearLayout android:gravity="center">
+        <Button
+            android:id="@+id/butttonHideShowRow"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_column="0"
+            android:width="30dp"
+            android:height="30dp"
+            android:background="@drawable/ic_close_minimal"
+            android:layout_marginTop="13dp"
+            android:layout_marginBottom="13dp"></Button>
+    </LinearLayout>
     <EditText android:id="@+id/numberPoint" android:layout_column="1" android:inputType="number" />
     <TextView android:id="@+id/selectClass" android:layout_column="2"/>
     <EditText android:id="@+id/xPoint" android:layout_column="3" android:inputType="number" />

@@ -80,5 +80,6 @@
     <string name="repeat">Numer repeat</string>
     <string name="pointType">Type point</string>
     <string name="feature">feature</string>
+    <string name="setting_points">" Setting up a script"</string>
 
 </resources>

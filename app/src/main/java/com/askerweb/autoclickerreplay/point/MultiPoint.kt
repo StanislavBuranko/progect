@@ -349,11 +349,16 @@ class MultiPoint: Point {
                     for (n in 0..to) {
                         points.last().detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
                         points = points.dropLast(1).toTypedArray()
-
                     }
                 }
+                tableLayout.removeAllViews()
+                val trHeading = inflater.inflate(R.layout.table_row_heading, null) as TableRow
+                tableLayout.addView(trHeading)
+                AutoClickService.getListPoint().forEach { point ->
+                    point.createTableView(tableLayout, inflater)
+                }
             } else if (edNumbMultiPoint.text.toString() != "") {
-                if(edNumbMultiPoint.text.toString().toInt() < 2) {
+                if(edNumbMultiPoint.text.toString().toInt() < 1) {
                     edNumbMultiPoint.setText("2")
                     edNumbMultiPoint.setSelection(edNumbMultiPoint.text.length)
                 }
@@ -375,7 +380,7 @@ class MultiPoint: Point {
             edXPointNext.setText(points[i].x.toString())
             edXPointNext.setOnFocusChangeListener{ view: View, b: Boolean ->
                 points[i].view.visibility = if(points[i].view.visibility == View.GONE) View.VISIBLE else View.GONE
-                if(edXPointNext.text.toString() == ""){
+                if(edXPointNext.text.toString() == "") {
                     edXPointNext.setText(points[i].params.x.toString())
                 }
             }
@@ -397,7 +402,7 @@ class MultiPoint: Point {
             edYPointNext.setText(points[i].y.toString())
             edYPointNext.setOnFocusChangeListener{ view: View, b: Boolean ->
                 points[i].view.visibility = if(points[i].view.visibility == View.GONE) View.VISIBLE else View.GONE
-                if(edYPointNext.text.toString() == ""){
+                if(edYPointNext.text.toString() == "") {
                     edYPointNext.setText(points[i].y.toString())
                 }
             }
@@ -414,6 +419,7 @@ class MultiPoint: Point {
                     AutoClickService.getWM().updateViewLayout(points[i].view, points[i].params)
                 }
             }
+            trArray.visibility = View.GONE
             tableLayout.addView(trArray)
             tableRows += trArray
             val buttonShowHideRow = tr.findViewById<View>(R.id.butttonHideShowRow) as Button

@@ -74,7 +74,6 @@ class HomePoint : Point {
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
         val tr = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
-        val buttonShowHideRow = tr.findViewById<View>(R.id.butttonHideShowRow) as Button
         val edNumberPoint = tr.findViewById<View>(R.id.numberPoint) as EditText
         edNumberPoint.setText(super.text)
         edNumberPoint.setOnFocusChangeListener { view: View, b: Boolean ->
@@ -108,7 +107,7 @@ class HomePoint : Point {
         }
 
         val tvSelectClass = tr.findViewById<View>(R.id.selectClass) as TextView
-        tvSelectClass.setText("Click")
+        tvSelectClass.setText("Home")
 
         val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
         edXPoint.setText(super.x.toString())
@@ -173,8 +172,11 @@ class HomePoint : Point {
                 else {super.delay = edDelayPoint.text.toString().toLong()}
             }
         }
+
+        val linearLayout = tr.findViewById<LinearLayout>(R.id.linearLayoutButtonShowHideRow)
+
         tr.removeAllViews()
-        tr.addView(buttonShowHideRow)
+        tr.addView(linearLayout)
         tr.addView(edNumberPoint)
         tr.addView(tvSelectClass)
         tr.addView(edXPoint)

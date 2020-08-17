@@ -316,7 +316,7 @@ class PinchPoint:Point {
                 AutoClickService.getWM().updateViewLayout(firstPoint.view, firstPoint.params)
             }
         }
-
+        trFirst.visibility = View.GONE
         tableLayout.addView(trFirst)
 
         val trSecond = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
@@ -370,11 +370,16 @@ class PinchPoint:Point {
                 AutoClickService.getWM().updateViewLayout(secondPoint.view, secondPoint.params)
             }
         }
+        trSecond.visibility = View.GONE
         tableLayout.addView(trSecond)
         val buttonShowHideRow = tr.findViewById<View>(R.id.butttonHideShowRow) as Button
         buttonShowHideRow.setOnClickListener {
             trFirst.visibility = if (trFirst.visibility == View.VISIBLE) View.GONE else View.VISIBLE
             trSecond.visibility = if (trSecond.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            if(trFirst.visibility == View.VISIBLE)
+                buttonShowHideRow.setBackgroundResource(R.drawable.ic_open_minimal)
+            else
+                buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
         }
     }
 

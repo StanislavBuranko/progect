@@ -94,4 +94,5 @@
     <string name="repeat">Количество наж.</string>
     <string name="pointType">Тип</string>
     <string name="feature">Особенность</string>
+    <string name="setting_points">"  Настройка сценария"</string>
 </resources>

@@ -51,7 +51,6 @@ class ClickPoint : Point {
         }
         edNumberPoint.addTextChangedListener{
             if(edNumberPoint.text.toString() != "") {
-                getListPoint().logd()
                 val tempPoint = getListPoint().get(super.text.toInt()-1)
                 val tempTextPoint = super.text.toInt()
                 val edNumberPointCorrect = if(edNumberPoint.text.toString().toInt() > getListPoint().size)
@@ -63,7 +62,6 @@ class ClickPoint : Point {
                 getListPoint().set(edNumberPointCorrect, tempPoint)
                 getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
                 getListPoint().get(edNumberPointCorrect).text = (edNumberPointCorrect+1).toString()
-                getListPoint().logd()
                 tableLayout.removeAllViews()
                 val trHeading = inflater.inflate(R.layout.table_row_heading, null) as TableRow
                 tableLayout.addView(trHeading)

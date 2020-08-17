@@ -64,7 +64,7 @@
             android:label="CheckPermPopUp">
         </activity>
         <activity android:name=".activity.TablePointsActivity"
-            android:label="@string/setting">
+            android:label="@string/setting_points">
             <intent-filter>
                 <action android:name="com.askerweb.autoclicker.settingPoints"/>
                 <category android:name="android.intent.category.DEFAULT"/>

@@ -322,12 +322,16 @@ class SwipePoint : Point {
                 AutoClickService.getWM().updateViewLayout(nextPoint.view, nextPoint.params)
             }
         }
-
+        trEnd.visibility = View.GONE
         tableLayout.addView(trEnd)
 
         val buttonShowHideRow = tr.findViewById<View>(R.id.butttonHideShowRow) as Button
         buttonShowHideRow.setOnClickListener {
             trEnd.visibility = if (trEnd.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            if(trEnd.visibility == View.VISIBLE)
+                buttonShowHideRow.setBackgroundResource(R.drawable.ic_open_minimal)
+            else
+                buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
         }
     }
 
