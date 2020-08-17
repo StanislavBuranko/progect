@@ -3,77 +3,21 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    <ScrollView
+        android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-    <TableLayout
-        android:id="@+id/table"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TableRow
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dip">
-
-            <TextView
-                android:id="@+id/numberPoint"
-                android:layout_column="0"
-                android:layout_gravity="center"
-                android:text="№" />
-
-            <TextView
-                android:id="@+id/selectClass"
-                android:layout_column="1"
-                android:layout_gravity="center"
-                android:text="@string/pointType" />
-
-            <TextView
-                android:id="@+id/xPoint"
-                android:layout_column="2"
-                android:layout_gravity="center"
-                android:text="X" />
-
-            <TextView
-                android:id="@+id/yPoint"
-                android:layout_column="3"
-                android:layout_gravity="center"
-                android:text="Y" />
-
-            <TextView
-                android:id="@+id/delayPoint"
-                android:layout_column="4"
-                android:layout_gravity="center"
-                android:text="@string/delay" />
-
-            <TextView
-                android:id="@+id/durationPoint"
-                android:layout_column="5"
-                android:layout_gravity="center"
-                android:text="@string/duration" />
-
-            <TextView
-                android:id="@+id/repeatPoint"
-                android:layout_column="6"
-                android:layout_gravity="center"
-                android:text="@string/repeat" />
-        </TableRow>
-    </TableLayout>
-
-    <Button
-        android:id="@+id/save_change"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/save"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/cancel"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button" />
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <TableLayout
+            android:id="@+id/table"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        </HorizontalScrollView>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

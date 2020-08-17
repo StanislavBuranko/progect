@@ -68,15 +68,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/ic_settings"
-                android:visibility="gone" />
+                android:background="@drawable/ic_table_icon" />
 
             <Button
-                    android:id="@+id/setting"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/ic_settings"
-                    android:layout_marginBottom="16dp"/>
+                android:id="@+id/setting"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/ic_settings" />
 
         </LinearLayout>
 

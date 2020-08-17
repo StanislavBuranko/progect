@@ -43,7 +43,6 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
             color = ContextCompat.getColor(context, R.color.blueHippie)
             strokeWidth = 10f
         }
-
         setWillNotDraw(false)
     }
 
@@ -65,6 +64,19 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
 
     open fun drawPath(pathPoint: PathPoint, canvas: Canvas?){
         canvas?.drawPath(pathPoint.path, paintLineToSwipePoint)
+        /*val radius = width - 15
+        val arrowPath = initArrowDraw(pathPoint.path, 35f)
+        val angle =
+                atan2((pathPoint.coordinateXMove[pathPoint.coordinateXMove.size-1] - pathPoint.coordinateYMove[pathPoint.coordinateXMove.size-1]).toDouble(),
+                        (pathPoint.endPoint.xTouch - pathPoint.endPoint.xTouch).toDouble())
+        val angleD = angle * 180 / Math.PI
+        val newX = (pathPoint.endPoint.xTouch + cos(angle) * -radius).toFloat()
+        val newY = (pathPoint.endPoint.yTouch+ sin(angle) * -radius).toFloat()
+        Log.d("Angle", "angle: $angle")
+        arrowMatrixSwipe.setRotate(angleD.toFloat())
+        arrowPath.transform(arrowMatrixSwipe)
+        arrowPath.offset(newX,
+                newY)*/
     }
 
     open fun drawSwipe(swipePoint: SwipePoint, canvas: Canvas?){

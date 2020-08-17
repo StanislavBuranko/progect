@@ -339,12 +339,12 @@ public class RecordPoints {
         if (coordinateXDown.size() > 10)
             for (int i = 2; i < 10; i++) {
                 multiPoint.createPointsForRecordPanel(coordinateXDown.get(i) - pointLocateHelper,
-                        coordinateYDown.get(i) - pointLocateHelper);
+                        coordinateYDown.get(i) - pointLocateHelper, 1);
             }
         else
             for (int i = 2; i < coordinateXDown.size(); i++) {
                 multiPoint.createPointsForRecordPanel(coordinateXDown.get(i) - pointLocateHelper,
-                        coordinateYDown.get(i) - pointLocateHelper);
+                        coordinateYDown.get(i) - pointLocateHelper, 1);
             }
         multiPoint.attachToWindow(wm, canvasView);
         multiPoint.updateListener(wm, canvasView, AutoClickService.getParamBound());

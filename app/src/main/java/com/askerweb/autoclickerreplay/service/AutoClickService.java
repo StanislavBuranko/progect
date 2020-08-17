@@ -95,7 +95,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
     @BindView(R.id.group_control)
     View group_control;
-    @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.record_points_start_pause, R.id.setting, R.id.close})
+    @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.record_points_start_pause, R.id.setting_points, R.id.setting, R.id.close})
     List<View> controls;
 
     @Inject

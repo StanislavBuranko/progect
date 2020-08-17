@@ -1,6 +1,7 @@
 package com.askerweb.autoclickerreplay.point
 
 import android.accessibilityservice.GestureDescription
+import android.content.Context
 import android.graphics.Path
 import android.os.Parcel
 import android.os.Parcelable
@@ -10,9 +11,12 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.ktExt.context
 import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
+import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.point.view.*
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
@@ -94,6 +98,7 @@ class PinchPoint:Point {
         super.setVisible(visible)
         firstPoint.setVisible(visible)
         secondPoint.setVisible(visible)
+        AutoClickService.getCanvas().invalidate()
     }
 
     override fun updateViewLayout(wm: WindowManager, size: Float) {
@@ -103,56 +108,274 @@ class PinchPoint:Point {
     }
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
-        val trStart = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
-        val edNumberPoint = trStart.findViewById(R.id.numberPoint) as EditText
+        val tr = inflater.inflate(R.layout.table_row_for_table_setting_points_pinch, null) as TableRow
+
+        val edNumberPoint = tr.findViewById<View>(R.id.numberPoint) as EditText
         edNumberPoint.setText(super.text)
+        edNumberPoint.setOnFocusChangeListener { view: View, b: Boolean ->
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if(edNumberPoint.text.toString() == "") {
+                edNumberPoint.setText(super.text)
+            }
+        }
+        edNumberPoint.addTextChangedListener{
+            if(edNumberPoint.text.toString() != "") {
+                AutoClickService.getListPoint().logd()
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+                val edNumberPointCorrect = if(edNumberPoint.text.toString().toInt() > AutoClickService.getListPoint().size)
+                    AutoClickService.getListPoint().size-1
+                else
+                    edNumberPoint.text.toString().toInt()-1
 
-        val tvSelectClass = trStart.findViewById(R.id.selectClass) as TextView
-        tvSelectClass.setText("PinchPoint")
+                AutoClickService.getListPoint().set(super.text.toInt()-1, AutoClickService.getListPoint().get(edNumberPointCorrect))
+                AutoClickService.getListPoint().set(edNumberPointCorrect, tempPoint)
+                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
+                AutoClickService.getListPoint().get(edNumberPointCorrect).text = (edNumberPointCorrect+1).toString()
+                AutoClickService.getListPoint().logd()
+                tableLayout.removeAllViews()
+                val trHeading = inflater.inflate(R.layout.table_row_heading, null) as TableRow
+                tableLayout.addView(trHeading)
+                AutoClickService.getListPoint().forEach {point ->
+                    point.createTableView(tableLayout, inflater)
+                }
+            }
+        }
 
-        val edXPoint = trStart.findViewById(R.id.xPoint) as EditText
-        edXPoint.setText(super.x.toString())
+        val tvSelectClass = tr.findViewById<View>(R.id.selectClass) as TextView
+        tvSelectClass.setText("Pinch")
 
-        val edYPoint = trStart.findViewById(R.id.yPoint) as EditText
-        edYPoint.setText(super.y.toString())
+        val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
+        edXPoint.setText(super.params.x.toString())
+        edXPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if(edXPoint.text.toString() == "") {
+                edXPoint.setText(super.params.x.toString())
+            }
+        }
+        edXPoint.addTextChangedListener{
+            if(edXPoint.text.toString() != "") {
+                val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                val display = wm.defaultDisplay
+                if(edXPoint.text.toString().toInt() > display.width) {
+                    edXPoint.setText(display.width.toString())
+                    edXPoint.setSelection(edXPoint.text.length)
+                    super.params.x = edXPoint.text.toString().toInt()
+                }
+                else {super.params.x = edXPoint.text.toString().toInt()}
+                AutoClickService.getWM().updateViewLayout(super.view, super.params)
+            }
+        }
 
-        val edDelayPoint = trStart.findViewById(R.id.delayPoint) as EditText
+        val edYPoint = tr.findViewById<View>(R.id.yPoint) as EditText
+        edYPoint.setText(super.params.y.toString())
+        edYPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if(edYPoint.text.toString() == ""){
+                edYPoint.setText(super.y.toString())
+            }
+
+        }
+        edYPoint.addTextChangedListener{
+            if(edYPoint.text.toString() != "") {
+                val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                val display = wm.defaultDisplay
+                if(edYPoint.text.toString().toInt() > display.height) {
+                    edYPoint.setText(display.height.toString())
+                    edYPoint.setSelection(edYPoint.text.length)
+                    super.params.y = edYPoint.text.toString().toInt()
+                }
+                else {super.params.y = edYPoint.text.toString().toInt()}
+                AutoClickService.getWM().updateViewLayout(super.view, super.params)
+            }
+        }
+
+        val edDelayPoint = tr.findViewById<View>(R.id.delayPoint) as EditText
         edDelayPoint.setText(super.delay.toString())
+        edDelayPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if(edDelayPoint.text.toString() == ""){
+                edDelayPoint.setText(super.delay.toString())
+            }
+        }
+        edDelayPoint.addTextChangedListener{
+            if(edDelayPoint.text.toString() != "") {
+                if(edDelayPoint.text.toString().toInt() >= 100000) {
+                    edDelayPoint.setText("99999")
+                    edDelayPoint.setSelection(edDelayPoint.text.length)
+                    super.delay = edDelayPoint.text.toString().toLong()
+                }
+                else {super.delay = edDelayPoint.text.toString().toLong()}
+            }
+        }
 
-        val edDurationPoint = trStart.findViewById(R.id.durationPoint) as EditText
+        val edDurationPoint = tr.findViewById<View>(R.id.durationPoint) as EditText
         edDurationPoint.setText(super.duration.toString())
+        edDurationPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if(edDurationPoint.text.toString() == ""){
+                edDurationPoint.setText(super.duration.toString())
+            }
+        }
+        edDurationPoint.addTextChangedListener{
+            if(edDurationPoint.text.toString() != "") {
+                if(edDurationPoint.text.toString().toInt() >= 60001) {
+                    edDurationPoint.setText("60000")
+                    edDurationPoint.setSelection(edDurationPoint.text.length)
+                    super.duration = edDurationPoint.text.toString().toLong()
+                }
+                else {super.duration = edDurationPoint.text.toString().toLong()}
+            }
+        }
 
-        val edRepeatPoint = trStart.findViewById(R.id.repeatPoint) as EditText
+        val edRepeatPoint = tr.findViewById<View>(R.id.repeatPoint) as EditText
         edRepeatPoint.setText(super.repeat.toString())
-        tableLayout.addView(trStart)
+        edRepeatPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if(edRepeatPoint.text.toString() == ""){
+                edRepeatPoint.setText(super.repeat.toString())
+            }
+        }
+        edRepeatPoint.addTextChangedListener{
+            if(edRepeatPoint.text.toString() != "") {
+                if(edRepeatPoint.text.toString().toInt() >= 100000) {
+                    edRepeatPoint.setText("99999")
+                    edRepeatPoint.setSelection(edRepeatPoint.text.length)
+                    super.repeat = edRepeatPoint.text.toString().toInt()
+                }
+                else { super.repeat = edRepeatPoint.text.toString().toInt()}
+            }
+        }
+
+        val edSpinner = tr.findViewById<View>(R.id.spinner) as Spinner
+        edSpinner.setSelection(if(typePinch  == PinchDirection.OUT) 1 else 0)
+        /*edSpinner.setOnTouchListener { view, motionEvent ->
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            true
+        }*/
+        edSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                typePinch = if(edSpinner.selectedItemId.toInt() == 0) PinchDirection.IN else PinchDirection.OUT
+                AutoClickService.getCanvas().invalidate()
+            }
+        }
+        tableLayout.addView(tr)
 
         val trFirst = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
-        val edNumberPointFirst = trFirst.findViewById<View>(R.id.numberPoint) as EditText
-        edNumberPointFirst.setText(super.text)
 
-        val tvSelectClassFirst = trFirst.findViewById<View>(R.id.selectClass) as TextView
-        tvSelectClassFirst.setText("PinchPoint")
+        val imagePointFirst = trFirst.findViewById<View>(R.id.ic_points) as ImageView
+        imagePointFirst.setBackgroundResource(R.drawable.point_click)
 
-        val edXPointFirst = trFirst.findViewById<View>(R.id.xPoint) as EditText
-        edXPointFirst.setText(firstPoint.x.toString())
+        val tvSelectClassFirst = trFirst.findViewById(R.id.selectClass) as TextView
+        tvSelectClassFirst.setText("FirstPinch")
 
-        val edYPointFirst = trFirst.findViewById<View>(R.id.yPoint) as EditText
+        val edXPointFirst = trFirst.findViewById(R.id.xPoint) as EditText
+        edXPointFirst.setText(firstPoint.params.x.toString())
+        edXPointFirst.setOnFocusChangeListener{ view: View, b: Boolean ->
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if(edXPointFirst.text.toString() == ""){
+                edXPointFirst.setText(firstPoint.params.x.toString())
+            }
+        }
+        edXPointFirst.addTextChangedListener{
+            if(edXPointFirst.text.toString() != "") {
+                val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                val display = wm.defaultDisplay
+                if(edXPointFirst.text.toString().toInt() > display.width) {
+                    edXPointFirst.setText(display.width.toString())
+                    edXPointFirst.setSelection(edXPointFirst.text.length)
+                    firstPoint.params.x = edXPointFirst.text.toString().toInt()
+                }
+                else {firstPoint.params.x = edXPointFirst.text.toString().toInt()}
+                AutoClickService.getWM().updateViewLayout(firstPoint.view, firstPoint.params)
+            }
+        }
+
+        val edYPointFirst = trFirst.findViewById(R.id.yPoint) as EditText
         edYPointFirst.setText(firstPoint.y.toString())
+        edYPointFirst.setOnFocusChangeListener{ view: View, b: Boolean ->
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if(edYPointFirst.text.toString() == ""){
+                edYPointFirst.setText(firstPoint.params.y.toString())
+            }
+        }
+        edYPointFirst.addTextChangedListener{
+            if(edYPointFirst.text.toString() != "") {
+                val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                val display = wm.defaultDisplay
+                if(edYPointFirst.text.toString().toInt() > display.height) {
+                    edYPointFirst.setText(display.height.toString())
+                    edYPointFirst.setSelection(edYPointFirst.text.length)
+                    firstPoint.params.y = edYPointFirst.text.toString().toInt()
+                }
+                else {firstPoint.params.y = edYPointFirst.text.toString().toInt()}
+                AutoClickService.getWM().updateViewLayout(firstPoint.view, firstPoint.params)
+            }
+        }
+
         tableLayout.addView(trFirst)
 
         val trSecond = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
-        val edNumberPointSecond = trSecond.findViewById<View>(R.id.numberPoint) as EditText
-        edNumberPointSecond.setText(super.text)
+        val imagePointSecond = trSecond.findViewById<View>(R.id.ic_points) as ImageView
+        imagePointSecond.setBackgroundResource(R.drawable.point_click)
 
-        val tvSelectClassSecond = trSecond.findViewById<View>(R.id.selectClass) as TextView
-        tvSelectClassSecond.setText("PichPoint")
+        val tvSelectClassSecond = trSecond.findViewById(R.id.selectClass) as TextView
+        tvSelectClassSecond.setText("SecondPinch")
 
-        val edXPointSecond = trSecond.findViewById<View>(R.id.xPoint) as EditText
-        edXPointSecond.setText(secondPoint.x.toString())
+        val edXPointSecond = trSecond.findViewById(R.id.xPoint) as EditText
+        secondPoint.params.x.logd()
+        edXPointSecond.setText(secondPoint.params.x.toString())
+        edXPointSecond.setOnFocusChangeListener{ view: View, b: Boolean ->
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if(edXPointSecond.text.toString() == ""){
+                edXPointSecond.setText(secondPoint.params.x.toString())
+            }
+        }
+        edXPointFirst.addTextChangedListener{
+            if(edXPointFirst.text.toString() != "") {
+                val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                val display = wm.defaultDisplay
+                if(edXPointSecond.text.toString().toInt() > display.width) {
+                    edXPointSecond.setText(display.width.toString())
+                    edXPointSecond.setSelection(edXPointSecond.text.length)
+                    secondPoint.params.x = edXPointSecond.text.toString().toInt()
+                }
+                else {secondPoint.params.x = edXPointSecond.text.toString().toInt()}
+                AutoClickService.getWM().updateViewLayout(secondPoint.view, secondPoint.params)
+            }
+        }
 
-        val edYPointSecond = trSecond.findViewById<View>(R.id.yPoint) as EditText
+        val edYPointSecond = trSecond.findViewById(R.id.yPoint) as EditText
         edYPointSecond.setText(secondPoint.y.toString())
+        edYPointSecond.setOnFocusChangeListener{ view: View, b: Boolean ->
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if(edYPointSecond.text.toString() == ""){
+                edYPointSecond.setText(secondPoint.params.y.toString())
+            }
+        }
+        edYPointSecond.addTextChangedListener{
+            if(edYPointSecond.text.toString() != "") {
+                val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                val display = wm.defaultDisplay
+                if(edYPointSecond.text.toString().toInt() > display.height) {
+                    edYPointSecond.setText(display.height.toString())
+                    edYPointSecond.setSelection(edYPointSecond.text.length)
+                    secondPoint.params.y = edYPointSecond.text.toString().toInt()
+                }
+                else {secondPoint.params.y = edYPointSecond.text.toString().toInt()}
+                AutoClickService.getWM().updateViewLayout(secondPoint.view, secondPoint.params)
+            }
+        }
         tableLayout.addView(trSecond)
+        val buttonShowHideRow = tr.findViewById<View>(R.id.butttonHideShowRow) as Button
+        buttonShowHideRow.setOnClickListener {
+            trFirst.visibility = if (trFirst.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            trSecond.visibility = if (trSecond.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        }
     }
 
     override fun attachToWindow(wm: WindowManager, canvas: PointCanvasView) {

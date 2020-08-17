@@ -79,5 +79,6 @@
     <string name="duration">Duration</string>
     <string name="repeat">Numer repeat</string>
     <string name="pointType">Type point</string>
+    <string name="feature">feature</string>
 
 </resources>

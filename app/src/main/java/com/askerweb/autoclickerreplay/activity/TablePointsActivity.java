@@ -44,21 +44,22 @@ public class TablePointsActivity extends AppCompatActivity {
         int i = 1;
         TableLayout tableLayout = (TableLayout) findViewById(R.id.table);
         LayoutInflater inflater = LayoutInflater.from(this);
+        TableRow trHeading = (TableRow) inflater.inflate(R.layout.table_row_heading, null);
+        tableLayout.addView(trHeading);
         for (Point point : listCommand) {
             point.createTableView(tableLayout, inflater);
         }
-        Button save_change = (Button) findViewById(R.id.save_change);
-        save_change.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        AutoClickService.showViews();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         AutoClickService.showViews();
     }
 }
