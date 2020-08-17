@@ -29,11 +29,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 
 import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.activity.AdActivity;
-import com.askerweb.autoclickerreplay.activity.ChekPermPopUp;
+import com.askerweb.autoclickerreplay.activity.CheckPermPopUp;
 import com.askerweb.autoclickerreplay.activity.MainActivity;
 import com.askerweb.autoclickerreplay.activity.TablePointsActivity;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
@@ -151,8 +152,6 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
     public final static String ACTIVITY_SETTING = "com.askerweb.autoclicker.setting";
     public final static String ACTIVITY_SETTING_TABLE = "com.askerweb.autoclicker.settingPoints";
-
-    public static long startCount = 0;
 
     @Override
     public void onCreate() {
