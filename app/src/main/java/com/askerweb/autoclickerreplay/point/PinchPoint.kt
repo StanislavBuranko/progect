@@ -108,47 +108,15 @@ class PinchPoint:Point {
     }
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
-        val tr = inflater.inflate(R.layout.table_row_for_table_setting_points_pinch, null) as TableRow
+        val tr = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
 
-        val edNumberPoint = tr.findViewById<View>(R.id.numberPoint) as EditText
-        edNumberPoint.setText(super.text)
-        edNumberPoint.setOnFocusChangeListener { view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
-            if(edNumberPoint.text.toString() == "") {
-                edNumberPoint.setText(super.text)
-            }
-        }
-        edNumberPoint.addTextChangedListener{
-            if(edNumberPoint.text.toString() != "") {
-                AutoClickService.getListPoint().logd()
-                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
-                val tempTextPoint = super.text.toInt()
-                val edNumberPointCorrect = if(edNumberPoint.text.toString().toInt() > AutoClickService.getListPoint().size)
-                    AutoClickService.getListPoint().size-1
-                else
-                    edNumberPoint.text.toString().toInt()-1
-
-                AutoClickService.getListPoint().set(super.text.toInt()-1, AutoClickService.getListPoint().get(edNumberPointCorrect))
-                AutoClickService.getListPoint().set(edNumberPointCorrect, tempPoint)
-                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
-                AutoClickService.getListPoint().get(edNumberPointCorrect).text = (edNumberPointCorrect+1).toString()
-                AutoClickService.getListPoint().logd()
-                tableLayout.removeAllViews()
-                val trHeading = inflater.inflate(R.layout.table_row_heading, null) as TableRow
-                tableLayout.addView(trHeading)
-                AutoClickService.getListPoint().forEach {point ->
-                    point.createTableView(tableLayout, inflater)
-                }
-            }
-        }
-
-        val tvSelectClass = tr.findViewById<View>(R.id.selectClass) as TextView
-        tvSelectClass.setText("Pinch")
+        val linearLayout = tr.findViewById<View>(R.id.linearLayoutTypePoint)
+        val imageView = linearLayout.findViewById<View>(R.id.imageType) as ImageView
+        imageView.setBackgroundResource(R.drawable.ic_pinch)
 
         val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
         edXPoint.setText(super.params.x.toString())
         edXPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edXPoint.text.toString() == "") {
                 edXPoint.setText(super.params.x.toString())
             }
@@ -170,7 +138,6 @@ class PinchPoint:Point {
         val edYPoint = tr.findViewById<View>(R.id.yPoint) as EditText
         edYPoint.setText(super.params.y.toString())
         edYPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edYPoint.text.toString() == ""){
                 edYPoint.setText(super.y.toString())
             }
@@ -193,7 +160,6 @@ class PinchPoint:Point {
         val edDelayPoint = tr.findViewById<View>(R.id.delayPoint) as EditText
         edDelayPoint.setText(super.delay.toString())
         edDelayPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edDelayPoint.text.toString() == ""){
                 edDelayPoint.setText(super.delay.toString())
             }
@@ -212,7 +178,6 @@ class PinchPoint:Point {
         val edDurationPoint = tr.findViewById<View>(R.id.durationPoint) as EditText
         edDurationPoint.setText(super.duration.toString())
         edDurationPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edDurationPoint.text.toString() == ""){
                 edDurationPoint.setText(super.duration.toString())
             }
@@ -231,7 +196,6 @@ class PinchPoint:Point {
         val edRepeatPoint = tr.findViewById<View>(R.id.repeatPoint) as EditText
         edRepeatPoint.setText(super.repeat.toString())
         edRepeatPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edRepeatPoint.text.toString() == ""){
                 edRepeatPoint.setText(super.repeat.toString())
             }
@@ -246,23 +210,6 @@ class PinchPoint:Point {
                 else { super.repeat = edRepeatPoint.text.toString().toInt()}
             }
         }
-
-        val edSpinner = tr.findViewById<View>(R.id.spinner) as Spinner
-        edSpinner.setSelection(if(typePinch  == PinchDirection.OUT) 1 else 0)
-        /*edSpinner.setOnTouchListener { view, motionEvent ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
-            true
-        }*/
-        edSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-
-            }
-
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                typePinch = if(edSpinner.selectedItemId.toInt() == 0) PinchDirection.IN else PinchDirection.OUT
-                AutoClickService.getCanvas().invalidate()
-            }
-        }
         tableLayout.addView(tr)
 
         val trFirst = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
@@ -270,13 +217,9 @@ class PinchPoint:Point {
         val imagePointFirst = trFirst.findViewById<View>(R.id.ic_points) as ImageView
         imagePointFirst.setBackgroundResource(R.drawable.point_click)
 
-        val tvSelectClassFirst = trFirst.findViewById(R.id.selectClass) as TextView
-        tvSelectClassFirst.setText("FirstPinch")
-
         val edXPointFirst = trFirst.findViewById(R.id.xPoint) as EditText
         edXPointFirst.setText(firstPoint.params.x.toString())
         edXPointFirst.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edXPointFirst.text.toString() == ""){
                 edXPointFirst.setText(firstPoint.params.x.toString())
             }
@@ -298,7 +241,6 @@ class PinchPoint:Point {
         val edYPointFirst = trFirst.findViewById(R.id.yPoint) as EditText
         edYPointFirst.setText(firstPoint.y.toString())
         edYPointFirst.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edYPointFirst.text.toString() == ""){
                 edYPointFirst.setText(firstPoint.params.y.toString())
             }
@@ -316,21 +258,18 @@ class PinchPoint:Point {
                 AutoClickService.getWM().updateViewLayout(firstPoint.view, firstPoint.params)
             }
         }
-
+        trFirst.visibility = View.GONE
         tableLayout.addView(trFirst)
 
         val trSecond = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
         val imagePointSecond = trSecond.findViewById<View>(R.id.ic_points) as ImageView
         imagePointSecond.setBackgroundResource(R.drawable.point_click)
 
-        val tvSelectClassSecond = trSecond.findViewById(R.id.selectClass) as TextView
-        tvSelectClassSecond.setText("SecondPinch")
 
         val edXPointSecond = trSecond.findViewById(R.id.xPoint) as EditText
         secondPoint.params.x.logd()
         edXPointSecond.setText(secondPoint.params.x.toString())
         edXPointSecond.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edXPointSecond.text.toString() == ""){
                 edXPointSecond.setText(secondPoint.params.x.toString())
             }
@@ -352,7 +291,6 @@ class PinchPoint:Point {
         val edYPointSecond = trSecond.findViewById(R.id.yPoint) as EditText
         edYPointSecond.setText(secondPoint.y.toString())
         edYPointSecond.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edYPointSecond.text.toString() == ""){
                 edYPointSecond.setText(secondPoint.params.y.toString())
             }
@@ -370,11 +308,35 @@ class PinchPoint:Point {
                 AutoClickService.getWM().updateViewLayout(secondPoint.view, secondPoint.params)
             }
         }
+        trSecond.visibility = View.GONE
         tableLayout.addView(trSecond)
+
+        val trDirection = inflater.inflate(R.layout.table_row_for_table_setting_points_pinch, null) as TableRow
+        val edSpinner = trDirection.findViewById<View>(R.id.spinner) as Spinner
+        edSpinner.setSelection(if(typePinch  == PinchDirection.OUT) 1 else 0)
+        edSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                typePinch = if(edSpinner.selectedItemId.toInt() == 0) PinchDirection.IN else PinchDirection.OUT
+                AutoClickService.getCanvas().invalidate()
+            }
+        }
+        trDirection.visibility = View.GONE
+        tableLayout.addView(trDirection)
         val buttonShowHideRow = tr.findViewById<View>(R.id.butttonHideShowRow) as Button
+        buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
         buttonShowHideRow.setOnClickListener {
             trFirst.visibility = if (trFirst.visibility == View.VISIBLE) View.GONE else View.VISIBLE
             trSecond.visibility = if (trSecond.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            trDirection.visibility = if (trDirection.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if(trFirst.visibility == View.VISIBLE)
+                buttonShowHideRow.setBackgroundResource(R.drawable.ic_open_minimal)
+            else
+                buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
         }
     }
 

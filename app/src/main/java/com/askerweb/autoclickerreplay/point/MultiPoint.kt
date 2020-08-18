@@ -189,244 +189,231 @@ class MultiPoint: Point {
     }
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
-        val tr = inflater.inflate(R.layout.table_row_for_table_setting_points_multi, null) as TableRow
-        val edNumberPoint = tr.findViewById<View>(R.id.numberPoint) as EditText
-        edNumberPoint.setText(points[0].text)
-        edNumberPoint.setOnFocusChangeListener { view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
-            if(edNumberPoint.text.toString() == "") {
-                edNumberPoint.setText(points[0].text)
-            }
-        }
-        edNumberPoint.addTextChangedListener{
-            if(edNumberPoint.text.toString() != "") {
-                AutoClickService.getListPoint().logd()
-                val tempPoint = AutoClickService.getListPoint().get(points[0].text.toInt()-1)
-                val tempTextPoint = points[0].text.toInt()
-                val edNumberPointCorrect = if(edNumberPoint.text.toString().toInt() > AutoClickService.getListPoint().size)
-                    AutoClickService.getListPoint().size-1
-                else
-                    edNumberPoint.text.toString().toInt()-1
+        val tr = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
 
-                AutoClickService.getListPoint().set(points[0].text.toInt()-1, AutoClickService.getListPoint().get(edNumberPointCorrect))
-                AutoClickService.getListPoint().set(edNumberPointCorrect, tempPoint)
-                AutoClickService.getListPoint().get(points[0].text.toInt()-1).text = tempTextPoint.toString()
-                AutoClickService.getListPoint().get(edNumberPointCorrect).text = (edNumberPointCorrect+1).toString()
-                AutoClickService.getListPoint().logd()
-                tableLayout.removeAllViews()
-                val trHeading = inflater.inflate(R.layout.table_row_heading, null) as TableRow
-                tableLayout.addView(trHeading)
-                AutoClickService.getListPoint().forEach { point ->
-                    point.createTableView(tableLayout, inflater)
-                }
-            }
-        }
-
-        val tvSelectClass = tr.findViewById<View>(R.id.selectClass) as TextView
-        tvSelectClass.setText("Multi:1")
+        val linearLayout = tr.findViewById<View>(R.id.linearLayoutTypePoint)
+        val imageView = linearLayout.findViewById<View>(R.id.imageType) as ImageView
+        imageView.setBackgroundResource(R.drawable.ic_multi_point)
 
         val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
         edXPoint.setText(points[0].x.toString())
-        edXPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(points[0].view.visibility == View.GONE) View.VISIBLE else View.GONE)
-            if(edXPoint.text.toString() == ""){
+        edXPoint.setOnFocusChangeListener { view: View, b: Boolean ->
+            if (edXPoint.text.toString() == "") {
                 edXPoint.setText(points[0].params.x.toString())
             }
         }
-        edXPoint.addTextChangedListener{
-            if(edXPoint.text.toString() != "") {
+        edXPoint.addTextChangedListener {
+            if (edXPoint.text.toString() != "") {
                 val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
                 val display = wm.defaultDisplay
-                if(edXPoint.text.toString().toInt() > display.width) {
+                if (edXPoint.text.toString().toInt() > display.width) {
                     edXPoint.setText(display.width.toString())
                     edXPoint.setSelection(edXPoint.text.length)
                     points[0].params.x = edXPoint.text.toString().toInt()
+                } else {
+                    points[0].params.x = edXPoint.text.toString().toInt()
                 }
-                else {points[0].params.x = edXPoint.text.toString().toInt()}
                 AutoClickService.getWM().updateViewLayout(points[0].view, points[0].params)
             }
         }
 
         val edYPoint = tr.findViewById<View>(R.id.yPoint) as EditText
         edYPoint.setText(points[0].y.toString())
-        edYPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(points[0].view.visibility == View.GONE) View.VISIBLE else View.GONE)
-            if(edYPoint.text.toString() == ""){
+        edYPoint.setOnFocusChangeListener { view: View, b: Boolean ->
+            if (edYPoint.text.toString() == "") {
                 edYPoint.setText(points[0].y.toString())
             }
 
         }
-        edYPoint.addTextChangedListener{
-            if(edYPoint.text.toString() != "") {
+        edYPoint.addTextChangedListener {
+            if (edYPoint.text.toString() != "") {
                 val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
                 val display = wm.defaultDisplay
-                if(edYPoint.text.toString().toInt() > display.height) {
+                if (edYPoint.text.toString().toInt() > display.height) {
                     edYPoint.setText(display.height.toString())
                     edYPoint.setSelection(edYPoint.text.length)
                     points[0].params.y = edYPoint.text.toString().toInt()
+                } else {
+                    points[0].params.y = edYPoint.text.toString().toInt()
                 }
-                else {points[0].params.y = edYPoint.text.toString().toInt()}
                 AutoClickService.getWM().updateViewLayout(points[0].view, points[0].params)
             }
         }
 
         val edDelayPoint = tr.findViewById<View>(R.id.delayPoint) as EditText
         edDelayPoint.setText(points[0].delay.toString())
-        edDelayPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(points[0].view.visibility == View.GONE) View.VISIBLE else View.GONE)
-            if(edDelayPoint.text.toString() == ""){
+        edDelayPoint.setOnFocusChangeListener { view: View, b: Boolean ->
+            if (edDelayPoint.text.toString() == "") {
                 edDelayPoint.setText(points[0].delay.toString())
             }
         }
-        edDelayPoint.addTextChangedListener{
-            if(edDelayPoint.text.toString() != "") {
-                if(edDelayPoint.text.toString().toInt() >= 100000) {
+        edDelayPoint.addTextChangedListener {
+            if (edDelayPoint.text.toString() != "") {
+                if (edDelayPoint.text.toString().toInt() >= 100000) {
                     edDelayPoint.setText("99999")
                     edDelayPoint.setSelection(edDelayPoint.text.length)
                     setDelayRecord(edDelayPoint.text.toString().toInt())
+                } else {
+                    setDelayRecord(edDelayPoint.text.toString().toInt())
                 }
-                else {setDelayRecord(edDelayPoint.text.toString().toInt())}
             }
         }
 
         val edDurationPoint = tr.findViewById<View>(R.id.durationPoint) as EditText
         edDurationPoint.setText(super.duration.toString())
-        edDurationPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(points[0].view.visibility == View.GONE) View.VISIBLE else View.GONE)
-            if(edDurationPoint.text.toString() == ""){
+        edDurationPoint.setOnFocusChangeListener { view: View, b: Boolean ->
+            if (edDurationPoint.text.toString() == "") {
                 edDurationPoint.setText(points[0].duration.toString())
             }
         }
-        edDurationPoint.addTextChangedListener{
-            if(edDurationPoint.text.toString() != "") {
-                if(edDurationPoint.text.toString().toInt() >= 60001) {
+        edDurationPoint.addTextChangedListener {
+            if (edDurationPoint.text.toString() != "") {
+                if (edDurationPoint.text.toString().toInt() >= 60001) {
                     edDurationPoint.setText("60000")
                     edDurationPoint.setSelection(edDurationPoint.text.length)
                     setDurationRecord(edDelayPoint.text.toString().toInt())
+                } else {
+                    setDurationRecord(edDelayPoint.text.toString().toInt())
                 }
-                else { setDurationRecord(edDelayPoint.text.toString().toInt()) }
             }
         }
 
         val edRepeatPoint = tr.findViewById<View>(R.id.repeatPoint) as EditText
         edRepeatPoint.setText(points[0].repeat.toString())
-        edRepeatPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(points[0].view.visibility == View.GONE) View.VISIBLE else View.GONE)
-            if(edRepeatPoint.text.toString() == ""){
+        edRepeatPoint.setOnFocusChangeListener { view: View, b: Boolean ->
+            if (edRepeatPoint.text.toString() == "") {
                 edRepeatPoint.setText(points[0].repeat.toString())
             }
         }
-        edRepeatPoint.addTextChangedListener{
-            if(edRepeatPoint.text.toString() != "") {
-                if(edRepeatPoint.text.toString().toInt() >= 100000) {
+        edRepeatPoint.addTextChangedListener {
+            if (edRepeatPoint.text.toString() != "") {
+                if (edRepeatPoint.text.toString().toInt() >= 100000) {
                     edRepeatPoint.setText("99999")
                     edRepeatPoint.setSelection(edRepeatPoint.text.length)
                     setRepeatRecord(edRepeatPoint.text.toString().toInt())
+                } else {
+                    setRepeatRecord(edRepeatPoint.text.toString().toInt())
                 }
-                else { setRepeatRecord(edRepeatPoint.text.toString().toInt()) }
             }
 
-        }
-        val edNumbMultiPoint = tr.findViewById<View>(R.id.numbMultiPoint) as EditText
-        edNumbMultiPoint.setText(points.size.toString())
-        edNumbMultiPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(points[0].view.visibility == View.GONE) View.VISIBLE else View.GONE)
-            if(edNumbMultiPoint.text.toString() == ""){
-                edNumbMultiPoint.setText(points.size.toString())
-            }
-        }
-        edNumbMultiPoint.addTextChangedListener {
-            if (edNumbMultiPoint.text.toString() != "" && edNumbMultiPoint.text.toString().toInt() >= 2 && edNumbMultiPoint.text.toString().toInt() <= 10){
-                if (edNumbMultiPoint.text.toString().toInt() > points.size) {
-                    detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
-                    for (n in 0..edNumbMultiPoint.text.toString().toInt() - points.size-1) {
-                        createPointsForRecordPanel(points.last().x +35, points.last().y, 0)
-                    }
-                    attachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
-                }
-                if (edNumbMultiPoint.text.toString().toInt() < points.size) {
-                    val to =  points.size - edNumbMultiPoint.text.toString().toInt() -1
-                    for (n in 0..to) {
-                        points.last().detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
-                        points = points.dropLast(1).toTypedArray()
-
-                    }
-                }
-            } else if (edNumbMultiPoint.text.toString() != "") {
-                if(edNumbMultiPoint.text.toString().toInt() < 2) {
-                    edNumbMultiPoint.setText("2")
-                    edNumbMultiPoint.setSelection(edNumbMultiPoint.text.length)
-                }
-                if(edNumbMultiPoint.text.toString().toInt() > 10) {
-                    edNumbMultiPoint.setText("10")
-                    edNumbMultiPoint.setSelection(edNumbMultiPoint.text.length)
-                }
-            }
         }
         tableLayout.addView(tr)
+
         var tableRows: Array<TableRow> = arrayOf()
-        for (i in 1..points.size-1) {
+        for (i in 1..points.size - 1) {
             val trArray = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
             val imagePoint = trArray.findViewById<View>(R.id.ic_points) as ImageView
             imagePoint.setBackgroundResource(R.drawable.ic_multi_point)
-            val tvSelectClass1 = trArray.findViewById<View>(R.id.selectClass) as TextView
-            tvSelectClass1.setText("Multi:"+(i+1).toString())
+
             val edXPointNext = trArray.findViewById<View>(R.id.xPoint) as EditText
             edXPointNext.setText(points[i].x.toString())
-            edXPointNext.setOnFocusChangeListener{ view: View, b: Boolean ->
-                points[i].view.visibility = if(points[i].view.visibility == View.GONE) View.VISIBLE else View.GONE
-                if(edXPointNext.text.toString() == ""){
+            edXPointNext.setOnFocusChangeListener { view: View, b: Boolean ->
+                points[i].view.visibility = if (points[i].view.visibility == View.GONE) View.VISIBLE else View.GONE
+                if (edXPointNext.text.toString() == "") {
                     edXPointNext.setText(points[i].params.x.toString())
                 }
             }
-            edXPointNext.addTextChangedListener{
-                if(edXPointNext.text.toString() != "") {
+            edXPointNext.addTextChangedListener {
+                if (edXPointNext.text.toString() != "") {
                     val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
                     val display = wm.defaultDisplay
-                    if(edXPointNext.text.toString().toInt() > display.width) {
+                    if (edXPointNext.text.toString().toInt() > display.width) {
                         edXPointNext.setText(display.width.toString())
                         edXPointNext.setSelection(edXPointNext.text.length)
                         points[i].params.x = edXPointNext.text.toString().toInt()
+                    } else {
+                        points[i].params.x = edXPointNext.text.toString().toInt()
                     }
-                    else {points[i].params.x = edXPointNext.text.toString().toInt()}
                     AutoClickService.getWM().updateViewLayout(points[i].view, points[i].params)
                 }
             }
 
             val edYPointNext = trArray.findViewById<View>(R.id.yPoint) as EditText
             edYPointNext.setText(points[i].y.toString())
-            edYPointNext.setOnFocusChangeListener{ view: View, b: Boolean ->
-                points[i].view.visibility = if(points[i].view.visibility == View.GONE) View.VISIBLE else View.GONE
-                if(edYPointNext.text.toString() == ""){
+            edYPointNext.setOnFocusChangeListener { view: View, b: Boolean ->
+                points[i].view.visibility = if (points[i].view.visibility == View.GONE) View.VISIBLE else View.GONE
+                if (edYPointNext.text.toString() == "") {
                     edYPointNext.setText(points[i].y.toString())
                 }
             }
-            edYPointNext.addTextChangedListener{
-                if(edYPointNext.text.toString() != "") {
+            edYPointNext.addTextChangedListener {
+                if (edYPointNext.text.toString() != "") {
                     val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
                     val display = wm.defaultDisplay
-                    if(edYPointNext.text.toString().toInt() > display.height) {
+                    if (edYPointNext.text.toString().toInt() > display.height) {
                         edYPointNext.setText(display.height.toString())
                         edYPointNext.setSelection(edYPointNext.text.length)
                         points[i].params.y = edYPointNext.text.toString().toInt()
+                    } else {
+                        points[i].params.y = edYPointNext.text.toString().toInt()
                     }
-                    else {points[i].params.y = edYPointNext.text.toString().toInt()}
                     AutoClickService.getWM().updateViewLayout(points[i].view, points[i].params)
                 }
             }
+            trArray.visibility = View.GONE
             tableLayout.addView(trArray)
             tableRows += trArray
-            val buttonShowHideRow = tr.findViewById<View>(R.id.butttonHideShowRow) as Button
-            buttonShowHideRow.setOnClickListener {
-                tableRows.forEach { tableRow ->
-                    tableRow.visibility = if (tableRow.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-                    if(tableRow.visibility == View.VISIBLE)
-                        buttonShowHideRow.setBackgroundResource(R.drawable.ic_open_minimal)
-                    else
-                        buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
+        }
+
+        val trMultiPoint = inflater.inflate(R.layout.table_row_for_table_setting_points_multi, null) as TableRow
+        val edNumbMultiPoint = trMultiPoint.findViewById<View>(R.id.numbMultiPoint) as EditText
+        edNumbMultiPoint.setText(points.size.toString())
+        edNumbMultiPoint.setOnFocusChangeListener { view: View, b: Boolean ->
+            if (edNumbMultiPoint.text.toString() == "") {
+                edNumbMultiPoint.setText(points.size.toString())
+            }
+        }
+        edNumbMultiPoint.addTextChangedListener {
+            if (edNumbMultiPoint.text.toString() != "" && edNumbMultiPoint.text.toString().toInt() >= 2 && edNumbMultiPoint.text.toString().toInt() <= 10) {
+                if (edNumbMultiPoint.text.toString().toInt() > points.size) {
+                    detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
+                    for (n in 0..edNumbMultiPoint.text.toString().toInt() - points.size - 1) {
+                        createPointsForRecordPanel(points.last().x + 35, points.last().y, 0)
+                    }
+                    attachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
+                }
+                if (edNumbMultiPoint.text.toString().toInt() < points.size) {
+                    val to = points.size - edNumbMultiPoint.text.toString().toInt() - 1
+                    for (n in 0..to) {
+                        points.last().detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
+                        points = points.dropLast(1).toTypedArray()
+                    }
+                }
+                tableLayout.removeAllViews()
+                val trHeading = inflater.inflate(R.layout.table_row_heading, null) as TableRow
+                tableLayout.addView(trHeading)
+                AutoClickService.getListPoint().forEach { point ->
+                    point.createTableView(tableLayout, inflater)
+                    point.setVisible(View.GONE)
+                }
+            } else if (edNumbMultiPoint.text.toString() != "") {
+                if (edNumbMultiPoint.text.toString().toInt() < 1) {
+                    edNumbMultiPoint.setText("2")
+                    edNumbMultiPoint.setSelection(edNumbMultiPoint.text.length)
+                }
+                if (edNumbMultiPoint.text.toString().toInt() > 10) {
+                    edNumbMultiPoint.setText("10")
+                    edNumbMultiPoint.setSelection(edNumbMultiPoint.text.length)
                 }
             }
         }
+        trMultiPoint.visibility = View.GONE
+        tableLayout.addView(trMultiPoint)
+
+        val buttonShowHideRow = tr.findViewById<View>(R.id.butttonHideShowRow) as Button
+        buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
+        buttonShowHideRow.setOnClickListener {
+            tableRows.forEach { tableRow ->
+                tableRow.visibility = if (tableRow.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                setVisible(if (points[0].view.visibility == View.GONE) View.VISIBLE else View.GONE)
+                trMultiPoint.visibility = if (trMultiPoint.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                if (tableRow.visibility == View.VISIBLE)
+                    buttonShowHideRow.setBackgroundResource(R.drawable.ic_open_minimal)
+                else
+                    buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
+            }
+        }
+
     }
 
     override fun getCommand(): GestureDescription? {
@@ -540,6 +527,7 @@ class MultiPoint: Point {
             point.duration = if(editDuration.text.toString() != "") editDuration.text.toString().toLong() else 0
             point.repeat = if(editRepeat.text.toString() != "") editRepeat.text.toString().toInt() else 0
         }
+
     }
 
     override fun requireSettingEdit(){
@@ -580,6 +568,8 @@ class MultiPoint: Point {
                     updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
                     super.repeat = points[0].repeat
                     super.delay = points[0].delay
+                    super.duration = points[0].duration
+                    AutoClickService.getTvTimer().setText(AutoClickService.getTime())
                 }.setNegativeButton(R.string.cancel) { _, _ ->
                 }
                 .setOnCancelListener { _ ->

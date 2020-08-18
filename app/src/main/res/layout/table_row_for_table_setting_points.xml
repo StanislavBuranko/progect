@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableRow xmlns:android="http://schemas.android.com/apk/res/android">
-    <Button
-        android:id="@+id/butttonHideShowRow"
-        android:layout_column="0"
-        android:width="50dp"
-        android:height="50dp"
-        android:background="@drawable/ic_disable_minimal"></Button>
-    <EditText android:id="@+id/numberPoint" android:layout_column="1" android:inputType="number" />
-    <TextView android:id="@+id/selectClass" android:layout_column="2"/>
-    <EditText android:id="@+id/xPoint" android:layout_column="3" android:inputType="number" />
-    <EditText android:id="@+id/yPoint" android:layout_column="4" android:inputType="number" />
-    <EditText android:id="@+id/delayPoint" android:layout_column="5" android:inputType="number" />
-    <EditText android:id="@+id/durationPoint" android:layout_column="6" android:inputType="number" />
-    <EditText android:id="@+id/repeatPoint"  android:layout_column="7" android:inputType="number" />
+    <LinearLayout android:gravity="center" android:id="@+id/linearLayoutButtonShowHideRow">
+        <Button
+            android:id="@+id/butttonHideShowRow"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_column="0"
+            android:width="30dp"
+            android:height="30dp"
+            android:background="@drawable/ic_disable_minimal"
+            android:layout_marginTop="13dp"
+            android:layout_marginBottom="13dp"></Button>
+    </LinearLayout>
+    <LinearLayout android:gravity="center" android:id="@+id/linearLayoutTypePoint" android:layout_column="1" android:layout_marginLeft="5dp">
+        <ImageView
+            android:id="@+id/imageType"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:width="30dp"
+            android:height="30dp"
+            android:background="@drawable/ic_close_minimal"
+            android:layout_marginTop="13dp"
+            android:layout_marginBottom="13dp"></ImageView>
+    </LinearLayout>
+    <EditText android:id="@+id/xPoint" android:layout_column="2" android:inputType="number" android:textSize="18dp"/>
+    <EditText android:id="@+id/yPoint" android:layout_column="3" android:inputType="number" android:textSize="18dp"/>
+    <EditText android:id="@+id/delayPoint" android:layout_column="4" android:inputType="number" android:textSize="18dp"/>
+    <EditText android:id="@+id/durationPoint" android:layout_column="5" android:inputType="number" android:textSize="18dp"/>
+    <EditText android:id="@+id/repeatPoint"  android:layout_column="6" android:inputType="number" android:textSize="18dp"/>
 </TableRow>

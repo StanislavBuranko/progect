@@ -10,6 +10,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
@@ -24,6 +26,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,7 +39,6 @@ import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.activity.AdActivity;
 import com.askerweb.autoclickerreplay.activity.CheckPermPopUp;
 import com.askerweb.autoclickerreplay.activity.MainActivity;
-import com.askerweb.autoclickerreplay.activity.TablePointsActivity;
 import com.askerweb.autoclickerreplay.ktExt.Dimension;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.ktExt.SettingExt;
@@ -80,6 +82,7 @@ import static com.askerweb.autoclickerreplay.ktExt.SettingExt.defaultCutoutOn;
 import static com.askerweb.autoclickerreplay.ktExt.SettingExt.getSetting;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.getWindowsTypeApplicationOverlay;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.standardOverlayFlags;
+import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.standardOverlayFlagsForCutout;
 
 @SuppressLint("ClickableViewAccessibility")
 public class AutoClickService extends Service implements View.OnTouchListener{
@@ -89,13 +92,15 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     static WindowManager wm = null;
     Unbinder unbindControlPanel = null;
     View controlPanel;
+    static View timerPanel;
+    public static TextView tvTimer;
     static View recordPanel;
     static PointCanvasView canvasView;
     RecordPoints recordPoints;
 
     @BindView(R.id.group_control)
     View group_control;
-    @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.record_points_start_pause, R.id.setting_points, R.id.setting, R.id.close})
+    @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.record_points_start_pause, R.id.setting_points, R.id.setting, R.id.close, R.id.shareApp})
     List<View> controls;
 
     @Inject
@@ -110,8 +115,12 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     public Integer paramSizePoint;
     public Integer paramSizeControl;
     Boolean openRecordPanel = false;
+    Integer allMSPoint = 0;
 
 
+    public static final WindowManager.LayoutParams paramsTimerPanel =
+            UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
+                    Gravity.CENTER_HORIZONTAL | Gravity.TOP, standardOverlayFlagsForCutout);
     public static final WindowManager.LayoutParams paramsControlPanel =
             UtilsApp.getWindowsParameterLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
                     Gravity.START, standardOverlayFlags);
@@ -191,6 +200,11 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         controlPanel.setOnTouchListener(new ViewOverlayOnTouchListener(controlPanel, wm));
         wm.addView(controlPanel, paramsControlPanel);
 
+        timerPanel = LayoutInflater.from(this).inflate(R.layout.timer_panel_service, null);
+        timerPanel.setLayoutParams(paramsTimerPanel);
+        timerPanel.setOnTouchListener(new ViewOverlayOnTouchListener(timerPanel, wm));
+        wm.addView(timerPanel, paramsTimerPanel);
+
         canvasView = new PointCanvasView(this);
         canvasView.points = listCommands;
         paramsCanvas.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
@@ -202,9 +216,12 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         wm.addView(canvasView, paramsCanvas);
 
         unbindControlPanel = ButterKnife.bind(this, controlPanel);
+        //unbindControlPanel = ButterKnife.bind(this, timerPanel);
 
         setControlSize();
 
+        tvTimer = (TextView) timerPanel.findViewById(R.id.tvTimer);
+        tvTimer.setText(getTime());
         //on start button
         controlPanel.findViewById(R.id.start_pause).setOnTouchListener((v, event)->{
             switch (event.getAction() & MotionEvent.ACTION_MASK){
@@ -227,6 +244,41 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         });
     }
 
+    public static String getTime(){
+        Integer allMs = 0;
+        for (Point point : getListPoint()) {
+            allMs = Math.toIntExact(allMs + point.getDelay() + point.getDuration() * point.getRepeat());
+        }
+        if (allMs != 0) {
+            String min = ""+(allMs / 60000);
+            String second = ""+(allMs % 60000) / 1000;
+            String ms = ""+(allMs % 60000) % 1000;
+            if (Integer.parseInt(min) < 10)
+                min = "0"+min;
+            if (Integer.parseInt(second) < 10)
+                second = "0"+second;
+            if (Integer.parseInt(ms) < 10)
+                ms = "0"+ms;
+            return min + ":" + second + ":" + ms;
+        }
+        return "00:00:00";
+    }
+
+    public static String getTimeCountDownTimer(int allMs){
+        if (allMs != 0) {
+            String min = ""+(allMs / 60000);
+            String second = ""+(allMs % 60000) / 1000;
+            String ms = ""+(allMs % 60000) % 1000;
+            if (Integer.parseInt(min) < 10)
+                min = "0"+min;
+            if (Integer.parseInt(second) < 10)
+                second = "0"+second;
+            if (Integer.parseInt(ms) < 10)
+                ms = "0"+ms;
+            return min + ":" + second + ":" + ms;
+        }
+        return "00:00:00";
+    }
 
     public static void start(Context context){
         if(isAlive()) return;
@@ -247,6 +299,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         for (Point a : listCommands) {
             a.detachToWindow(wm, canvasView);
         }
+        wm.removeView(timerPanel);
         wm.removeView(controlPanel);
         wm.removeView(recordPanel);
         wm.removeView(canvasView);
@@ -271,6 +324,10 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         return Optional
                 .ofNullable(getSetting(KEY_CUTOUT_ON, defaultCutoutOn))
                 .orElse(defaultCutoutOn);
+    }
+
+    public static  TextView getTvTimer(){
+        return tvTimer;
     }
 
     public static int getParamRepeatMacro(){
@@ -324,6 +381,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         point.attachToWindow(wm,canvasView);
         updateTouchListenerPoint(point);
         listCommands.add(point);
+        AutoClickService.getTvTimer().setText(AutoClickService.getTime());
     }
 
     @OnLongClick(R.id.add_point)
@@ -346,6 +404,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                     point.attachToWindow(wm, canvasView);
                     updateTouchListenerPoint(point);
                     listCommands.add(point);
+                    AutoClickService.getTvTimer().setText(AutoClickService.getTime());
                 })
                 .setCustomTitle(title);
         Dialog d = builder.create();
@@ -414,6 +473,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
             listCommands.remove(listCommands.size() - 1)
                     .detachToWindow(wm, canvasView);
         }
+        AutoClickService.getTvTimer().setText(AutoClickService.getTime());
     }
 
     @OnClick(R.id.setting)
@@ -425,9 +485,28 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
     @OnClick(R.id.setting_points)
     public void showSettingPoints(){
-        hideViews();
-        Intent intent = new Intent(ACTIVITY_SETTING_TABLE);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if(listCommands.size() != 0 ) {
+            hideViews();
+            AutoClickService.getListPoint().forEach(point -> {
+                point.setTouchable(false, AutoClickService.getWM());
+            });
+            Intent intent = new Intent(ACTIVITY_SETTING_TABLE);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        }
+        else {
+            Toast toast = Toast.makeText(this, R.string.error_listcomand_null, Toast.LENGTH_LONG);
+            toast.show();
+        }
+    }
+
+    @OnClick(R.id.shareApp)
+    public void shareApp(){
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_TEXT, "https://play.google.com/store/apps/details?id=com.askerweb.autoclickerreplay");
         startActivity(intent);
     }
 
@@ -470,12 +549,14 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     }
 
     public void hideViews(){
+        timerPanel.setVisibility(View.GONE);
         controlPanel.setVisibility(View.GONE);
         listCommands.forEach((c)->c.setVisible(View.GONE));
         canvasView.invalidate();
     }
 
     public static void showViews(){
+        timerPanel.setVisibility(View.VISIBLE);
         AutoClickService.getControlPanel().setVisibility(View.VISIBLE);
         AutoClickService.getListPoint().forEach((c)->c.setVisible(View.VISIBLE));
         canvasView.invalidate();
@@ -493,6 +574,8 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 group_control.setVisibility(View.VISIBLE);
                 SimulateTouchAccessibilityService.requestStop();
                 checkPermPopUP = false;
+                SimulateTouchAccessibilityService.countDownTimerTv.cancel();
+                AutoClickService.getTvTimer().setText(AutoClickService.getTime());
                 break;
             case ACTION_START:
                 int startCount = incCounterRunMacro();
@@ -504,8 +587,9 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                         showAdBeforeRunMacro();
                     }
                 }
-                else
-                    runMacro();
+                else{
+                    Log.d("true", "onStartCommand: true");
+                    runMacro();}
                 break;
             case ACTION_HIDE_VIEWS:
                 hideViews();
@@ -578,13 +662,15 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         intent2.putExtra("ad_request", "true");
         startActivity(intent2);
     }
-
     private void runMacro(){
         listCommands.forEach((c)->c.setTouchable(false,wm));
         controlPanel.findViewById(R.id.start_pause)
                 .setBackground(ContextCompat.getDrawable(AutoClickService.this, R.drawable.ic_pause));
         group_control.setVisibility(View.GONE);
+        allMSPoint = 0;
+
         SimulateTouchAccessibilityService.requestStart(listCommands);
+
     }
 
     private void runMacroAfterAd(){
@@ -597,6 +683,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         point.attachToWindow(wm, canvasView);
         updateTouchListenerPoint(point);
         listCommands.add(point);
+        AutoClickService.getTvTimer().setText(AutoClickService.getTime());
     }
 
     private void deletePoint(Point point){
@@ -607,6 +694,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
             reindexListCommand();
             p.detachToWindow(wm, canvasView);
         }
+        AutoClickService.getTvTimer().setText(AutoClickService.getTime());
     }
 
     private void reindexListCommand(){
@@ -665,6 +753,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         intent.setAction(action);
         intent.putExtra(key, parcelable);
         context.startService(intent);
+
     }
 
     @OnClick(R.id.record_points_start_pause)

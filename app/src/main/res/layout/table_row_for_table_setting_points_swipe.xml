@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableRow xmlns:android="http://schemas.android.com/apk/res/android">
-    <Button
-        android:id="@+id/butttonHideShowRow"
-        android:layout_column="0"
-        android:width="50dp"
-        android:height="50dp"
-        android:background="@drawable/ic_open_minimal"></Button>
-    <EditText android:id="@+id/numberPoint" android:layout_column="1" android:inputType="number" />
-    <TextView android:id="@+id/selectClass" android:layout_column="2"/>
-    <EditText android:id="@+id/xPoint" android:layout_column="3" android:inputType="number" />
-    <EditText android:id="@+id/yPoint" android:layout_column="4" android:inputType="number" />
-    <EditText android:id="@+id/delayPoint" android:layout_column="5" android:inputType="number" />
-    <EditText android:id="@+id/durationPoint" android:layout_column="6" android:inputType="number" />
-    <EditText android:id="@+id/repeatPoint"  android:layout_column="7" android:inputType="number" />
+    <TextView
+        android:id="@+id/direction"
+        android:layout_column="2"
+        android:layout_span="3"
+        android:text="@string/direction"
+        android:textSize="18dp"/>
+
     <Button
         android:id="@+id/invert"
-        android:layout_column="7"
-        android:text="@string/swap"></Button>
+        android:layout_column="5"
+        android:layout_span="6"
+        android:text="@string/swap"
+        android:textSize="16dp"/>
+
 </TableRow>

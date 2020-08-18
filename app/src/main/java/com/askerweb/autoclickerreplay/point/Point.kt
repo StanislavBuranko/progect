@@ -12,10 +12,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.widget.EditText
-import android.widget.TableLayout
-import android.widget.TableRow
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
@@ -210,7 +207,10 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         return obj
     }
 
-    open fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {}
+    open fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
+    }
+
+
 
     open fun showEditDialog(){
         val viewContent: View = createViewDialog()
@@ -223,6 +223,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
                 .setPositiveButton(R.string.save) { _, _ ->
                     holder.saveEditDialog()
                     AutoClickService.getCanvas()?.invalidate()
+                    AutoClickService.getTvTimer().setText(AutoClickService.getTime())
                 }.create()
         holder.dialog = dialog
         dialog.window?.setType(getWindowsTypeApplicationOverlay())
@@ -246,7 +247,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
 
             btn_duplicate.setOnClickListener{
                 // Duplicate this point
-                AutoClickService.requestAction(point.appContext ,AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, point)
+                AutoClickService.requestAction(point.appContext, AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, point)
                 dialog?.cancel()
             }
 
@@ -438,43 +439,4 @@ abstract class Point : PointCommand, Parcelable, Serializable{
            @JvmStatic fun invoke() = PointBuilder(Factory::newPoint)
         }
     }
-
-    inner class TableCreatHelper{
-
-        public fun EdNumberPoint( tr:TableRow, tableLayout:TableLayout, inflater: LayoutInflater) : TableRow{
-            val edNumberPoint = tr.findViewById<View>(R.id.numberPoint) as EditText
-            edNumberPoint.setText(text)
-            edNumberPoint.setOnFocusChangeListener { view: View, b: Boolean ->
-                view.visibility = if(view.visibility == View.GONE) View.VISIBLE else View.GONE
-                if(edNumberPoint.text.toString() == "") {
-                    edNumberPoint.setText(text)
-                }
-            }
-            edNumberPoint.addTextChangedListener{
-                if(edNumberPoint.text.toString() != "") {
-                    AutoClickService.getListPoint().logd()
-                    val tempPoint = AutoClickService.getListPoint().get(text.toInt()-1)
-                    val tempTextPoint = text.toInt()
-                    val edNumberPointCorrect = if(edNumberPoint.text.toString().toInt() > AutoClickService.getListPoint().size)
-                        AutoClickService.getListPoint().size-1
-                    else
-                        edNumberPoint.text.toString().toInt()-1
-
-                    AutoClickService.getListPoint().set(text.toInt()-1, AutoClickService.getListPoint().get(edNumberPointCorrect))
-                    AutoClickService.getListPoint().set(edNumberPointCorrect, tempPoint)
-                    AutoClickService.getListPoint().get(text.toInt()-1).text = tempTextPoint.toString()
-                    AutoClickService.getListPoint().get(edNumberPointCorrect).text = (edNumberPointCorrect+1).toString()
-                    AutoClickService.getListPoint().logd()
-                    tableLayout.removeAllViews()
-                    val trHeading = inflater.inflate(R.layout.table_row_heading, null) as TableRow
-                    tableLayout.addView(trHeading)
-                    AutoClickService.getListPoint().forEach { point ->
-                        point.createTableView(tableLayout, inflater)
-                    }
-                }
-            }
-            return tr;
-        }
-    }
-
 }

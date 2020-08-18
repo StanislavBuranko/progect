@@ -218,41 +218,10 @@ class PathPoint : Point {
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
         val tr = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
-        val edNumberPoint = tr.findViewById<View>(R.id.numberPoint) as EditText
-        edNumberPoint.setText(super.text)
-        edNumberPoint.setOnFocusChangeListener { view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
-            if(edNumberPoint.text.toString() == "") {
-                edNumberPoint.setText(super.text)
-            }
-        }
-        edNumberPoint.addTextChangedListener{
-            if(edNumberPoint.text.toString() != "") {
-                AutoClickService.getListPoint().logd()
-                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
-                val tempTextPoint = super.text.toInt()
-                val edNumberPointCorrect = if(edNumberPoint.text.toString().toInt() > AutoClickService.getListPoint().size)
-                    AutoClickService.getListPoint().size-1
-                else
-                    edNumberPoint.text.toString().toInt()-1
 
-                AutoClickService.getListPoint().set(super.text.toInt()-1, AutoClickService.getListPoint().get(edNumberPointCorrect))
-                AutoClickService.getListPoint().set(edNumberPointCorrect, tempPoint)
-                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
-                AutoClickService.getListPoint().get(edNumberPointCorrect).text = (edNumberPointCorrect+1).toString()
-                AutoClickService.getListPoint().logd()
-                tableLayout.removeAllViews()
-                val trHeading = inflater.inflate(R.layout.table_row_heading, null) as TableRow
-                tableLayout.addView(trHeading)
-                AutoClickService.getListPoint().forEach {point ->
-                    point.createTableView(tableLayout, inflater)
-                }
-            }
-        }
-
-
-        val tvSelectClass = tr.findViewById<View>(R.id.selectClass) as TextView
-        tvSelectClass.setText("Path")
+        val linearLayout = tr.findViewById<View>(R.id.linearLayoutTypePoint)
+        val imageView = linearLayout.findViewById<View>(R.id.imageType) as ImageView
+        imageView.setBackgroundResource(R.drawable.ic_path_point)
 
         val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
         edXPoint.setText(super.params.x.toString())
@@ -363,8 +332,6 @@ class PathPoint : Point {
         val imagePoint = trEnd.findViewById<View>(R.id.ic_points) as ImageView
         imagePoint.setBackgroundResource(R.drawable.draw_point_path_end)
 
-        val tvSelectClassEnd = trEnd.findViewById(R.id.selectClass) as TextView
-        tvSelectClassEnd.setText("EndPath")
 
         val edXPointEnd = trEnd.findViewById(R.id.xPoint) as EditText
         edXPointEnd.setText(endPoint.params.x.toString())
@@ -409,11 +376,16 @@ class PathPoint : Point {
                 AutoClickService.getWM().updateViewLayout(endPoint.view, endPoint.params)
             }
         }
-
+        trEnd.visibility = View.GONE
         tableLayout.addView(trEnd)
         val buttonShowHideRow = tr.findViewById<View>(R.id.butttonHideShowRow) as Button
+        buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
         buttonShowHideRow.setOnClickListener {
             trEnd.visibility = if (trEnd.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            if(trEnd.visibility == View.VISIBLE)
+                buttonShowHideRow.setBackgroundResource(R.drawable.ic_open_minimal)
+            else
+                buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
         }
     }
 

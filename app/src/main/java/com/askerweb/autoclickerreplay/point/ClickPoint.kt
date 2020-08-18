@@ -8,10 +8,7 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.widget.EditText
-import android.widget.TableLayout
-import android.widget.TableRow
-import android.widget.TextView
+import android.widget.*
 import androidx.core.widget.addTextChangedListener
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.context
@@ -20,6 +17,7 @@ import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.askerweb.autoclickerreplay.service.AutoClickService.*
 import com.google.gson.JsonObject
+import kotlin.math.log
 
 
 class ClickPoint : Point {
@@ -41,40 +39,9 @@ class ClickPoint : Point {
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
         val tr = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
-        val edNumberPoint = tr.findViewById<View>(R.id.numberPoint) as EditText
-        edNumberPoint.setText(super.text)
-        edNumberPoint.setOnFocusChangeListener { view: View, b: Boolean ->
-            super.view.visibility = if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE
-            if(edNumberPoint.text.toString() == "") {
-                edNumberPoint.setText(super.text)
-            }
-        }
-        edNumberPoint.addTextChangedListener{
-            if(edNumberPoint.text.toString() != "") {
-                getListPoint().logd()
-                val tempPoint = getListPoint().get(super.text.toInt()-1)
-                val tempTextPoint = super.text.toInt()
-                val edNumberPointCorrect = if(edNumberPoint.text.toString().toInt() > getListPoint().size)
-                    getListPoint().size-1
-                else
-                    edNumberPoint.text.toString().toInt()-1
-
-                getListPoint().set(super.text.toInt()-1, getListPoint().get(edNumberPointCorrect))
-                getListPoint().set(edNumberPointCorrect, tempPoint)
-                getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
-                getListPoint().get(edNumberPointCorrect).text = (edNumberPointCorrect+1).toString()
-                getListPoint().logd()
-                tableLayout.removeAllViews()
-                val trHeading = inflater.inflate(R.layout.table_row_heading, null) as TableRow
-                tableLayout.addView(trHeading)
-                getListPoint().forEach {point ->
-                    point.createTableView(tableLayout, inflater)
-                }
-            }
-        }
-
-        val tvSelectClass = tr.findViewById<View>(R.id.selectClass) as TextView
-        tvSelectClass.setText("Click")
+        val linearLayout = tr.findViewById<View>(R.id.linearLayoutTypePoint)
+        val imageView = linearLayout.findViewById<View>(R.id.imageType) as ImageView
+        imageView.setBackgroundResource(R.drawable.ic_point)
 
         val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
         edXPoint.setText(super.x.toString())
@@ -178,6 +145,11 @@ class ClickPoint : Point {
             }
         }
         tableLayout.addView(tr)
+
+        tr.setOnTouchListener{v, event->
+
+            true
+        }
     }
 
     companion object CREATOR : Parcelable.Creator<Point> {

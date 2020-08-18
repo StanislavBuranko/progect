@@ -2,13 +2,12 @@ package com.askerweb.autoclickerreplay.point
 
 import android.accessibilityservice.GestureDescription
 import android.app.AlertDialog
-import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import android.view.KeyEvent.KEYCODE_BACK
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
@@ -23,12 +22,13 @@ import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.context
 import com.askerweb.autoclickerreplay.ktExt.getDialogTitle
 import com.askerweb.autoclickerreplay.ktExt.getWindowsTypeApplicationOverlay
-import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.dialog_setting_point.*
+import java.io.File
+
 
 class HomePoint : Point {
 
@@ -74,41 +74,6 @@ class HomePoint : Point {
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
         val tr = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
-        val buttonShowHideRow = tr.findViewById<View>(R.id.butttonHideShowRow) as Button
-        val edNumberPoint = tr.findViewById<View>(R.id.numberPoint) as EditText
-        edNumberPoint.setText(super.text)
-        edNumberPoint.setOnFocusChangeListener { view: View, b: Boolean ->
-            super.view.visibility = if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE
-            if(edNumberPoint.text.toString() == "") {
-                edNumberPoint.setText(super.text)
-            }
-        }
-        edNumberPoint.addTextChangedListener{
-            if(edNumberPoint.text.toString() != "") {
-                AutoClickService.getListPoint().logd()
-                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
-                val tempTextPoint = super.text.toInt()
-                val edNumberPointCorrect = if(edNumberPoint.text.toString().toInt() > AutoClickService.getListPoint().size)
-                    AutoClickService.getListPoint().size-1
-                else
-                    edNumberPoint.text.toString().toInt()-1
-
-                AutoClickService.getListPoint().set(super.text.toInt()-1, AutoClickService.getListPoint().get(edNumberPointCorrect))
-                AutoClickService.getListPoint().set(edNumberPointCorrect, tempPoint)
-                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
-                AutoClickService.getListPoint().get(edNumberPointCorrect).text = (edNumberPointCorrect+1).toString()
-                AutoClickService.getListPoint().logd()
-                tableLayout.removeAllViews()
-                val trHeading = inflater.inflate(R.layout.table_row_heading, null) as TableRow
-                tableLayout.addView(trHeading)
-                AutoClickService.getListPoint().forEach { point ->
-                    point.createTableView(tableLayout, inflater)
-                }
-            }
-        }
-
-        val tvSelectClass = tr.findViewById<View>(R.id.selectClass) as TextView
-        tvSelectClass.setText("Click")
 
         val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
         edXPoint.setText(super.x.toString())
@@ -173,10 +138,19 @@ class HomePoint : Point {
                 else {super.delay = edDelayPoint.text.toString().toLong()}
             }
         }
+
+
+        val linearLayoutHideShowRow = tr.findViewById<View>(R.id.linearLayoutButtonShowHideRow)
+        val imageViewHideShowRow = linearLayoutHideShowRow.findViewById<View>(R.id.butttonHideShowRow) as Button
+        imageViewHideShowRow.setBackgroundResource(R.drawable.ic_disable_minimal)
+
+        val linearLayoutTypePoint = tr.findViewById<View>(R.id.linearLayoutTypePoint)
+        val imageViewTypePoint = linearLayoutTypePoint.findViewById<View>(R.id.imageType) as ImageView
+        imageViewTypePoint.setBackgroundResource(R.drawable.ic_home_point)
+
         tr.removeAllViews()
-        tr.addView(buttonShowHideRow)
-        tr.addView(edNumberPoint)
-        tr.addView(tvSelectClass)
+        tr.addView(linearLayoutHideShowRow)
+        tr.addView(linearLayoutTypePoint)
         tr.addView(edXPoint)
         tr.addView(edYPoint)
         tr.addView(edDelayPoint)

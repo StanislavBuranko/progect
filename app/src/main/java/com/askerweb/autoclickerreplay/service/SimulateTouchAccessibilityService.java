@@ -71,12 +71,16 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
         service = this;
     }
     
-
+    static Boolean isStartCounDownTimer = false;
     public synchronized static void execCommand(PointCommand command, GestureResultCallback callback){
         if(command != null){
             GestureDescription gd = command.getCommand();
             if(gd != null){
                 service.dispatchGesture(gd, callback, null);
+                if(!isStartCounDownTimer) {
+                    startTimer();
+                    isStartCounDownTimer = true;
+                }
             }
         }
     }
@@ -94,7 +98,34 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 super.onCancelled(gestureDescription);
                 Log.d(LogExt.TAG, "gesture cancelled ");
             }
+
         });
+    }
+    static CountDownTimer countDownTimerTv;
+    static int allMSPoint = 0;
+    private static void startTimer(){
+        allMSPoint = 0;
+        for (Point point : AutoClickService.getListPoint()) {
+            allMSPoint = Math.toIntExact(allMSPoint + point.getDelay() + point.getDuration() * point.getRepeat());
+        }
+        int allMsPointTemp = allMSPoint;
+        countDownTimerTv = new CountDownTimer(allMsPointTemp, 100) {
+
+            public void onTick(long millisUntilFinished) {
+                allMSPoint = allMSPoint - 100;
+                Log.d("true", "onTick: "+allMSPoint);
+                AutoClickService.tvTimer.setText(AutoClickService.getTimeCountDownTimer(allMSPoint));
+                //here you can have your logic to set text to edittext
+            }
+
+            public void onFinish() {
+                allMSPoint = 0;
+                for (Point point : AutoClickService.getListPoint()) {
+                    allMSPoint = Math.toIntExact(allMSPoint + point.getDelay() + point.getDuration() * point.getRepeat());
+                }
+                AutoClickService.tvTimer.setText(AutoClickService.getTimeCountDownTimer(allMSPoint));
+            }
+        }.start();
     }
 
     private static void requestAction(String action){
@@ -122,6 +153,8 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
         return service != null && service.isPlaying;
     }
     private boolean isStartTimer = false;
+
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(intent.getAction() == null) return super.onStartCommand(intent, flags, startId);
@@ -161,6 +194,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                             willExec++;
                             if (willExec > listCommand.size() - 1) {
                                 if (counterRepeatMacro > 0) counterRepeatMacro--;
+                                startTimer();
                                 willExec = 0;
                             }
                             point = listCommand.get(willExec);
@@ -170,10 +204,10 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                         Point finalPoint = point;
 
                         if (listCommand.size() > 0) {
+                            isStartTimer = true;
                             countDownTimer = new CountDownTimer(finalPoint.getDelay(), 1000) {
 
                                 public void onTick(long millisUntilFinished) {
-                                    isStartTimer = true;
                                     //here you can have your logic to set text to edittext
                                 }
 
