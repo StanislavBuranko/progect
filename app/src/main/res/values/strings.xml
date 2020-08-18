@@ -97,4 +97,6 @@
     <string name="setting_points">"Настройка сценария"</string>
     <string name="direction">Направление:</string>
     <string name="numbPoints">Количество поинтов:</string>
+    <string name="key_preference_timer_on" translatable="false">timer_on</string>
+    <string name="question_timer">Вкл. таймер</string>
 </resources>

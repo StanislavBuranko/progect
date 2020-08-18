@@ -78,6 +78,7 @@ import butterknife.ViewCollections;
 
 import static com.askerweb.autoclickerreplay.ktExt.MiuiCheckPermission.getMiuiVersion;
 import static com.askerweb.autoclickerreplay.ktExt.SettingExt.KEY_CUTOUT_ON;
+import static com.askerweb.autoclickerreplay.ktExt.SettingExt.KEY_TIMER_ON;
 import static com.askerweb.autoclickerreplay.ktExt.SettingExt.defaultCutoutOn;
 import static com.askerweb.autoclickerreplay.ktExt.SettingExt.getSetting;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.getWindowsTypeApplicationOverlay;
@@ -111,11 +112,13 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
     public Boolean paramBoundsOn;
     public Boolean paramCutoutOn;
+    public Boolean paramTimerOn;
     public Integer paramRepeatMacro;
     public Integer paramSizePoint;
     public Integer paramSizeControl;
     Boolean openRecordPanel = false;
     Integer allMSPoint = 0;
+    Boolean isInitalView = false;
 
 
     public static final WindowManager.LayoutParams paramsTimerPanel =
@@ -189,6 +192,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
         registerReceiver(receiver, intentFilter);
+
     }
 
     private void initView(){
@@ -206,7 +210,11 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         timerPanel.setLayoutParams(paramsTimerPanel);
         timerPanel.setOnTouchListener(new ViewOverlayOnTouchListener(timerPanel, wm));
         wm.addView(timerPanel, paramsTimerPanel);
-        timerPanel.setVisibility(View.GONE);
+
+        if(AutoClickService.getParamTimer() == true)
+            timerPanel.setVisibility(View.VISIBLE);
+        else
+            timerPanel.setVisibility(View.GONE);
 
         canvasView = new PointCanvasView(this);
         canvasView.points = listCommands;
@@ -245,12 +253,13 @@ public class AutoClickService extends Service implements View.OnTouchListener{
             }
             return true;
         });
+        isInitalView = true;
     }
 
     public static String getTime(){
         Integer allMs = 0;
         for (Point point : getListPoint()) {
-            allMs = Math.toIntExact(allMs + point.getDelay() + point.getDuration() * point.getRepeat());
+            allMs = Math.toIntExact(allMs + (point.getDelay() + point.getDuration()) * point.getRepeat());
         }
         if (allMs != 0) {
             String min = ""+(allMs / 60000);
@@ -326,6 +335,12 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     public static boolean getParamCutout(){
         return Optional
                 .ofNullable(getSetting(KEY_CUTOUT_ON, defaultCutoutOn))
+                .orElse(defaultCutoutOn);
+    }
+
+    public static boolean getParamTimer(){
+        return Optional
+                .ofNullable(getSetting(KEY_TIMER_ON, defaultCutoutOn))
                 .orElse(defaultCutoutOn);
     }
 
@@ -558,8 +573,9 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         canvasView.invalidate();
     }
 
-    public static void showViews(){
-        timerPanel.setVisibility(View.VISIBLE);
+    public static void showViews() {
+        /*if(AutoClickService.getParamTimer() == true)
+            timerPanel.setVisibility(View.VISIBLE);*/
         AutoClickService.getControlPanel().setVisibility(View.VISIBLE);
         AutoClickService.getListPoint().forEach((c)->c.setVisible(View.VISIBLE));
         canvasView.invalidate();
@@ -579,10 +595,12 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 checkPermPopUP = false;
                 SimulateTouchAccessibilityService.countDownTimerTv.cancel();
                 AutoClickService.getTvTimer().setText(AutoClickService.getTime());
-                timerPanel.setVisibility(View.GONE);
+                /*timerPanel.setVisibility(View.INVISIBLE);*/
+                SimulateTouchAccessibilityService.isStartCounDownTimer = false;
                 break;
             case ACTION_START:
-                timerPanel.setVisibility(View.VISIBLE);
+                /*if(paramTimerOn == true)
+                    timerPanel.setVisibility(View.VISIBLE);*/
                 int startCount = incCounterRunMacro();
                 if(App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2){
                     if(getMiuiVersion() != 0) {
@@ -723,6 +741,16 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         paramCutoutOn = Optional
                 .ofNullable(getSetting(SettingExt.KEY_CUTOUT_ON, SettingExt.defaultCutoutOn))
                 .orElse(SettingExt.defaultCutoutOn);
+        paramTimerOn = Optional
+                .ofNullable(getSetting(SettingExt.KEY_TIMER_ON, SettingExt.defaultCutoutOn))
+                .orElse(SettingExt.defaultCutoutOn);
+
+        if(isInitalView)
+            if(AutoClickService.getParamTimer() == true)
+                timerPanel.setVisibility(View.VISIBLE);
+            else
+                timerPanel.setVisibility(View.GONE);
+        Log.d("paramTimerOn", "updateSetting: " + paramTimerOn);
         LogExt.logd(paramSizeControl);
         LogExt.logd("d:"+ SettingExt.defaultSizeControl);
     }

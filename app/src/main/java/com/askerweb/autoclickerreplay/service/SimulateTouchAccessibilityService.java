@@ -29,6 +29,10 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
     static CountDownTimer countDownTimer;
 
     Context appContext = App.appComponent.getAppContext();
+    ArrayList<Point> listCommand;
+    boolean isPlaying = false;
+    public static int willExec = 0;
+    int counterRepeatMacro=0;
 
     public final static String ACTION_COMPLETE = "ACTION_COMPLETE_POINT";
     public final static String KEY_LIST_COMMAND = "listCommand";
@@ -44,15 +48,36 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
         @Override
         public void onCancelled(GestureDescription gestureDescription) {
             super.onCancelled(gestureDescription);
-            p.setCounterRepeat(p.getCounterRepeat() + 1);
+            p.setCounterRepeat(p.getCounterRepeat());
+            countDownTimerTv.cancel();
+            allMSPoint = 0;
+            for(int i = willExec; i < AutoClickService.getListPoint().size(); i++ ){
+                allMSPoint = Math.toIntExact(allMSPoint + AutoClickService.getListPoint().get(i).getDelay()
+                        + AutoClickService.getListPoint().get(i).getDuration() * AutoClickService.getListPoint().get(i).getRepeat());
+            }
+            int allMsPointTemp = allMSPoint;
+            countDownTimerTv = new CountDownTimer(allMsPointTemp, 100) {
+
+                public void onTick(long millisUntilFinished) {
+                    allMSPoint = allMSPoint - 100;
+                    Log.d("true", "onTick: "+allMSPoint);
+                    AutoClickService.tvTimer.setText(AutoClickService.getTimeCountDownTimer(allMSPoint));
+                    //here you can have your logic to set text to edittext
+                }
+
+                public void onFinish() {
+                    allMSPoint = 0;
+                    for (Point point : AutoClickService.getListPoint()) {
+                        allMSPoint = Math.toIntExact(allMSPoint + (point.getDelay() + point.getDuration()) * point.getRepeat());
+                    }
+                    AutoClickService.tvTimer.setText(AutoClickService.getTimeCountDownTimer(allMSPoint));
+                }
+            }.start();
             requestContinue();
         }
     };
 
-    ArrayList<Point> listCommand;
-    boolean isPlaying = false;
-    int willExec = 0;
-    int counterRepeatMacro=0;
+
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -71,7 +96,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
         service = this;
     }
     
-    static Boolean isStartCounDownTimer = false;
+    public static Boolean isStartCounDownTimer = false;
     public synchronized static void execCommand(PointCommand command, GestureResultCallback callback){
         if(command != null){
             GestureDescription gd = command.getCommand();
@@ -106,7 +131,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
     private static void startTimer(){
         allMSPoint = 0;
         for (Point point : AutoClickService.getListPoint()) {
-            allMSPoint = Math.toIntExact(allMSPoint + point.getDelay() + point.getDuration() * point.getRepeat());
+            allMSPoint = Math.toIntExact(allMSPoint + (point.getDelay() + point.getDuration()) * point.getRepeat());
         }
         int allMsPointTemp = allMSPoint;
         countDownTimerTv = new CountDownTimer(allMsPointTemp, 100) {
@@ -121,7 +146,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
             public void onFinish() {
                 allMSPoint = 0;
                 for (Point point : AutoClickService.getListPoint()) {
-                    allMSPoint = Math.toIntExact(allMSPoint + point.getDelay() + point.getDuration() * point.getRepeat());
+                    allMSPoint = Math.toIntExact(allMSPoint + (point.getDelay() + point.getDuration()) * point.getRepeat());
                 }
                 AutoClickService.tvTimer.setText(AutoClickService.getTimeCountDownTimer(allMSPoint));
             }
@@ -192,7 +217,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                         if (point.getCounterRepeat() == point.getRepeat()) {
                             point.setCounterRepeat(0);
                             willExec++;
-                            if (willExec > listCommand.size() - 1) {
+                            if (willExec > listCommand.size()-1) {
                                 if (counterRepeatMacro > 0) counterRepeatMacro--;
                                 startTimer();
                                 willExec = 0;
@@ -241,6 +266,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                     service.willExec++;
                     if(service.willExec > service.listCommand.size() - 1){
                         if(service.counterRepeatMacro > 0) service.counterRepeatMacro--;
+                        startTimer();
                         service.willExec = 0;
                     }
                     point = service.listCommand.get(service.willExec);

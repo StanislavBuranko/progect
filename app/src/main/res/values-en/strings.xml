@@ -83,5 +83,5 @@
     <string name="setting_points">Setting up a script</string>
     <string name="direction">Direction:</string>
     <string name="numbPoints">Number of points:</string>
-
+    <string name="question_timer">On timer</string>
 </resources>
