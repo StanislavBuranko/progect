@@ -1,27 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableRow xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout android:gravity="center">
-        <Button
-            android:id="@+id/butttonHideShowRow"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_column="0"
-            android:width="30dp"
-            android:height="30dp"
-            android:background="@drawable/ic_close_minimal"
-            android:layout_marginTop="13dp"
-            android:layout_marginBottom="13dp"></Button>
-    </LinearLayout>
-    <EditText android:id="@+id/numberPoint" android:layout_column="1" android:inputType="number" />
-    <TextView android:id="@+id/selectClass" android:layout_column="2"/>
-    <EditText android:id="@+id/xPoint" android:layout_column="3" android:inputType="number" />
-    <EditText android:id="@+id/yPoint" android:layout_column="4" android:inputType="number" />
-    <EditText android:id="@+id/delayPoint" android:layout_column="5" android:inputType="number" />
-    <EditText android:id="@+id/durationPoint" android:layout_column="6" android:inputType="number" />
-    <EditText android:id="@+id/repeatPoint"  android:layout_column="7" android:inputType="number" />
+    <TextView
+        android:id="@+id/direction"
+        android:layout_column="2"
+        android:layout_span="3"
+        android:text="@string/direction"
+        android:textSize="18dp"/>
+
     <Spinner
         android:id="@+id/spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:entries="@array/point_type_in_out_values" />
+        android:layout_column="5"
+        android:layout_span="6"
+        android:entries="@array/point_type_in_out_values"
+        android:textSize="18dp"/>
 </TableRow>

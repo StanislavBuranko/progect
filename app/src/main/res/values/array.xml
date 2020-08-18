@@ -21,7 +21,7 @@
         <item>22</item>
     </string-array>
     <string-array name="point_type_in_out_values">
-        <item>In</item>
-        <item>Out</item>
+        <item>Внутрь</item>
+        <item>Наружу</item>
     </string-array>
 </resources>

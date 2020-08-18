@@ -7,7 +7,7 @@
         android:layout_column="0"
         android:inputType="number" />
 
-    <LinearLayout android:gravity="center">
+    <LinearLayout android:gravity="center"  android:id="@+id/linearLayoutTypePoint">
         <ImageView
             android:id="@+id/ic_points"
             android:layout_column="1"
@@ -20,18 +20,13 @@
             android:layout_marginBottom="13dp"/>
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/selectClass"
-        android:layout_column="2"
-        android:inputType="number" />
-
     <EditText
         android:id="@+id/xPoint"
-        android:layout_column="3"
-        android:inputType="number" />
+        android:layout_column="2"
+        android:inputType="number" android:textSize="18dp"/>
 
     <EditText
         android:id="@+id/yPoint"
-        android:layout_column="4"
-        android:inputType="number" />
+        android:layout_column="3"
+        android:inputType="number" android:textSize="18dp"/>
 </TableRow>

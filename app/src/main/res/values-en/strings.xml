@@ -64,10 +64,10 @@
     <string name="setting">Setting</string>
 
     <string name="turn_off_ad">Turn off ad</string>
-    <string name="ok" translatable="false">Ok</string>
-    <string name="error_pop_up" translatable="false">Permission error</string>
-    <string name="error_listcomand_null" translatable="false">Script is empty</string>
-    <string name="pop_up_info" translatable="false">Please give permission to display pop-up windows when the application is running in the background. Go to settings - apps - permissions - other permissions - find AutoClickerReplay there. Give permission to \\\'Display pop-ups when running in the background\'</string>
+    <string name="ok">Ok</string>
+    <string name="error_pop_up">Permission error</string>
+    <string name="error_listcomand_null">Script is empty</string>
+    <string name="pop_up_info">Please give permission to display pop-up windows when the application is running in the background. Go to settings - apps - permissions - other permissions - find AutoClickerReplay there. Give permission to \\\'Display pop-ups when running in the background\'</string>
     <string name="there_is">There\'s</string>
     <string name="no">No</string>
     <string name="delete_multi_point">Delete multi point</string>
@@ -77,9 +77,11 @@
     <string name="numberPoint">№</string>
     <string name="delay">Delay</string>
     <string name="duration">Duration</string>
-    <string name="repeat">Numer repeat</string>
-    <string name="pointType">Type point</string>
-    <string name="feature">feature</string>
-    <string name="setting_points">" Setting up a script"</string>
+    <string name="repeat">Number repeat</string>
+    <string name="pointType">Type</string>
+    <string name="feature">Feature</string>
+    <string name="setting_points">Setting up a script</string>
+    <string name="direction">Direction:</string>
+    <string name="numbPoints">Number of points:</string>
 
 </resources>

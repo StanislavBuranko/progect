@@ -24,6 +24,7 @@ import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.swipe_dialog_elements.*
+import org.w3c.dom.Text
 import kotlin.math.ceil
 
 
@@ -117,47 +118,15 @@ class SwipePoint : Point {
     }
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
-        val tr = inflater.inflate(R.layout.table_row_for_table_setting_points_swipe, null) as TableRow
+        val tr = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
 
-        val edNumberPoint = tr.findViewById<View>(R.id.numberPoint) as EditText
-        edNumberPoint.setText(super.text)
-        edNumberPoint.setOnFocusChangeListener { view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
-            if(edNumberPoint.text.toString() == "") {
-                edNumberPoint.setText(super.text)
-            }
-        }
-        edNumberPoint.addTextChangedListener{
-            if(edNumberPoint.text.toString() != "") {
-                AutoClickService.getListPoint().logd()
-                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
-                val tempTextPoint = super.text.toInt()
-                val edNumberPointCorrect = if(edNumberPoint.text.toString().toInt() > AutoClickService.getListPoint().size)
-                    AutoClickService.getListPoint().size-1
-                else
-                    edNumberPoint.text.toString().toInt()-1
-
-                AutoClickService.getListPoint().set(super.text.toInt()-1, AutoClickService.getListPoint().get(edNumberPointCorrect))
-                AutoClickService.getListPoint().set(edNumberPointCorrect, tempPoint)
-                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
-                AutoClickService.getListPoint().get(edNumberPointCorrect).text = (edNumberPointCorrect+1).toString()
-                AutoClickService.getListPoint().logd()
-                tableLayout.removeAllViews()
-                val trHeading = inflater.inflate(R.layout.table_row_heading, null) as TableRow
-                tableLayout.addView(trHeading)
-                AutoClickService.getListPoint().forEach {point ->
-                    point.createTableView(tableLayout, inflater)
-                }
-            }
-        }
-
-        val tvSelectClass = tr.findViewById<View>(R.id.selectClass) as TextView
-        tvSelectClass.setText("Swipe")
+        val linearLayout = tr.findViewById<View>(R.id.linearLayoutTypePoint)
+        val imageView = linearLayout.findViewById<View>(R.id.imageType) as ImageView
+        imageView.setBackgroundResource(R.drawable.ic_swap)
 
         val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
         edXPoint.setText(super.params.x.toString())
         edXPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edXPoint.text.toString() == ""){
                 edXPoint.setText(super.params.x.toString())
             }
@@ -179,7 +148,6 @@ class SwipePoint : Point {
         val edYPoint = tr.findViewById<View>(R.id.yPoint) as EditText
         edYPoint.setText(super.params.y.toString())
         edYPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edYPoint.text.toString() == ""){
                 edYPoint.setText(super.y.toString())
             }
@@ -202,7 +170,6 @@ class SwipePoint : Point {
         val edDelayPoint = tr.findViewById<View>(R.id.delayPoint) as EditText
         edDelayPoint.setText(super.delay.toString())
         edDelayPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edDelayPoint.text.toString() == ""){
                 edDelayPoint.setText(super.delay.toString())
             }
@@ -221,7 +188,6 @@ class SwipePoint : Point {
         val edDurationPoint = tr.findViewById<View>(R.id.durationPoint) as EditText
         edDurationPoint.setText(super.duration.toString())
         edDurationPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edDurationPoint.text.toString() == ""){
                 edDurationPoint.setText(super.duration.toString())
             }
@@ -240,7 +206,6 @@ class SwipePoint : Point {
         val edRepeatPoint = tr.findViewById<View>(R.id.repeatPoint) as EditText
         edRepeatPoint.setText(super.repeat.toString())
         edRepeatPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edRepeatPoint.text.toString() == ""){
                 edRepeatPoint.setText(super.repeat.toString())
             }
@@ -257,32 +222,17 @@ class SwipePoint : Point {
 
         }
 
-        val btnEnvert = tr.findViewById<View>(R.id.invert) as Button
-        btnEnvert.setOnClickListener{
-            val xTemp = nextPoint.x
-            val yTemp = nextPoint.y
-            nextPoint.x = x
-            nextPoint.y = y
-            x = xTemp
-            y = yTemp
-            AutoClickService.getWM().updateViewLayout(view, params)
-            AutoClickService.getWM().updateViewLayout(nextPoint.view, nextPoint.params)
-            AutoClickService.getCanvas().invalidate()
-        }
-
         tableLayout.addView(tr)
+
 
         val trEnd = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
         val imagePoint = trEnd.findViewById<View>(R.id.ic_points) as ImageView
         imagePoint.setBackgroundResource(R.drawable.point_click)
 
-        val tvSelectClassEnd = trEnd.findViewById(R.id.selectClass) as TextView
-        tvSelectClassEnd.setText("EndSwipe")
 
         val edXPointEnd = trEnd.findViewById(R.id.xPoint) as EditText
         edXPointEnd.setText(nextPoint.params.x.toString())
         edXPointEnd.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edXPointEnd.text.toString() == ""){
                 edXPointEnd.setText(nextPoint.params.x.toString())
             }
@@ -304,7 +254,6 @@ class SwipePoint : Point {
         val edYPointEnd = trEnd.findViewById(R.id.yPoint) as EditText
         edYPointEnd.setText(nextPoint.y.toString())
         edYPointEnd.setOnFocusChangeListener{ view: View, b: Boolean ->
-            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edYPointEnd.text.toString() == ""){
                 edYPointEnd.setText(nextPoint.params.y.toString())
             }
@@ -325,14 +274,35 @@ class SwipePoint : Point {
         trEnd.visibility = View.GONE
         tableLayout.addView(trEnd)
 
+        val trDirection = inflater.inflate(R.layout.table_row_for_table_setting_points_swipe, null) as TableRow
+        //val textView = tableRowDirection.findViewById<View>(R.id.direction) as TextView
+        val btnEnvert = trDirection.findViewById<Button>(R.id.invert) as Button
+        btnEnvert.setOnClickListener{
+            val xTemp = nextPoint.x
+            val yTemp = nextPoint.y
+            nextPoint.x = x
+            nextPoint.y = y
+            x = xTemp
+            y = yTemp
+            AutoClickService.getWM().updateViewLayout(view, params)
+            AutoClickService.getWM().updateViewLayout(nextPoint.view, nextPoint.params)
+            AutoClickService.getCanvas().invalidate()
+        }
+        trDirection.visibility = View.GONE
+        tableLayout.addView(trDirection)
+
         val buttonShowHideRow = tr.findViewById<View>(R.id.butttonHideShowRow) as Button
+        buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
         buttonShowHideRow.setOnClickListener {
-            trEnd.visibility = if (trEnd.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-            if(trEnd.visibility == View.VISIBLE)
+            trEnd.visibility = if(trEnd.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            trDirection.visibility = if(trDirection.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if(trDirection.visibility == View.VISIBLE)
                 buttonShowHideRow.setBackgroundResource(R.drawable.ic_open_minimal)
             else
                 buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
         }
+
     }
 
     override fun setTouchable(touchable: Boolean, wm:WindowManager){

@@ -74,40 +74,6 @@ class HomePoint : Point {
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
         val tr = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
-        val edNumberPoint = tr.findViewById<View>(R.id.numberPoint) as EditText
-        edNumberPoint.setText(super.text)
-        edNumberPoint.setOnFocusChangeListener { view: View, b: Boolean ->
-            super.view.visibility = if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE
-            if(edNumberPoint.text.toString() == "") {
-                edNumberPoint.setText(super.text)
-            }
-        }
-        edNumberPoint.addTextChangedListener{
-            if(edNumberPoint.text.toString() != "") {
-                AutoClickService.getListPoint().logd()
-                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
-                val tempTextPoint = super.text.toInt()
-                val edNumberPointCorrect = if(edNumberPoint.text.toString().toInt() > AutoClickService.getListPoint().size)
-                    AutoClickService.getListPoint().size-1
-                else
-                    edNumberPoint.text.toString().toInt()-1
-
-                AutoClickService.getListPoint().set(super.text.toInt()-1, AutoClickService.getListPoint().get(edNumberPointCorrect))
-                AutoClickService.getListPoint().set(edNumberPointCorrect, tempPoint)
-                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
-                AutoClickService.getListPoint().get(edNumberPointCorrect).text = (edNumberPointCorrect+1).toString()
-                AutoClickService.getListPoint().logd()
-                tableLayout.removeAllViews()
-                val trHeading = inflater.inflate(R.layout.table_row_heading, null) as TableRow
-                tableLayout.addView(trHeading)
-                AutoClickService.getListPoint().forEach { point ->
-                    point.createTableView(tableLayout, inflater)
-                }
-            }
-        }
-
-        val tvSelectClass = tr.findViewById<View>(R.id.selectClass) as TextView
-        tvSelectClass.setText("Home")
 
         val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
         edXPoint.setText(super.x.toString())
@@ -173,12 +139,18 @@ class HomePoint : Point {
             }
         }
 
-        val linearLayout = tr.findViewById<LinearLayout>(R.id.linearLayoutButtonShowHideRow)
+
+        val linearLayoutHideShowRow = tr.findViewById<View>(R.id.linearLayoutButtonShowHideRow)
+        val imageViewHideShowRow = linearLayoutHideShowRow.findViewById<View>(R.id.butttonHideShowRow) as Button
+        imageViewHideShowRow.setBackgroundResource(R.drawable.ic_disable_minimal)
+
+        val linearLayoutTypePoint = tr.findViewById<View>(R.id.linearLayoutTypePoint)
+        val imageViewTypePoint = linearLayoutTypePoint.findViewById<View>(R.id.imageType) as ImageView
+        imageViewTypePoint.setBackgroundResource(R.drawable.ic_home_point)
 
         tr.removeAllViews()
-        tr.addView(linearLayout)
-        tr.addView(edNumberPoint)
-        tr.addView(tvSelectClass)
+        tr.addView(linearLayoutHideShowRow)
+        tr.addView(linearLayoutTypePoint)
         tr.addView(edXPoint)
         tr.addView(edYPoint)
         tr.addView(edDelayPoint)

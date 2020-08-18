@@ -24,6 +24,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -427,10 +428,19 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
     @OnClick(R.id.setting_points)
     public void showSettingPoints(){
-        hideViews();
-        Intent intent = new Intent(ACTIVITY_SETTING_TABLE);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
+        if(listCommands.size() != 0 ) {
+            hideViews();
+            AutoClickService.getListPoint().forEach(point -> {
+                point.setTouchable(false, AutoClickService.getWM());
+            });
+            Intent intent = new Intent(ACTIVITY_SETTING_TABLE);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        }
+        else {
+            Toast toast = Toast.makeText(this, R.string.error_listcomand_null, Toast.LENGTH_LONG);
+            toast.show();
+        }
     }
 
 

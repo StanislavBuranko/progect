@@ -91,8 +91,10 @@
     <string name="yPoint" translatable="false">Y</string>
     <string name="delay">Задержка</string>
     <string name="duration">Удерживание</string>
-    <string name="repeat">Количество наж.</string>
+    <string name="repeat">Повторений</string>
     <string name="pointType">Тип</string>
     <string name="feature">Особенность</string>
-    <string name="setting_points">"  Настройка сценария"</string>
+    <string name="setting_points">"Настройка сценария"</string>
+    <string name="direction">Направление:</string>
+    <string name="numbPoints">Количество поинтов:</string>
 </resources>

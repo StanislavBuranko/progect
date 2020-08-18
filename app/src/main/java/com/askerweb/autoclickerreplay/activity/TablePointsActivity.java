@@ -61,5 +61,8 @@ public class TablePointsActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         AutoClickService.showViews();
+        AutoClickService.getListPoint().forEach(point -> {
+            point.setTouchable(true, AutoClickService.getWM());
+        });
     }
 }
