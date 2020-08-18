@@ -206,6 +206,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         timerPanel.setLayoutParams(paramsTimerPanel);
         timerPanel.setOnTouchListener(new ViewOverlayOnTouchListener(timerPanel, wm));
         wm.addView(timerPanel, paramsTimerPanel);
+        timerPanel.setVisibility(View.GONE);
 
         canvasView = new PointCanvasView(this);
         canvasView.points = listCommands;
@@ -578,8 +579,10 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 checkPermPopUP = false;
                 SimulateTouchAccessibilityService.countDownTimerTv.cancel();
                 AutoClickService.getTvTimer().setText(AutoClickService.getTime());
+                timerPanel.setVisibility(View.GONE);
                 break;
             case ACTION_START:
+                timerPanel.setVisibility(View.VISIBLE);
                 int startCount = incCounterRunMacro();
                 if(App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2){
                     if(getMiuiVersion() != 0) {
