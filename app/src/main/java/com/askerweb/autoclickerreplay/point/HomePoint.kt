@@ -2,13 +2,12 @@ package com.askerweb.autoclickerreplay.point
 
 import android.accessibilityservice.GestureDescription
 import android.app.AlertDialog
-import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import android.view.KeyEvent.KEYCODE_BACK
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
@@ -23,12 +22,13 @@ import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.context
 import com.askerweb.autoclickerreplay.ktExt.getDialogTitle
 import com.askerweb.autoclickerreplay.ktExt.getWindowsTypeApplicationOverlay
-import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.dialog_setting_point.*
+import java.io.File
+
 
 class HomePoint : Point {
 

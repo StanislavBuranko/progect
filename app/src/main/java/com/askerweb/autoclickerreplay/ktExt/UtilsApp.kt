@@ -19,7 +19,10 @@ import android.text.TextUtils.SimpleStringSplitter
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
-import android.view.*
+import android.view.Gravity
+import android.view.Surface
+import android.view.View
+import android.view.WindowManager
 import android.view.accessibility.AccessibilityManager
 import android.widget.TextView
 import com.askerweb.autoclickerreplay.App
@@ -188,6 +191,7 @@ fun loadMacroFromJson(points: MutableList<Point>, nameMacro: String){
         val point:Point = Point.PointBuilder.invoke().buildFrom(clazz, jsonPoint)
         points.add(point)
     }
+    AutoClickService.getTvTimer().setText(AutoClickService.getTime());
 }
 
 fun getDialogTitle(context: Context, text:String): View {

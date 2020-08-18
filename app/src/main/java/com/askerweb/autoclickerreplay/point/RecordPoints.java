@@ -78,7 +78,7 @@ public class RecordPoints {
         nDurationMs = 0;
     }
     // method for Record panel onTouchListener
-    public  void onTouch(MotionEvent event, WindowManager wm, List<Point> listCommando,
+    public void onTouch(MotionEvent event, WindowManager wm, List<Point> listCommando,
                                PointCanvasView canvasView, float paramSizePoint) {
         boolean microMove = false;
         int numbPointerUp = 0;
@@ -170,6 +170,7 @@ public class RecordPoints {
                     }, 100);
                     workCreatePoint = false;
                 }
+                AutoClickService.getTvTimer().setText(AutoClickService.getTime());
                 break;
             case MotionEvent.ACTION_POINTER_UP:
                 coordinateXUp.add((int) event.getX());

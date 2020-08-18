@@ -223,6 +223,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
                 .setPositiveButton(R.string.save) { _, _ ->
                     holder.saveEditDialog()
                     AutoClickService.getCanvas()?.invalidate()
+                    AutoClickService.getTvTimer().setText(AutoClickService.getTime())
                 }.create()
         holder.dialog = dialog
         dialog.window?.setType(getWindowsTypeApplicationOverlay())
@@ -246,7 +247,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
 
             btn_duplicate.setOnClickListener{
                 // Duplicate this point
-                AutoClickService.requestAction(point.appContext ,AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, point)
+                AutoClickService.requestAction(point.appContext, AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, point)
                 dialog?.cancel()
             }
 

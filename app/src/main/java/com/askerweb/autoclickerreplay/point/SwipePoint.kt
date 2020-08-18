@@ -170,7 +170,7 @@ class SwipePoint : Point {
         val edDelayPoint = tr.findViewById<View>(R.id.delayPoint) as EditText
         edDelayPoint.setText(super.delay.toString())
         edDelayPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            if(edDelayPoint.text.toString() == ""){
+            if(edDelayPoint.text.toString() == "") {
                 edDelayPoint.setText(super.delay.toString())
             }
         }

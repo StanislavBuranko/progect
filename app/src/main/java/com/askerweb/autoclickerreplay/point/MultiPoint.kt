@@ -527,6 +527,7 @@ class MultiPoint: Point {
             point.duration = if(editDuration.text.toString() != "") editDuration.text.toString().toLong() else 0
             point.repeat = if(editRepeat.text.toString() != "") editRepeat.text.toString().toInt() else 0
         }
+
     }
 
     override fun requireSettingEdit(){
@@ -567,6 +568,8 @@ class MultiPoint: Point {
                     updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
                     super.repeat = points[0].repeat
                     super.delay = points[0].delay
+                    super.duration = points[0].duration
+                    AutoClickService.getTvTimer().setText(AutoClickService.getTime())
                 }.setNegativeButton(R.string.cancel) { _, _ ->
                 }
                 .setOnCancelListener { _ ->

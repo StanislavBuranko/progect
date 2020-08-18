@@ -49,6 +49,7 @@ public class TablePointsActivity extends AppCompatActivity {
         for (Point point : listCommand) {
             point.createTableView(tableLayout, inflater);
         }
+
     }
 
     @Override
@@ -64,5 +65,6 @@ public class TablePointsActivity extends AppCompatActivity {
         AutoClickService.getListPoint().forEach(point -> {
             point.setTouchable(true, AutoClickService.getWM());
         });
+        AutoClickService.getTvTimer().setText(AutoClickService.getTime());
     }
 }
