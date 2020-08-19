@@ -31,6 +31,8 @@ import com.askerweb.autoclickerreplay.point.Point;
 import com.askerweb.autoclickerreplay.service.AutoClickService;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.RequestConfiguration;
+import com.yandex.metrica.YandexMetrica;
+import com.yandex.metrica.YandexMetricaConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -107,6 +109,13 @@ public class App extends Application {
 //                        .setTestDeviceIds(android_id)
 //                        .build()
 //        );
+
+        YandexMetricaConfig config = YandexMetricaConfig.newConfigBuilder(getString(R.string.YandexMetricId)).build();
+        // Initializing the AppMetrica SDK.
+        YandexMetrica.activate(getApplicationContext(), config);
+        // Automatic tracking of user activity.
+        YandexMetrica.enableActivityAutoTracking(this);
+
         appComponent = DaggerAppComponent.builder()
                 .applicationModule(new ApplicationModule(instance))
                 .build();
