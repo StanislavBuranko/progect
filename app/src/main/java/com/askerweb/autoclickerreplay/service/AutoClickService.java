@@ -504,10 +504,6 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     @OnClick(R.id.setting_points)
     public void showSettingPoints(){
         if(listCommands.size() != 0 ) {
-            hideViews();
-            AutoClickService.getListPoint().forEach(point -> {
-                point.setTouchable(false, AutoClickService.getWM());
-            });
             Intent intent = new Intent(ACTIVITY_SETTING_TABLE);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
@@ -566,10 +562,10 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         stopSelf();
     }
 
-    public void hideViews(){
+    public static void hideViews(){
         timerPanel.setVisibility(View.GONE);
-        controlPanel.setVisibility(View.GONE);
-        listCommands.forEach((c)->c.setVisible(View.GONE));
+        AutoClickService.getControlPanel().setVisibility(View.GONE);
+        AutoClickService.getListPoint().forEach((c)->c.setVisible(View.GONE));
         canvasView.invalidate();
     }
 
@@ -602,7 +598,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 if(!isActionStart) {
                     isActionStart = true;
                     int startCount = incCounterRunMacro();
-                    if (/*App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2*/ true) {
+                    if (App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2) {
                         if (getMiuiVersion() != 0) {
                             ifMiui();
                         } else {

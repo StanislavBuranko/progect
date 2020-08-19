@@ -101,12 +101,12 @@ public class App extends Application {
         instance = this;
         mSkuIds = Collections.singletonList(getString(R.string.id_sku_turn_off_ad));
         MobileAds.initialize(instance);
-        List<String> android_id = Arrays.asList("B661284821DE7327318792508C54E72D", "E64E5E2E51D532E497C5C69BF2EAD5BC");
+/*        List<String> android_id = Arrays.asList("B661284821DE7327318792508C54E72D", "E64E5E2E51D532E497C5C69BF2EAD5BC");
         MobileAds.setRequestConfiguration(
                 new RequestConfiguration.Builder()
                         .setTestDeviceIds(android_id)
                         .build()
-        );
+        );*/
         appComponent = DaggerAppComponent.builder()
                 .applicationModule(new ApplicationModule(instance))
                 .build();
