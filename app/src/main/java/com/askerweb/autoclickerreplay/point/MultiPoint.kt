@@ -48,13 +48,13 @@ class MultiPoint: Point {
         view.visibility = View.GONE
         points += PointBuilder.invoke()
                 .position(x, y)
-                .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.point_click)!!)
+                .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_multi_point_click)!!)
                 .text((listCommands.size + 1).toString())
                 .build(SimplePoint::class.java)
         points.last().updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
         points += PointBuilder.invoke()
                 .position(x + 50, y + 50)
-                .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.point_click)!!)
+                .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_multi_point_click)!!)
                 .text((listCommands.size + 1).toString())
                 .build(SimplePoint::class.java)
         points.last().updateListener(AutoClickService.getWM(),AutoClickService.getCanvas(), AutoClickService.getParamBound())
@@ -69,7 +69,7 @@ class MultiPoint: Point {
     public fun createPointsForRecordPanel(x:Int, y:Int, i:Int) {
         points += PointBuilder.invoke()
                 .position(x, y)
-                .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.point_click)!!)
+                .drawable(ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_multi_point_click)!!)
                 .text((listCommands.size + i).toString())
                 .build(SimplePoint::class.java)
         points.last().updateListener(AutoClickService.getWM(), AutoClickService.getCanvas(), AutoClickService.getParamBound())
@@ -303,7 +303,7 @@ class MultiPoint: Point {
         for (i in 1..points.size - 1) {
             val trArray = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
             val imagePoint = trArray.findViewById<View>(R.id.ic_points) as ImageView
-            imagePoint.setBackgroundResource(R.drawable.ic_multi_point)
+            imagePoint.setBackgroundResource(R.drawable.draw_multi_point_click)
 
             val edXPointNext = trArray.findViewById<View>(R.id.xPoint) as EditText
             edXPointNext.setText(points[i].x.toString())
@@ -369,6 +369,7 @@ class MultiPoint: Point {
                     detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
                     for (n in 0..edNumbMultiPoint.text.toString().toInt() - points.size - 1) {
                         createPointsForRecordPanel(points.last().x + 35, points.last().y, 0)
+                        points.last().setTouchable(false, AutoClickService.getWM())
                     }
                     attachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
                 }
@@ -504,7 +505,7 @@ class MultiPoint: Point {
                 for (n in 1..differencePoints) {
                     points += PointBuilder.invoke()
                             .position(points.last().x + 50, points.last().y)
-                            .drawable(ContextCompat.getDrawable(appContext, R.drawable.point_click)!!)
+                            .drawable(ContextCompat.getDrawable(appContext, R.drawable.draw_multi_point_click)!!)
                             .text(points[0].text)
                             .build(SimplePoint::class.java)
                     points.last().attachToWindow(AutoClickService.getWM(),AutoClickService.getCanvas())

@@ -574,14 +574,15 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     }
 
     public static void showViews() {
-        /*if(AutoClickService.getParamTimer() == true)
-            timerPanel.setVisibility(View.VISIBLE);*/
+        if(AutoClickService.getParamTimer() == true)
+            timerPanel.setVisibility(View.VISIBLE);
         AutoClickService.getControlPanel().setVisibility(View.VISIBLE);
         AutoClickService.getListPoint().forEach((c)->c.setVisible(View.VISIBLE));
         canvasView.invalidate();
     }
 
     public static boolean checkPermPopUP = false;
+    private boolean isActionStart = false;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(intent == null || intent.getAction() == null) return super.onStartCommand(intent, flags, startId);
@@ -592,27 +593,25 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                         .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_play));
                 group_control.setVisibility(View.VISIBLE);
                 SimulateTouchAccessibilityService.requestStop();
-                checkPermPopUP = false;
                 SimulateTouchAccessibilityService.countDownTimerTv.cancel();
                 AutoClickService.getTvTimer().setText(AutoClickService.getTime());
-                /*timerPanel.setVisibility(View.INVISIBLE);*/
                 SimulateTouchAccessibilityService.isStartCounDownTimer = false;
+                isActionStart = false;
                 break;
             case ACTION_START:
-                /*if(paramTimerOn == true)
-                    timerPanel.setVisibility(View.VISIBLE);*/
-                int startCount = incCounterRunMacro();
-                if(App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2){
-                    if(getMiuiVersion() != 0) {
-                       ifMiui();
-                    }
-                    else {
-                        showAdBeforeRunMacro();
+                if(!isActionStart) {
+                    isActionStart = true;
+                    int startCount = incCounterRunMacro();
+                    if (/*App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2*/ true) {
+                        if (getMiuiVersion() != 0) {
+                            ifMiui();
+                        } else {
+                            showAdBeforeRunMacro();
+                        }
+                    } else {
+                        runMacro();
                     }
                 }
-                else{
-                    Log.d("true", "onStartCommand: true");
-                    runMacro();}
                 break;
             case ACTION_HIDE_VIEWS:
                 hideViews();
@@ -649,19 +648,21 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
         Handler handler = new Handler();
         handler.postDelayed(() -> {
-            Intent intent11 = new Intent(getApplicationContext(), MainActivity.class);
-            intent11.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent11);
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
         }, 500);
 
         Intent startMain = new Intent(Intent.ACTION_MAIN);
         startMain.addCategory(Intent.CATEGORY_HOME);
         startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(startMain);
+
         handler = new Handler();
         handler.postDelayed(() -> {
             if (checkPermPopUP) {
                 showAdBeforeRunMacro();
+                checkPermPopUP = false;
             } else {
                 DialogInterface.OnClickListener click = (dialogInterface, i) -> {
                     dialogInterface.cancel();
@@ -675,7 +676,8 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 dialog.getWindow().setType(getWindowsTypeApplicationOverlay());
                 dialog.show();
             }
-        }, 500);
+            isActionStart = false;
+        }, 1000);
     }
 
     private void showAdBeforeRunMacro(){

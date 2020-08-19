@@ -83,8 +83,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/ic_settings"
-                android:visibility="gone" />
+                android:background="@drawable/ic_share_app"
+                android:visibility="visible" />
 
         </LinearLayout>
 
