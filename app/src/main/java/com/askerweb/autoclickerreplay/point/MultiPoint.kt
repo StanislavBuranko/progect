@@ -17,10 +17,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.ktExt.context
-import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
-import com.askerweb.autoclickerreplay.ktExt.getWindowsTypeApplicationOverlay
-import com.askerweb.autoclickerreplay.ktExt.logd
+import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.point.view.ExtendedViewHolder
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView

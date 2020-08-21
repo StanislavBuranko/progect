@@ -10,12 +10,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
+import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -77,11 +82,15 @@ import butterknife.Unbinder;
 import butterknife.ViewCollections;
 
 import static com.askerweb.autoclickerreplay.ktExt.MiuiCheckPermission.getMiuiVersion;
-import static com.askerweb.autoclickerreplay.ktExt.SettingExt.KEY_CUTOUT_ON;
+import static com.askerweb.autoclickerreplay.ktExt.SettingExt.KEY_SHARE_BUTTON_ON;
 import static com.askerweb.autoclickerreplay.ktExt.SettingExt.KEY_TIMER_ON;
-import static com.askerweb.autoclickerreplay.ktExt.SettingExt.defaultCutoutOn;
+import static com.askerweb.autoclickerreplay.ktExt.SettingExt.defaultShareButtonOn;
+import static com.askerweb.autoclickerreplay.ktExt.SettingExt.defaultTimerOn;
 import static com.askerweb.autoclickerreplay.ktExt.SettingExt.getSetting;
+import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.getParamOverlayFlags;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.getWindowsTypeApplicationOverlay;
+import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.inOpenStatusAndNavBarWidth;
+import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.isThereCutout;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.standardOverlayFlags;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.standardOverlayFlagsForCutout;
 
@@ -95,7 +104,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     View controlPanel;
     static View timerPanel;
     public static TextView tvTimer;
-    static View recordPanel;
+    public static View recordPanel;
     static PointCanvasView canvasView;
     RecordPoints recordPoints;
 
@@ -111,8 +120,8 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     public InterstitialAd interstitialAd;
 
     public Boolean paramBoundsOn;
-    public Boolean paramCutoutOn;
     public Boolean paramTimerOn;
+    public Boolean paramHideShareButtonOn;
     public Integer paramRepeatMacro;
     public Integer paramSizePoint;
     public Integer paramSizeControl;
@@ -141,10 +150,12 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         @Override
         public void onReceive(Context context, Intent intent) {
             if(isAlive() && SimulateTouchAccessibilityService.isPlaying()){
-                startPauseCommand();
+                //startPauseCommand();
             }
-            if(getResources().getConfiguration().orientation != lastOrientation)
+            if(getResources().getConfiguration().orientation != lastOrientation) {
                 listCommands.forEach(AutoClickService.this::swapPointOrientation);
+                listCommands.forEach(AutoClickService.this::updateFlagsParams);
+            }
             lastOrientation = getResources().getConfiguration().orientation;
         }
     };
@@ -169,7 +180,11 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
     @Override
     public void onCreate() {
+//        Rect windowInsets = new Rect();
+//        windowInsets.set(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom())
+
         lastOrientation = getResources().getConfiguration().orientation;
+        Log.d("OverlayFlags", "onCreate: "+ getParamOverlayFlags());
         super.onCreate();
         updateSetting();
         service = this;
@@ -218,7 +233,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
         canvasView = new PointCanvasView(this);
         canvasView.points = listCommands;
-        paramsCanvas.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+        paramsCanvas.flags |=  WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
         canvasView.setLayoutParams(paramsCanvas);
         // update listener after change orientation
         canvasView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
@@ -254,6 +269,8 @@ public class AutoClickService extends Service implements View.OnTouchListener{
             return true;
         });
         isInitalView = true;
+        if(paramHideShareButtonOn == true)
+            group_control.findViewById(R.id.shareApp).setVisibility(View.GONE);
     }
 
     public static String getTime(){
@@ -332,17 +349,14 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         return getCounterRunMacro();
     }
 
-    public static boolean getParamCutout(){
-        return Optional
-                .ofNullable(getSetting(KEY_CUTOUT_ON, defaultCutoutOn))
-                .orElse(defaultCutoutOn);
-    }
 
     public static boolean getParamTimer(){
         return Optional
-                .ofNullable(getSetting(KEY_TIMER_ON, defaultCutoutOn))
-                .orElse(defaultCutoutOn);
+                .ofNullable(getSetting(KEY_TIMER_ON, defaultTimerOn))
+                .orElse(defaultTimerOn);
     }
+
+
 
     public static  TextView getTvTimer(){
         return tvTimer;
@@ -408,7 +422,8 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         listTypes.add(ClickPoint.class);
         listTypes.add(SwipePoint.class);
         listTypes.add(PinchPoint.class);
-        listTypes.add(PathPoint.class);
+        if (!isThereCutout())
+            listTypes.add(PathPoint.class);
         listTypes.add(MultiPoint.class);
         listTypes.add(HomePoint.class);
         View title = UtilsApp.getDialogTitle(this, getString(R.string.sel_type_goal));
@@ -584,18 +599,20 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         if(intent == null || intent.getAction() == null) return super.onStartCommand(intent, flags, startId);
         switch (intent.getAction()){
             case ACTION_STOP:
+                SimulateTouchAccessibilityService.isPlaying = false;
                 listCommands.forEach((c)->c.setTouchable(true, wm));
                 controlPanel.findViewById(R.id.start_pause)
                         .setBackground(ContextCompat.getDrawable(this, R.drawable.ic_play));
                 group_control.setVisibility(View.VISIBLE);
                 SimulateTouchAccessibilityService.requestStop();
-                SimulateTouchAccessibilityService.countDownTimerTv.cancel();
                 AutoClickService.getTvTimer().setText(AutoClickService.getTime());
                 SimulateTouchAccessibilityService.isStartCounDownTimer = false;
                 isActionStart = false;
+
                 break;
             case ACTION_START:
                 if(!isActionStart) {
+                    inOpenStatusAndNavBarWidth();
                     isActionStart = true;
                     int startCount = incCounterRunMacro();
                     if (App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2) {
@@ -736,21 +753,32 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         paramSizeControl = Optional
                 .ofNullable(getSetting(getString(R.string.key_preference_size_control_panel), SettingExt.defaultSizeControl))
                 .orElse(SettingExt.defaultSizeControl);
-        paramCutoutOn = Optional
-                .ofNullable(getSetting(SettingExt.KEY_CUTOUT_ON, SettingExt.defaultCutoutOn))
-                .orElse(SettingExt.defaultCutoutOn);
         paramTimerOn = Optional
-                .ofNullable(getSetting(SettingExt.KEY_TIMER_ON, SettingExt.defaultCutoutOn))
-                .orElse(SettingExt.defaultCutoutOn);
+                .ofNullable(getSetting(SettingExt.KEY_TIMER_ON, SettingExt.defaultTimerOn))
+                .orElse(SettingExt.defaultTimerOn);
+        paramHideShareButtonOn = Optional
+                .ofNullable(getSetting(SettingExt.KEY_SHARE_BUTTON_ON, SettingExt.defaultShareButtonOn))
+                .orElse(SettingExt.defaultShareButtonOn);
 
-        if(isInitalView)
-            if(AutoClickService.getParamTimer() == true)
-                timerPanel.setVisibility(View.VISIBLE);
+        if(isInitalView) {
+            AutoClickService.getListPoint().forEach(point ->{
+                point.updateParamsFlags();
+            });
+
+            if(!paramHideShareButtonOn)
+                group_control.findViewById(R.id.shareApp).setVisibility(View.GONE);
             else
+                group_control.findViewById(R.id.shareApp).setVisibility(View.VISIBLE);
+
+            if (AutoClickService.getParamTimer() == true) {
+                timerPanel.setVisibility(View.VISIBLE);
+            } else
                 timerPanel.setVisibility(View.GONE);
+        }
         Log.d("paramTimerOn", "updateSetting: " + paramTimerOn);
         LogExt.logd(paramSizeControl);
         LogExt.logd("d:"+ SettingExt.defaultSizeControl);
+
     }
 
     void updatePoint(@NotNull Point c){
@@ -765,6 +793,12 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
     void swapPointOrientation(Point p){
         p.swapPointOrientation();
+        p.updateViewLayout(wm, paramSizePoint);
+        canvasView.invalidate();
+    }
+
+    void updateFlagsParams(Point p){
+        p.updateParamsFlags();
         p.updateViewLayout(wm, paramSizePoint);
         canvasView.invalidate();
     }

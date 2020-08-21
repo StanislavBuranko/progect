@@ -30,7 +30,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
 
     Context appContext = App.appComponent.getAppContext();
     ArrayList<Point> listCommand;
-    boolean isPlaying = false;
+    public static boolean isPlaying = false;
     public static int willExec = 0;
     int counterRepeatMacro=0;
 
@@ -56,11 +56,11 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                         + AutoClickService.getListPoint().get(i).getDuration() * AutoClickService.getListPoint().get(i).getRepeat());
             }
             int allMsPointTemp = allMSPoint;
+            if (SimulateTouchAccessibilityService.isPlaying())
             countDownTimerTv = new CountDownTimer(allMsPointTemp, 100) {
 
                 public void onTick(long millisUntilFinished) {
                     allMSPoint = allMSPoint - 100;
-                    Log.d("true", "onTick: "+allMSPoint);
                     AutoClickService.tvTimer.setText(AutoClickService.getTimeCountDownTimer(allMSPoint));
                     //here you can have your logic to set text to edittext
                 }
@@ -138,7 +138,6 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
 
             public void onTick(long millisUntilFinished) {
                 allMSPoint = allMSPoint - 100;
-                Log.d("true", "onTick: "+allMSPoint);
                 AutoClickService.tvTimer.setText(AutoClickService.getTimeCountDownTimer(allMSPoint));
                 //here you can have your logic to set text to edittext
             }

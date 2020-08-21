@@ -5,11 +5,13 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.view.ContextThemeWrapper
@@ -19,9 +21,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.ktExt.context
-import com.askerweb.autoclickerreplay.ktExt.getDialogTitle
-import com.askerweb.autoclickerreplay.ktExt.getWindowsTypeApplicationOverlay
+import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
@@ -43,7 +43,7 @@ class HomePoint : Point {
         startMain.addCategory(Intent.CATEGORY_HOME)
         startMain.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(context,startMain, Bundle.EMPTY)
-        /*simulateKey(KEYCODE_BACK)*/
+        //simulateKey(KEYCODE_BACK)
         //val drive: AndroidDriver = driver.pressKey(new KeyEvent(AndroidKey.BACK));
     }
 
