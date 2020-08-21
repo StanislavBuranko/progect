@@ -73,7 +73,6 @@ class PathOnTouchListener private constructor(point: PathPoint,
             point.path.reset()
             point.path.moveTo(point.coordinateYMove[0], point.coordinateXMove[0])
             for (n in 1.. point.coordinateXMove.size - 1) {
-
                 point.path.lineTo(point.coordinateYMove[n], point.coordinateXMove[n])
             }
         } else if(Configuration.ORIENTATION_LANDSCAPE == context.resources.configuration.orientation && !point.isFirstSwap) {

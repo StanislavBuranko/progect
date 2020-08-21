@@ -38,11 +38,11 @@ import javax.inject.Named
 import kotlin.properties.Delegates
 
 abstract class Point : PointCommand, Parcelable, Serializable{
-    internal val params: WindowManager.LayoutParams =
+    public var params: WindowManager.LayoutParams =
             getWindowsParameterLayout(32f,
                     32f,
                     Gravity.START or Gravity.TOP,
-                            standardOverlayFlags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+                    getParamOverlayFlags() or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
 
     val view: PointView = PointView(App.appComponent.getAppContext())
 
@@ -182,7 +182,9 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         }
         wm.updateViewLayout(view, params)
     }
-
+    open fun updateParamsFlags(){
+        params.flags = getParamOverlayFlags() or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+    }
     open fun setVisible(visible:Int){
         view.visibility = visible
     }

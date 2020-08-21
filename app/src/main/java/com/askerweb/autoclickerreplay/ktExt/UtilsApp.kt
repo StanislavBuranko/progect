@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.PixelFormat
 import android.graphics.Typeface
@@ -19,18 +20,15 @@ import android.text.TextUtils.SimpleStringSplitter
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
-import android.view.Gravity
-import android.view.Surface
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.view.accessibility.AccessibilityManager
 import android.widget.TextView
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.point.Point
+import com.askerweb.autoclickerreplay.point.*
 import com.askerweb.autoclickerreplay.service.AutoClickService
-import com.askerweb.autoclickerreplay.service.AutoClickService.getParamCutout
 import com.askerweb.autoclickerreplay.service.AutoClickService.getWM
+import com.askerweb.autoclickerreplay.service.AutoClickService.recordPanel
 import com.askerweb.autoclickerreplay.service.SimulateTouchAccessibilityService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -114,8 +112,12 @@ fun checkAllPermission(context: Context?) : Boolean {
 fun getWindowsTypeApplicationOverlay() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_PHONE
 
-fun getParamOverlayFlags() = if (!getParamCutout())
-    standardOverlayFlags else standardOverlayFlagsForCutout
+fun getParamOverlayFlags() : Int {
+    return if (!isThereCutout())
+        standardOverlayFlags
+    else
+        standardOverlayFlags
+}
 
 const val standardOverlayFlags =
         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
@@ -127,18 +129,31 @@ const val standardOverlayFlagsForCutout =
         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 
-fun isRotatinNavigateLeft(): Boolean {
-    return getWM().defaultDisplay.rotation == Surface.ROTATION_270
-}
-fun getNavigationBar(): Int {
-    if(isRotatinNavigateLeft()) {
-        val resources: Resources = context.resources
-        val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
-        if (resourceId > 0) {
-            return resources.getDimensionPixelSize(resourceId)
+fun yCutout() : Int{
+    if(isThereCutout()){
+        if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            val idStatusBarHeight = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+            return -context.resources.getDimensionPixelSize(idStatusBarHeight)
         }
     }
     return 0
+}
+
+fun xCutout() : Int{
+    if(isThereCutout()){
+        if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            if (isRotatinNavigateRight()) {
+                val idStatusBarHeight = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+                return -context.resources.getDimensionPixelSize(idStatusBarHeight)
+            }
+        }
+    }
+    return 0
+}
+
+fun getHeightNavaBar():Int {
+    val idNavBarHeight: Int = context.resources.getIdentifier("navigation_bar_height", "dimen", "android")
+    return context.resources.getDimensionPixelSize(idNavBarHeight)
 }
 @JvmOverloads
 fun getWindowsParameterLayout(_width:Float,
@@ -163,7 +178,7 @@ fun getWindowsParameterLayout(_width:Float,
     return params
 }
 
-fun saveMacroToJson(points: List<Point>, nameMacro: String = "untitle.json"){
+fun saveMacroToJson(points: List<com.askerweb.autoclickerreplay.point.Point>, nameMacro: String = "untitle.json"){
     val pointsJson = JsonArray()
     points.forEach{
         val json = it.toJson()
@@ -176,7 +191,7 @@ fun saveMacroToJson(points: List<Point>, nameMacro: String = "untitle.json"){
     }
 }
 
-fun loadMacroFromJson(points: MutableList<Point>, nameMacro: String){
+fun loadMacroFromJson(points: MutableList<com.askerweb.autoclickerreplay.point.Point>, nameMacro: String){
     var jsonObj:JsonObject? = null
     FileReader("${context.filesDir}/$nameMacro.json").use {
         val text = it.readText().trim()
@@ -187,8 +202,8 @@ fun loadMacroFromJson(points: MutableList<Point>, nameMacro: String){
     val jsonArrayPoints =  jsonObj?.getAsJsonArray("points")
     jsonArrayPoints?.forEach {
         val jsonPoint = gson.fromJson(it.asString, JsonObject::class.java)
-        val clazz = Class.forName(jsonPoint.get("class").asString) as Class<Point>
-        val point:Point = Point.PointBuilder.invoke().buildFrom(clazz, jsonPoint)
+        val clazz = Class.forName(jsonPoint.get("class").asString) as Class<com.askerweb.autoclickerreplay.point.Point>
+        val point: com.askerweb.autoclickerreplay.point.Point = com.askerweb.autoclickerreplay.point.Point.PointBuilder.invoke().buildFrom(clazz, jsonPoint)
         points.add(point)
     }
     AutoClickService.getTvTimer().setText(AutoClickService.getTime());
@@ -207,11 +222,167 @@ fun getDialogTitle(context: Context, text:String): View {
     return title
 }
 
-enum class Dimension(private val type: Int){
+var cutoutParams = 0;
+var cutoutParamsLandscape = 0;
+
+/*fun getCutoutSizeYPoint() : Int{
+    if(context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+        val cutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            AutoClickService.getWM().defaultDisplay.cutout
+        } else {
+            TODO("VERSION.SDK_INT < Q")
+        }
+        cutoutParams = if(cutout?.boundingRects?.get(0)?.bottom == null) 0 else cutout?.boundingRects?.get(0)?.bottom!!
+
+//        var windowInsets = Rect()
+//        windowInsets.set(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom())
+        return cutoutParams
+    }
+    return 0
+}
+
+fun getCutoutSizeXLandscape() : Int{
+    if(context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        val cutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            AutoClickService.getWM().defaultDisplay.cutout
+        } else {
+            TODO("VERSION.SDK_INT < Q")
+        }
+        cutoutParamsLandscape = if(cutout?.boundingRects?.get(0)?.left == null) 0 else cutout?.boundingRects?.get(0)?.right!!
+        cutout?.boundingRects?.get(0)?.right!!.logd("3221right")
+        cutout?.boundingRects?.get(0)?.left!!.logd("3221left")
+        cutout?.boundingRects?.get(0)?.bottom!!.logd("3221bottom")
+        cutout?.boundingRects?.get(0)?.top!!.logd("3221top")
+        return cutoutParamsLandscape
+    }
+    return 0
+}
+
+fun getCutoutSizeXPoint() : Int{
+    if(context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        val cutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            AutoClickService.getWM().defaultDisplay.cutout
+        } else {
+            TODO("VERSION.SDK_INT < Q")
+        }
+        return if(cutout?.boundingRects?.get(0)?.bottom == null) 0 else cutoutParams
+    }
+    return 0
+}*/
+
+/*fun getCutoutSizeYPath(wm: WindowManager) : Int{
+    if(context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        return cutoutParams
+    }
+    return 0
+}*/
+
+enum class Dimension(private val type: Int) {
     DP(TypedValue.COMPLEX_UNIT_DIP),
     SP(TypedValue.COMPLEX_UNIT_SP);
-    @JvmOverloads fun convert(value: Float, metrics:DisplayMetrics? = displayMetrics):Float = TypedValue.applyDimension(type, value, metrics)
-    companion object{
-        @JvmField var displayMetrics:DisplayMetrics? = DisplayMetrics()
+
+    @JvmOverloads
+    fun convert(value: Float, metrics: DisplayMetrics? = displayMetrics): Float = TypedValue.applyDimension(type, value, metrics)
+
+    companion object {
+        @JvmField
+        var displayMetrics: DisplayMetrics? = DisplayMetrics()
     }
 }
+
+fun inOpenStatusAndNavBarHeight() : OpenStatusAndNavBar {
+    var heightRecordPanel = recordPanel.height
+    Log.d("SizeWindow", "HeightRecordPanel: " + heightRecordPanel)
+
+    val d = getWM().defaultDisplay
+    val realDisplayMetrics = DisplayMetrics()
+    d.getRealMetrics(realDisplayMetrics)
+    val heigthRealDisplay = realDisplayMetrics.heightPixels
+    Log.d("SizeWindow", "HeigthRealDisplay: $heigthRealDisplay")
+
+    val idStatusBarHeight = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+    var heightStatusBar = context.resources.getDimensionPixelSize(idStatusBarHeight)
+    Log.d("SizeWindow", "HeightStatusbar: $heightStatusBar")
+
+    val idNavBarHeight: Int = context.resources.getIdentifier("navigation_bar_height", "dimen", "android")
+    var heightNavBar = context.resources.getDimensionPixelSize(idNavBarHeight)
+    Log.d("SizeWindow", "HeightStatusbar: $heightNavBar")
+
+    if (heigthRealDisplay == heightRecordPanel)
+        return OpenStatusAndNavBar.AllClose
+    if (heigthRealDisplay == heightRecordPanel + heightStatusBar)
+        return OpenStatusAndNavBar.StatusOpen
+    if (heigthRealDisplay == heightRecordPanel + heightNavBar)
+        return OpenStatusAndNavBar.NavOpen
+    if (heigthRealDisplay == heightRecordPanel + heightNavBar + heightStatusBar)
+        return OpenStatusAndNavBar.AllOpen
+
+    return OpenStatusAndNavBar.AllOpen
+}
+
+fun inOpenStatusAndNavBarWidth() : OpenStatusAndNavBar {
+    var heightRecordPanel = recordPanel.width
+    Log.d("SizeWindow", "HeightRecordPanel: " + heightRecordPanel)
+
+    val d = getWM().defaultDisplay
+    val realDisplayMetrics = DisplayMetrics()
+    d.getRealMetrics(realDisplayMetrics)
+    val heigthRealDisplay = realDisplayMetrics.widthPixels
+    Log.d("SizeWindow", "HeigthRealDisplay: $heigthRealDisplay")
+
+    val idStatusBarHeight: Int = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+    var heightStatusBar = context.resources.getDimensionPixelSize(idStatusBarHeight)
+    Log.d("SizeWindow", "HeightStatusbar: $heightStatusBar")
+
+    if (heigthRealDisplay == heightRecordPanel)
+        return OpenStatusAndNavBar.AllClose
+    if (heigthRealDisplay == heightRecordPanel + heightStatusBar)
+        return OpenStatusAndNavBar.StatusOpen
+
+    return OpenStatusAndNavBar.AllOpen
+}
+
+    enum class OpenStatusAndNavBar{
+        AllClose,
+        AllOpen,
+        StatusOpen,
+        NavOpen
+
+    }
+
+    fun isThereCutout() : Boolean{
+        val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        if(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    "Cutout: ${wm.defaultDisplay.cutout?.boundingRects?.get(0) != null}".logd("Cutout")
+                    return wm.defaultDisplay.cutout?.boundingRects?.get(0) != null
+                } else {
+                    TODO("VERSION.SDK_INT < Q")
+                })
+            return false
+    }
+
+    fun isRotatinNavigateLeft(): Boolean {
+        return getWM().defaultDisplay.rotation == Surface.ROTATION_270
+    }
+
+    fun isRotatinNavigateRight(): Boolean {
+        return getWM().defaultDisplay.rotation == Surface.ROTATION_90
+    }
+
+    fun getNavigationBar(): Int {
+        if (isRotatinNavigateLeft() && inOpenStatusAndNavBarWidth() == OpenStatusAndNavBar.AllOpen) {
+            val resources: Resources = context.resources
+            val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+                return resources.getDimensionPixelSize(resourceId)
+        }
+        else if(isRotatinNavigateLeft() && inOpenStatusAndNavBarWidth() == OpenStatusAndNavBar.StatusOpen)
+            return 0
+        else if (isRotatinNavigateRight() && isThereCutout()) {
+            val resources: Resources = context.resources
+            val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+            if (resourceId > 0) {
+                return 0
+            }
+        }
+        return 0
+    }

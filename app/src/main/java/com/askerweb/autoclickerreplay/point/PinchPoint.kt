@@ -14,9 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.ktExt.context
-import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
-import com.askerweb.autoclickerreplay.ktExt.logd
+import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.point.view.*
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonObject
@@ -381,6 +379,12 @@ class PinchPoint:Point {
         wm.updateViewLayout(secondPoint.view, secondPoint.params)
     }
 
+    override fun updateParamsFlags(){
+        super.params.flags = getParamOverlayFlags() or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        firstPoint.params.flags = getParamOverlayFlags() or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        secondPoint.params.flags = getParamOverlayFlags() or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+    }
+
     companion object CREATOR : Parcelable.Creator<Point> {
         override fun createFromParcel(parcel: Parcel): Point {
             return PointBuilder.invoke().buildFrom(PinchPoint::class.java, parcel)
@@ -468,11 +472,11 @@ class PinchPoint:Point {
         OUT{
             override fun getCommand(xTouch:Float, yTouch:Float, firstPoint:Point, secondPoint:Point, delay:Long, duration:Long): GestureDescription? {
                 val path = Path()
-                path.moveTo(xTouch+getNavigationBar(), yTouch)
-                path.lineTo(firstPoint.xTouch.toFloat()+getNavigationBar(), firstPoint.yTouch.toFloat())
+                path.moveTo(xTouch + getNavigationBar(), yTouch)
+                path.lineTo(firstPoint.xTouch.toFloat() + getNavigationBar(), firstPoint.yTouch.toFloat())
                 val path2 = Path()
-                path2.moveTo(xTouch+getNavigationBar(), yTouch)
-                path2.lineTo(secondPoint.xTouch.toFloat()+getNavigationBar(), secondPoint.yTouch.toFloat())
+                path2.moveTo(xTouch + getNavigationBar(), yTouch)
+                path2.lineTo(secondPoint.xTouch.toFloat() + getNavigationBar(), secondPoint.yTouch.toFloat())
                 val builder = GestureDescription.Builder()
                 builder.addStroke(GestureDescription.StrokeDescription(path, 0, duration))
                         .addStroke(GestureDescription.StrokeDescription(path2, 0, duration))

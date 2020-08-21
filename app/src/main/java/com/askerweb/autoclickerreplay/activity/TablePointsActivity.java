@@ -40,6 +40,11 @@ public class TablePointsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AutoClickService.hideViews();
+        AutoClickService.getListPoint().forEach(point -> {
+            point.setTouchable(false, AutoClickService.getWM());
+        });
+
         setContentView(R.layout.activity_table_setting_points);
         int i = 1;
         TableLayout tableLayout = (TableLayout) findViewById(R.id.table);

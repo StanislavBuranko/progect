@@ -50,7 +50,6 @@
 
     <string name="title_bounds_preference">Вкл. границы для целей</string>
     <string name="key_preference_bounds_on">bounds_on</string>
-    <string name="key_preference_cutout_on">cutout_on</string>
 
     <string name="toast_empty_script">В сценарии ничего нету</string>
     <string name="toast_havent_saved_script">Нет сохраненных сценариев</string>
@@ -86,8 +85,6 @@
     <string name="error_listcomand_null">Сценарий пуст</string>
     <string name="there_is">Есть</string>
     <string name="no">Нету</string>
-    <string name="question_cutout">Есть ли вырез в экране?</string>
-    <string name="cutout">Вырез в экране</string>
     <string name="numberPoint">№</string>
     <string name="xPoint" translatable="false">X</string>
     <string name="yPoint" translatable="false">Y</string>
@@ -99,4 +96,8 @@
     <string name="setting_points">"Настройка сценария"</string>
     <string name="direction">Направление:</string>
     <string name="numbPoints">Количество поинтов:</string>
+    <string name="key_preference_timer_on" translatable="false">timer_on</string>
+    <string name="question_timer">Вкл. таймер</string>
+    <string name="hide_share_button">Cкрыть кнопку поделится</string>
+    <string name="key_preference_share_button_on" translatable="false">share_button_on</string>
 </resources>

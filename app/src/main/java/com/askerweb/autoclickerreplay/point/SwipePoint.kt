@@ -14,9 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.ktExt.context
-import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
-import com.askerweb.autoclickerreplay.ktExt.logd
+import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.point.view.ExtendedViewHolder
 import com.askerweb.autoclickerreplay.point.view.PointCanvasView
@@ -104,6 +102,11 @@ class SwipePoint : Point {
     override fun detachToWindow(wm: WindowManager, canvas: PointCanvasView) {
         super.detachToWindow(wm, canvas)
         nextPoint.detachToWindow(wm, canvas)
+    }
+
+    override fun updateParamsFlags(){
+        super.params.flags = getParamOverlayFlags() or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        nextPoint.params.flags = getParamOverlayFlags() or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
     }
 
     override fun toJsonObject():JsonObject{
@@ -327,12 +330,10 @@ class SwipePoint : Point {
     override fun getCommand() : GestureDescription {
         "swipe from $xTouch $yTouch to ${nextPoint.xTouch} ${nextPoint.yTouch}".logd()
         val path = Path()
-        path.moveTo(xTouch.toFloat(), yTouch.toFloat())
-        path.lineTo(nextPoint.xTouch.toFloat(), nextPoint.yTouch.toFloat())
-        path.offset(getNavigationBar().toFloat(), 0f)
+        path.moveTo(xTouch.toFloat() + getNavigationBar(), yTouch.toFloat())
+        path.lineTo(nextPoint.xTouch.toFloat() + getNavigationBar(), nextPoint.yTouch.toFloat())
         val builder = GestureDescription.Builder()
         builder.addStroke(GestureDescription.StrokeDescription(path, 0, duration))
-        path.offset(-getNavigationBar().toFloat(), 0f)
         return builder.build()
     }
 

@@ -9,14 +9,16 @@ import com.askerweb.autoclickerreplay.R
 @JvmField val KEY_SIZE_POINT = context.resources.getString(R.string.key_preference_size_point)
 @JvmField val KEY_REPEAT = context.resources.getString(R.string.key_preference_repeat)
 @JvmField val KEY_BOUNDS_ON = context.resources.getString(R.string.key_preference_bounds_on)
-@JvmField val KEY_CUTOUT_ON = context.resources.getString(R.string.key_preference_cutout_on)
+@JvmField val KEY_SHARE_BUTTON_ON = context.resources.getString(R.string.key_preference_share_button_on)
+@JvmField val KEY_TIMER_ON = context.resources.getString(R.string.key_preference_timer_on)
 @JvmField val KEY_SIZE_CONTROL_PANEL = context.resources.getString(R.string.key_preference_size_control_panel)
 
 @JvmField val defaultSizeControl = context.resources.getStringArray(R.array.arr_size_control_panel_values)[0].toInt()
 @JvmField val defaultSizePoint = context.resources.getStringArray(R.array.arr_size_point_values)[1].toInt()
 const val defaultRepeat = -1
 const val defaultBoundsOn = false
-const val defaultCutoutOn = false
+const val defaultTimerOn = false
+const val defaultShareButtonOn = false
 
 fun getSetting(key:String, defaultValue:String):String?{
     return PreferenceManager

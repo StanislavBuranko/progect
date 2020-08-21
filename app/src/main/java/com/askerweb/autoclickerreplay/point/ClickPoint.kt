@@ -11,9 +11,7 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.core.widget.addTextChangedListener
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.ktExt.context
-import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
-import com.askerweb.autoclickerreplay.ktExt.logd
+import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.askerweb.autoclickerreplay.service.AutoClickService.*
 import com.google.gson.JsonObject

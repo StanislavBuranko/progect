@@ -71,9 +71,6 @@
     <string name="there_is">There\'s</string>
     <string name="no">No</string>
     <string name="delete_multi_point">Delete multi point</string>
-    <string name="question_cutout">Is there a cutout in the screen?</string>
-    <string name="cutout">Screen cutout</string>
-    <string name="key_preference_cutout_on">cutout_on</string>
     <string name="numberPoint">№</string>
     <string name="delay">Delay</string>
     <string name="duration">Duration</string>
@@ -83,5 +80,6 @@
     <string name="setting_points">Setting up a script</string>
     <string name="direction">Direction:</string>
     <string name="numbPoints">Number of points:</string>
-
+    <string name="question_timer">On timer</string>
+    <string name="hide_share_button">Hide button share</string>
 </resources>

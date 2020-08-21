@@ -13,10 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
-import com.askerweb.autoclickerreplay.ktExt.context
-import com.askerweb.autoclickerreplay.ktExt.getNavigationBar
-import com.askerweb.autoclickerreplay.ktExt.getWindowsParameterLayout
-import com.askerweb.autoclickerreplay.ktExt.logd
+import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.point.view.*
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonArray
@@ -43,14 +40,16 @@ class PathPoint : Point {
             .build(SimplePoint::class.java)
 
     val panel = LinearLayout(AutoClickService.getService().applicationContext)
-    val panelParam = getWindowsParameterLayout(
+    var panelParam = getWindowsParameterLayout(
             WindowManager.LayoutParams.MATCH_PARENT.toFloat(),
             WindowManager.LayoutParams.MATCH_PARENT.toFloat(),
             Gravity.CENTER)
 
+
     //override val drawableViewDefault = ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_path_start)!!
 
     init{
+        panelParam.flags = panelParam.flags or getParamOverlayFlags() or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         panel.setOnTouchListener(DrawPathOnTouchListener())
     }
 
@@ -207,6 +206,11 @@ class PathPoint : Point {
         view.visibility = visible
         endPoint.view.visibility = visible
         AutoClickService.getCanvas().invalidate()
+    }
+
+    override fun updateParamsFlags(){
+        super.params.flags = getParamOverlayFlags() or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        endPoint.updateParamsFlags()
     }
 
     override fun updateListener(wm: WindowManager, canvas: PointCanvasView, bounds: Boolean) {
@@ -391,9 +395,7 @@ class PathPoint : Point {
 
     override fun getCommand(): GestureDescription? {
         val builder = GestureDescription.Builder()
-        path.offset(getNavigationBar().toFloat(), 0f)
         builder.addStroke(GestureDescription.StrokeDescription(path, 0, super.duration))
-        path.offset(-getNavigationBar().toFloat(), 0f)
         return builder.build()
     }
 
