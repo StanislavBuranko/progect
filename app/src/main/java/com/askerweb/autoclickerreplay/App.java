@@ -75,12 +75,13 @@ public class App extends Application {
             if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                 getInstance().querySkuDetails(); // query get unit product
                 List<Purchase> purchasesList = getInstance().queryPurchases(); // query get bought unit
-                for (int i = 0; i < purchasesList.size(); i++) {
-                    String purchaseId = purchasesList.get(i).getSku();
-                    if(purchaseId.equals(getInstance().getString(R.string.id_sku_turn_off_ad))) {
-                            payTurnOffAd();
+                if(purchasesList != null)
+                    for (int i = 0; i < purchasesList.size(); i++) {
+                        String purchaseId = purchasesList.get(i).getSku();
+                        if(purchaseId.equals(getInstance().getString(R.string.id_sku_turn_off_ad))) {
+                                payTurnOffAd();
+                        }
                     }
-                }
             }
         }
 
