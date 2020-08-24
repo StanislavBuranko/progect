@@ -51,10 +51,11 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
             p.setCounterRepeat(p.getCounterRepeat());
             countDownTimerTv.cancel();
             allMSPoint = 0;
-            for(int i = willExec; i < AutoClickService.getListPoint().size(); i++ ){
-                allMSPoint = Math.toIntExact(allMSPoint + AutoClickService.getListPoint().get(i).getDelay()
-                        + AutoClickService.getListPoint().get(i).getDuration() * AutoClickService.getListPoint().get(i).getRepeat());
-            }
+            if(AutoClickService.getListPoint() != null)
+                for(int i = willExec; i < AutoClickService.getListPoint().size(); i++ ) {
+                    allMSPoint = Math.toIntExact(allMSPoint + AutoClickService.getListPoint().get(i).getDelay()
+                            + AutoClickService.getListPoint().get(i).getDuration() * AutoClickService.getListPoint().get(i).getRepeat());
+                }
             int allMsPointTemp = allMSPoint;
             if (SimulateTouchAccessibilityService.isPlaying())
             countDownTimerTv = new CountDownTimer(allMsPointTemp, 100) {
@@ -68,9 +69,9 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 public void onFinish() {
                     allMSPoint = 0;
                     if(AutoClickService.getListPoint() != null)
-                    for (Point point : AutoClickService.getListPoint()) {
-                        allMSPoint = Math.toIntExact(allMSPoint + (point.getDelay() + point.getDuration()) * point.getRepeat());
-                    }
+                        for (Point point : AutoClickService.getListPoint()) {
+                            allMSPoint = Math.toIntExact(allMSPoint + (point.getDelay() + point.getDuration()) * point.getRepeat());
+                        }
                     AutoClickService.tvTimer.setText(AutoClickService.getTimeCountDownTimer(allMSPoint));
                 }
             }.start();
