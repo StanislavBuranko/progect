@@ -67,6 +67,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
 
                 public void onFinish() {
                     allMSPoint = 0;
+                    if(AutoClickService.getListPoint() != null)
                     for (Point point : AutoClickService.getListPoint()) {
                         allMSPoint = Math.toIntExact(allMSPoint + (point.getDelay() + point.getDuration()) * point.getRepeat());
                     }
