@@ -172,6 +172,12 @@ class PathPoint : Point {
         }
     }
 
+    override fun swapPointOrientationLandscapeToLandscape() {
+        swapPointOrientation()
+        swapPointOrientation()
+        updateViewLayout(AutoClickService.getWM(), AutoClickService.getParamSizePoint().toFloat())
+    }
+
 
     override fun attachToWindow(wm: WindowManager, canvas: PointCanvasView) {
         if(!wasDraw) wm.addView(panel, panelParam)

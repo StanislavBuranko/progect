@@ -3,7 +3,6 @@
 package com.askerweb.autoclickerreplay.point
 
 import android.app.AlertDialog
-import android.app.Application
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Parcel
@@ -12,7 +11,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.widget.*
+import android.widget.TableLayout
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
@@ -31,8 +30,6 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.synthetic.main.dialog_setting_point.*
 import java.io.Serializable
-import java.security.AccessController.getContext
-import java.util.zip.Inflater
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.properties.Delegates
@@ -360,6 +357,9 @@ abstract class Point : PointCommand, Parcelable, Serializable{
         val temp = params.x
         x = params.y + xCutoutPathHelper()
         y = temp
+    }
+
+    open fun swapPointOrientationLandscapeToLandscape() {
     }
 
     class PointBuilder private constructor(var factory:(Class<out Point>, PointBuilder)->Point){

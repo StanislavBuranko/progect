@@ -160,11 +160,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
             }
             else if(getResources().getConfiguration().orientation == lastOrientation && isThereCutout()){
                 listCommands.forEach(point -> {
-                    if(point.getClass() == PathPoint.class) {
-                        point.swapPointOrientation();
-                        point.swapPointOrientation();
-                        point.updateViewLayout(wm, paramSizePoint);
-                    }
+                    point.swapPointOrientationLandscapeToLandscape();
                 });
             }
             lastOrientation = getResources().getConfiguration().orientation;
@@ -187,6 +183,8 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
     public final static String ACTIVITY_SETTING = "com.askerweb.autoclicker.setting";
     public final static String ACTIVITY_SETTING_TABLE = "com.askerweb.autoclicker.settingPoints";
+
+    public static long startCount = 0;
 
     @Override
     public void onCreate() {
