@@ -334,10 +334,16 @@ fun inOpenStatusAndNavBarWidth() : OpenStatusAndNavBar {
     var heightStatusBar = context.resources.getDimensionPixelSize(idStatusBarHeight)
     Log.d("SizeWindow", "HeightStatusbar: $heightStatusBar")
 
+    val idNavBarHeight: Int = context.resources.getIdentifier("navigation_bar_height", "dimen", "android")
+    var heightNavBar = context.resources.getDimensionPixelSize(idNavBarHeight)
+    Log.d("SizeWindow", "HeightStatusbar: $heightNavBar")
+
     if (heigthRealDisplay == heightRecordPanel)
         return OpenStatusAndNavBar.AllClose
     if (heigthRealDisplay == heightRecordPanel + heightStatusBar)
         return OpenStatusAndNavBar.StatusOpen
+    if (heigthRealDisplay == heightRecordPanel + heightNavBar)
+        return OpenStatusAndNavBar.NavOpen
 
     return OpenStatusAndNavBar.AllOpen
 }
@@ -352,13 +358,11 @@ fun inOpenStatusAndNavBarWidth() : OpenStatusAndNavBar {
 
     fun isThereCutout() : Boolean{
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        if(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    "Cutout: ${wm.defaultDisplay.cutout?.boundingRects?.get(0) != null}".logd("Cutout")
-                    return wm.defaultDisplay.cutout?.boundingRects?.get(0) != null
-                } else {
-                    TODO("VERSION.SDK_INT < Q")
-                })
-            return false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            "Cutout: ${wm.defaultDisplay.cutout?.boundingRects?.get(0) != null}".logd("Cutout")
+            return wm.defaultDisplay.cutout?.boundingRects?.get(0) != null
+        }
+        return false
     }
 
     fun isRotatinNavigateLeft(): Boolean {
@@ -371,18 +375,10 @@ fun inOpenStatusAndNavBarWidth() : OpenStatusAndNavBar {
 
     fun getNavigationBar(): Int {
         if (isRotatinNavigateLeft() && inOpenStatusAndNavBarWidth() == OpenStatusAndNavBar.AllOpen) {
+            AutoClickService.getWM().defaultDisplay.cutout?.boundingRects?.get(0)?.left?.logd("123123")
             val resources: Resources = context.resources
             val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
                 return resources.getDimensionPixelSize(resourceId)
-        }
-        else if(isRotatinNavigateLeft() && inOpenStatusAndNavBarWidth() == OpenStatusAndNavBar.StatusOpen)
-            return 0
-        else if (isRotatinNavigateRight() && isThereCutout()) {
-            val resources: Resources = context.resources
-            val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
-            if (resourceId > 0) {
-                return 0
-            }
         }
         return 0
     }

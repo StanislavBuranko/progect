@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.ktExt.xCutout
 import com.askerweb.autoclickerreplay.ktExt.yCutout
 import com.askerweb.autoclickerreplay.point.PathPoint
@@ -17,6 +18,7 @@ import com.askerweb.autoclickerreplay.point.SwipePoint
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.log
 import kotlin.math.sin
 
 /**
@@ -67,22 +69,19 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
 
     open fun drawPath(pathPoint: PathPoint, canvas: Canvas?){
         canvas?.drawPath(pathPoint.path, paintLineToSwipePoint)
-        /*val radius = width - 15
-        val arrowPath = initArrowDraw(pathPoint.path, 35f)
-        val angle =
-                atan2((pathPoint.coordinateXMove[pathPoint.coordinateXMove.size-1] - pathPoint.coordinateYMove[pathPoint.coordinateXMove.size-1]).toDouble(),
-                        (pathPoint.endPoint.xTouch - pathPoint.endPoint.xTouch).toDouble())
-        val angleD = angle * 180 / Math.PI
-        val newX = (pathPoint.endPoint.xTouch + cos(angle) * -radius).toFloat()
-        val newY = (pathPoint.endPoint.yTouch+ sin(angle) * -radius).toFloat()
-        Log.d("Angle", "angle: $angle")
-        arrowMatrixSwipe.setRotate(angleD.toFloat())
-        arrowPath.transform(arrowMatrixSwipe)
-        arrowPath.offset(newX,
-                newY)*/
+        "drawSwipe123".logd("123321")
+        /*if(pathPoint.wasDraw){
+            pathPoint.path.reset()
+            pathPoint.path.moveTo(pathPoint.coordinateXMove[0] + xCutout(), pathPoint.coordinateYMove[0] + yCutout())
+            for (n in 1..pathPoint.coordinateXMove.size-1){
+                pathPoint.path.lineTo(pathPoint.coordinateXMove[n] + xCutout(), pathPoint.coordinateYMove[n] + yCutout())
+            }
+            canvas?.drawPath(pathPoint.path, paintLineToSwipePoint)
+        }*/
     }
 
     open fun drawSwipe(swipePoint: SwipePoint, canvas: Canvas?){
+        "drawSwipe".logd("123321")
         val radius = swipePoint.view.width - 15
         val arrowPath = initArrowDraw(Path(), 35f)
         val angle =
