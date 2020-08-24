@@ -10,6 +10,7 @@ import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.ktExt.xCutout
+import com.askerweb.autoclickerreplay.ktExt.xCutoutPathHelper
 import com.askerweb.autoclickerreplay.ktExt.yCutout
 import com.askerweb.autoclickerreplay.point.PathPoint
 import com.askerweb.autoclickerreplay.point.PinchPoint
@@ -93,12 +94,12 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
         Log.d("Angle", "angle: $angle")
         arrowMatrixSwipe.setRotate(angleD.toFloat())
         arrowPath.transform(arrowMatrixSwipe)
-        arrowPath.offset(newX + xCutout(),
+        arrowPath.offset(newX - xCutoutPathHelper(),
                 newY + yCutout())
         canvas?.drawPath(arrowPath, paintStandard)
-        canvas?.drawLine(swipePoint.xTouch.toFloat() + xCutout(),
+        canvas?.drawLine(swipePoint.xTouch.toFloat() - xCutoutPathHelper(),
                 swipePoint.yTouch.toFloat() + yCutout(),
-                newX + xCutout(),
+                newX - xCutoutPathHelper(),
                 newY + yCutout(),
                 paintLineToSwipePoint
         )
@@ -123,11 +124,11 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
                 val newYFirst = (pinchPoint.yTouch + sin(angle1) * radius).toFloat()
                 arrowMatrixSwipeFirst.setRotate(angle1D.toFloat())
                 arrowPath.transform(arrowMatrixSwipeFirst)
-                arrowPath.offset(newXFirst + xCutout(), newYFirst + yCutout())
+                arrowPath.offset(newXFirst - xCutoutPathHelper(), newYFirst + yCutout())
                 //draw line to firstPoint
-                canvas?.drawLine(newXFirst + xCutout(),
+                canvas?.drawLine(newXFirst - xCutoutPathHelper(),
                         newYFirst + yCutout(),
-                        pinchPoint.firstPoint.xTouch.toFloat() + xCutout(),
+                        pinchPoint.firstPoint.xTouch.toFloat() - xCutoutPathHelper(),
                         pinchPoint.firstPoint.yTouch.toFloat() + yCutout(),
                         paintLineToSwipePoint
                 )
@@ -142,11 +143,11 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
                 val newYSecond = (pinchPoint.yTouch + sin(angle2) * radius).toFloat()
                 arrowMatrixSwipeSecond.setRotate(angle2D.toFloat())
                 arrowPath2.transform(arrowMatrixSwipeSecond)
-                arrowPath2.offset(newXSecond + xCutout(), newYSecond + yCutout())
+                arrowPath2.offset(newXSecond - xCutoutPathHelper(), newYSecond + yCutout())
                 //draw line to secondPoint
-                canvas?.drawLine(newXSecond + xCutout(),
+                canvas?.drawLine(newXSecond - xCutoutPathHelper(),
                         newYSecond + yCutout(),
-                        pinchPoint.secondPoint.xTouch.toFloat() + xCutout(),
+                        pinchPoint.secondPoint.xTouch.toFloat() - xCutoutPathHelper(),
                         pinchPoint.secondPoint.yTouch.toFloat() + yCutout(),
                         paintLineToSwipePoint
                 )
@@ -162,10 +163,10 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
 
                 arrowMatrixSwipeFirst.setRotate(angleD1.toFloat())
                 arrowPath.transform(arrowMatrixSwipeFirst)
-                arrowPath.offset(newXFirst + xCutout(), newYFirst + yCutout())
-                canvas?.drawLine(pinchPoint.xTouch.toFloat() + xCutout(),
+                arrowPath.offset(newXFirst - xCutoutPathHelper(), newYFirst + yCutout())
+                canvas?.drawLine(pinchPoint.xTouch.toFloat() - xCutoutPathHelper(),
                         pinchPoint.yTouch.toFloat() + yCutout(),
-                        newXFirst + xCutout(),
+                        newXFirst - xCutoutPathHelper(),
                         newYFirst + yCutout(),
                         paintLineToSwipePoint
                 )
@@ -179,11 +180,11 @@ class PointCanvasView constructor(context: Context) : FrameLayout(context) {
 
                 arrowMatrixSwipeSecond.setRotate(angle2D.toFloat())
                 arrowPath2.transform(arrowMatrixSwipeSecond)
-                arrowPath2.offset(newXSecond + xCutout(),
+                arrowPath2.offset(newXSecond - xCutoutPathHelper(),
                         newYSecond + yCutout())
-                canvas?.drawLine(pinchPoint.xTouch.toFloat() + xCutout(),
+                canvas?.drawLine(pinchPoint.xTouch.toFloat() - xCutoutPathHelper(),
                         pinchPoint.yTouch.toFloat() + yCutout(),
-                        newXSecond + xCutout(),
+                        newXSecond - xCutoutPathHelper(),
                         newYSecond + yCutout(),
                         paintLineToSwipePoint
                 )

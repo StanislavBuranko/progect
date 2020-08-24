@@ -13,6 +13,7 @@ import com.askerweb.autoclickerreplay.App;
 import com.askerweb.autoclickerreplay.R;
 import com.askerweb.autoclickerreplay.ktExt.LogExt;
 import com.askerweb.autoclickerreplay.point.HomePoint;
+import com.askerweb.autoclickerreplay.point.PathPoint;
 import com.askerweb.autoclickerreplay.point.Point;
 import com.askerweb.autoclickerreplay.point.PointCommand;
 
@@ -22,6 +23,10 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Function;
+
+import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.getNavigationBar;
+import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.xCutoutPathHelper;
+import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.yCutout;
 
 public class SimulateTouchAccessibilityService extends AccessibilityService {
 
@@ -51,7 +56,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
             p.setCounterRepeat(p.getCounterRepeat());
             countDownTimerTv.cancel();
             allMSPoint = 0;
-            if(AutoClickService.getListPoint() != null)
+            if(AutoClickService.service != null)
                 for(int i = willExec; i < AutoClickService.getListPoint().size(); i++ ) {
                     allMSPoint = Math.toIntExact(allMSPoint + AutoClickService.getListPoint().get(i).getDelay()
                             + AutoClickService.getListPoint().get(i).getDuration() * AutoClickService.getListPoint().get(i).getRepeat());
@@ -107,6 +112,10 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 if(!isStartCounDownTimer) {
                     startTimer();
                     isStartCounDownTimer = true;
+                }
+                if(command.getClass() == PathPoint.class) {
+                    Log.d("classCommand", "execCommand: "+true);
+                    ((PathPoint) command).getPath().offset(-getNavigationBar() - xCutoutPathHelper(), +yCutout());
                 }
             }
         }
@@ -243,7 +252,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                                         finalPoint.setCounterRepeat(finalPoint.getCounterRepeat() + 1);
                                         requestContinue();
                                     }
-                                    else
+                                    else if(isPlaying())
                                         SimulateTouchAccessibilityService.execCommand(finalPoint, getGestureCallback.apply(finalPoint));
                                 }
                             }.start();

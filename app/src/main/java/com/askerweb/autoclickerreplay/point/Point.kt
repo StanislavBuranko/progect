@@ -358,7 +358,7 @@ abstract class Point : PointCommand, Parcelable, Serializable{
 
     open fun swapPointOrientation() {
         val temp = params.x
-        x = params.y
+        x = params.y + xCutoutPathHelper()
         y = temp
     }
 

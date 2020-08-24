@@ -48,7 +48,7 @@ class PathOnTouchListener private constructor(point: PathPoint,
         var xTemp = x
         var yTemp = y
         super.calcNewPositionAndSet(xDiff, yDiff, v)
-        val newXEnd =initialEndPointX + xDiff
+        val newXEnd = initialEndPointX + xDiff
         val newYEnd = initialEndPointY + yDiff
         point.endPoint.x = if(canMoveX(newXEnd, point.endPoint.width)) newXEnd
         else point.endPoint.x
