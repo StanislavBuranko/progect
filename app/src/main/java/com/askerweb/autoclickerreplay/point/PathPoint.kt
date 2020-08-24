@@ -152,34 +152,26 @@ class PathPoint : Point {
         return  obj
     }
 
-    var swapOrientation = false
     override fun swapPointOrientation() {
-        path.reset()
-        if(!swapOrientation) {
-            path.moveTo(coordinateYMove[0].toFloat(), coordinateXMove[0].toFloat())
+        if(wasDraw == true) {
+            path.reset()
+            var temp = coordinateXMove
+            coordinateXMove = coordinateYMove
+            coordinateYMove = temp
+            path.moveTo(coordinateXMove[0], coordinateYMove[0])
             for (n in 1..coordinateXMove.size - 1) {
-                path.lineTo(coordinateYMove[n].toFloat(), coordinateXMove[n].toFloat())
+                path.lineTo(coordinateXMove[n], coordinateYMove[n])
             }
-            y = coordinateXMove[0].toInt() - pointLocateHelper
-            x = coordinateYMove[0].toInt() - pointLocateHelper
-            endPoint.y = coordinateXMove.last().toInt() - pointLocateHelper
-            endPoint.x = coordinateYMove.last().toInt() - pointLocateHelper
-            swapOrientation = true
-            isFirstSwap = false
-        }
-        else {
-            path.moveTo(coordinateXMove[0].toFloat(), coordinateYMove[0].toFloat())
-            for (n in 1..coordinateXMove.size - 1) {
-                path.lineTo(coordinateXMove[n].toFloat(), coordinateYMove[n].toFloat())
-            }
-            x = coordinateXMove[0].toInt() - pointLocateHelper
-            y = coordinateYMove[0].toInt() - pointLocateHelper
-            endPoint.x = coordinateXMove.last().toInt() - pointLocateHelper
-            endPoint.y = coordinateYMove.last().toInt() - pointLocateHelper
-            swapOrientation = false
-            isFirstSwap = true
+            x = coordinateXMove.first().toInt() - pointLocateHelper + xCutoutPathHelper()
+            y = coordinateYMove.first().toInt() - yCutout() - pointLocateHelper
+            xCutoutPathHelper().logd("proverkaCut")
+            getNavigationBar().logd("proverkaNav")
+            endPoint.x = coordinateXMove.last().toInt() - pointLocateHelper + xCutoutPathHelper()
+            endPoint.y = coordinateYMove.last().toInt() - yCutout() - pointLocateHelper
+            AutoClickService.getCanvas().invalidate()
         }
     }
+
 
     override fun attachToWindow(wm: WindowManager, canvas: PointCanvasView) {
         if(!wasDraw) wm.addView(panel, panelParam)
@@ -395,6 +387,7 @@ class PathPoint : Point {
 
     override fun getCommand(): GestureDescription? {
         val builder = GestureDescription.Builder()
+        path.offset(getNavigationBar().toFloat() + xCutoutPathHelper(), -yCutout().toFloat())
         builder.addStroke(GestureDescription.StrokeDescription(path, 0, super.duration))
         return builder.build()
     }
@@ -418,14 +411,14 @@ class PathPoint : Point {
         override fun onTouch(v: View?, event: MotionEvent): Boolean {
             when(event.action and MotionEvent.ACTION_MASK){
                 MotionEvent.ACTION_DOWN->{
-                    if(AutoClickService.getParamSizePoint() == 32)
+                    if(AutoClickService.getParamSizePoint() == context.resources.getStringArray(R.array.arr_size_point_values)[0].toInt())
                         pointLocateHelper = 37;
-                    else if(AutoClickService.getParamSizePoint() == 40)
+                    else if(AutoClickService.getParamSizePoint() == context.resources.getStringArray(R.array.arr_size_point_values)[1].toInt())
                         pointLocateHelper = 50;
-                    else if(AutoClickService.getParamSizePoint() == 56)
+                    else if(AutoClickService.getParamSizePoint() == context.resources.getStringArray(R.array.arr_size_point_values)[2].toInt())
                         pointLocateHelper = 75;
-                    x = event.getX().toInt() - pointLocateHelper
-                    y = event.getY().toInt() - pointLocateHelper
+                    x = event.getX().toInt() - pointLocateHelper +  xCutoutPathHelper()
+                    y = event.getY().toInt() - pointLocateHelper - yCutout()
                     path.moveTo(event.getX(), event.getY())
                     coordinateXMove += event.getX()
                     coordinateYMove += event.getY()
@@ -434,19 +427,19 @@ class PathPoint : Point {
                     detachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
                     wasDraw = true
                     if(coordinateXMove.size == 1) {
-                        path.lineTo((coordinateXMove.last()+100).toFloat(), (coordinateYMove.last()+100).toFloat())
-                        coordinateXMove += coordinateXMove.last()+100
-                        coordinateYMove += coordinateYMove.last()+100
+                        path.lineTo(coordinateXMove.last() + 100, coordinateYMove.last() + 100)
+                        coordinateXMove += coordinateXMove.last() + 100
+                        coordinateYMove += coordinateYMove.last() + 100
                     }
-                    endPoint.x = coordinateXMove.last().toInt() - pointLocateHelper
-                    endPoint.y = coordinateYMove.last().toInt() - pointLocateHelper
+                    endPoint.x = coordinateXMove.last().toInt() - pointLocateHelper + xCutoutPathHelper()
+                    endPoint.y = coordinateYMove.last().toInt() - pointLocateHelper - yCutout()
                     attachToWindow(AutoClickService.getWM(), AutoClickService.getCanvas())
                     updateListener(AutoClickService.getWM(), AutoClickService.getCanvas(),AutoClickService.getParamBound())
                 }
                 MotionEvent.ACTION_MOVE-> {
+                    coordinateXMove += event.getX()
+                    coordinateYMove += event.getY()
                     path.lineTo(event.getX(), event.getY())
-                    coordinateXMove += event.rawX - getNavigationBar()
-                    coordinateYMove += event.rawY
                     AutoClickService.getCanvas().invalidate()
                 }
             }

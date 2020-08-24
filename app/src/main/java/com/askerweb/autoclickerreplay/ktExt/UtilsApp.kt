@@ -11,6 +11,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.Typeface
 import android.os.Build
@@ -151,10 +152,20 @@ fun xCutout() : Int{
     return 0
 }
 
-fun getHeightNavaBar():Int {
-    val idNavBarHeight: Int = context.resources.getIdentifier("navigation_bar_height", "dimen", "android")
-    return context.resources.getDimensionPixelSize(idNavBarHeight)
+fun xCutoutPathHelper() : Int{
+    isRotatinNavigateRight().logd("XCutOutHelper")
+    isThereCutout().logd("XCutOutHelper")
+    if(isThereCutout()){
+        if (isRotatinNavigateRight()) {
+            AutoClickService.getWM().defaultDisplay.cutout?.boundingRects?.get(0)?.right!!.logd("XCutOutHelper")
+            return if (AutoClickService.getWM().defaultDisplay.cutout?.boundingRects?.get(0) != null)
+                AutoClickService.getWM().defaultDisplay.cutout?.boundingRects?.get(0)?.right!! else 0
+        }
+    }
+    return 0
 }
+
+
 @JvmOverloads
 fun getWindowsParameterLayout(_width:Float,
                                             _height: Float,
@@ -224,58 +235,6 @@ fun getDialogTitle(context: Context, text:String): View {
 
 var cutoutParams = 0;
 var cutoutParamsLandscape = 0;
-
-/*fun getCutoutSizeYPoint() : Int{
-    if(context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-        val cutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            AutoClickService.getWM().defaultDisplay.cutout
-        } else {
-            TODO("VERSION.SDK_INT < Q")
-        }
-        cutoutParams = if(cutout?.boundingRects?.get(0)?.bottom == null) 0 else cutout?.boundingRects?.get(0)?.bottom!!
-
-//        var windowInsets = Rect()
-//        windowInsets.set(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom())
-        return cutoutParams
-    }
-    return 0
-}
-
-fun getCutoutSizeXLandscape() : Int{
-    if(context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        val cutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            AutoClickService.getWM().defaultDisplay.cutout
-        } else {
-            TODO("VERSION.SDK_INT < Q")
-        }
-        cutoutParamsLandscape = if(cutout?.boundingRects?.get(0)?.left == null) 0 else cutout?.boundingRects?.get(0)?.right!!
-        cutout?.boundingRects?.get(0)?.right!!.logd("3221right")
-        cutout?.boundingRects?.get(0)?.left!!.logd("3221left")
-        cutout?.boundingRects?.get(0)?.bottom!!.logd("3221bottom")
-        cutout?.boundingRects?.get(0)?.top!!.logd("3221top")
-        return cutoutParamsLandscape
-    }
-    return 0
-}
-
-fun getCutoutSizeXPoint() : Int{
-    if(context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        val cutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            AutoClickService.getWM().defaultDisplay.cutout
-        } else {
-            TODO("VERSION.SDK_INT < Q")
-        }
-        return if(cutout?.boundingRects?.get(0)?.bottom == null) 0 else cutoutParams
-    }
-    return 0
-}*/
-
-/*fun getCutoutSizeYPath(wm: WindowManager) : Int{
-    if(context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        return cutoutParams
-    }
-    return 0
-}*/
 
 enum class Dimension(private val type: Int) {
     DP(TypedValue.COMPLEX_UNIT_DIP),
@@ -374,11 +333,20 @@ fun inOpenStatusAndNavBarWidth() : OpenStatusAndNavBar {
     }
 
     fun getNavigationBar(): Int {
-        if (isRotatinNavigateLeft() && inOpenStatusAndNavBarWidth() == OpenStatusAndNavBar.AllOpen) {
-            AutoClickService.getWM().defaultDisplay.cutout?.boundingRects?.get(0)?.left?.logd("123123")
+        inOpenStatusAndNavBarWidth().logd("NavBAr")
+        if (isRotatinNavigateLeft() && inOpenStatusAndNavBarWidth() == OpenStatusAndNavBar.AllOpen
+                ||isRotatinNavigateLeft() && inOpenStatusAndNavBarWidth() == OpenStatusAndNavBar.NavOpen) {
             val resources: Resources = context.resources
             val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+            resources.getDimensionPixelSize(resourceId).logd("NavBAr")
                 return resources.getDimensionPixelSize(resourceId)
         }
         return 0
     }
+
+fun getNavBar(): Int {
+    val resources: Resources = context.resources
+    val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+    resources.getDimensionPixelSize(resourceId).logd("NavBAr")
+    return resources.getDimensionPixelSize(resourceId)
+}

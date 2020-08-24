@@ -424,6 +424,10 @@ class MultiPoint: Point {
         return builder.build()
     }
 
+    override fun swapPointOrientation() {
+        points.forEach { point -> point.swapPointOrientation() }
+    }
+
     companion object CREATOR : Parcelable.Creator<MultiPoint> {
         override fun createFromParcel(parcel: Parcel): MultiPoint {
             return MultiPoint(parcel)

@@ -87,9 +87,11 @@ import static com.askerweb.autoclickerreplay.ktExt.SettingExt.KEY_TIMER_ON;
 import static com.askerweb.autoclickerreplay.ktExt.SettingExt.defaultShareButtonOn;
 import static com.askerweb.autoclickerreplay.ktExt.SettingExt.defaultTimerOn;
 import static com.askerweb.autoclickerreplay.ktExt.SettingExt.getSetting;
+import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.getNavBar;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.getParamOverlayFlags;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.getWindowsTypeApplicationOverlay;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.inOpenStatusAndNavBarWidth;
+import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.isRotatinNavigateRight;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.isThereCutout;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.standardOverlayFlags;
 import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.standardOverlayFlagsForCutout;
@@ -156,7 +158,17 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 listCommands.forEach(AutoClickService.this::swapPointOrientation);
                 listCommands.forEach(AutoClickService.this::updateFlagsParams);
             }
+            else if(getResources().getConfiguration().orientation == lastOrientation && isThereCutout()){
+                listCommands.forEach(point -> {
+                    if(point.getClass() == PathPoint.class) {
+                        point.swapPointOrientation();
+                        point.swapPointOrientation();
+                        point.updateViewLayout(wm, paramSizePoint);
+                    }
+                });
+            }
             lastOrientation = getResources().getConfiguration().orientation;
+            AutoClickService.getCanvas().invalidate();
         }
     };
 
@@ -420,8 +432,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         listTypes.add(ClickPoint.class);
         listTypes.add(SwipePoint.class);
         listTypes.add(PinchPoint.class);
-        if (!isThereCutout())
-            listTypes.add(PathPoint.class);
+        listTypes.add(PathPoint.class);
         listTypes.add(MultiPoint.class);
         listTypes.add(HomePoint.class);
         View title = UtilsApp.getDialogTitle(this, getString(R.string.sel_type_goal));
