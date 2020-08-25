@@ -542,7 +542,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         intent.setAction(Intent.ACTION_SEND);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_TEXT, "https://play.google.com/store/apps/details?id=com.askerweb.autoclickerreplay");
+        intent.putExtra(Intent.EXTRA_TEXT, R.string.link_app_play_market);
         startActivity(intent);
     }
 
@@ -592,7 +592,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     }
 
     public static void showViews() {
-        if(AutoClickService.getParamTimer() == true)
+        if(AutoClickService.getParamTimer())
             timerPanel.setVisibility(View.VISIBLE);
         AutoClickService.getControlPanel().setVisibility(View.VISIBLE);
         AutoClickService.getListPoint().forEach((c)->c.setVisible(View.VISIBLE));
@@ -622,7 +622,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                     inOpenStatusAndNavBarWidth();
                     isActionStart = true;
                     int startCount = incCounterRunMacro();
-                    if (App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2) {
+                    if (/*App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2*/true) {
                         if (getMiuiVersion() != 0) {
                             ifMiui();
                         } else {
@@ -668,21 +668,10 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
         Handler handler = new Handler();
         handler.postDelayed(() -> {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        }, 500);
-
-        Intent startMain = new Intent(Intent.ACTION_MAIN);
-        startMain.addCategory(Intent.CATEGORY_HOME);
-        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(startMain);
-
-        handler = new Handler();
-        handler.postDelayed(() -> {
+            Log.d("checkActivity2", "ifMiui: "+ checkPermPopUP);
             if (checkPermPopUP) {
-                showAdBeforeRunMacro();
                 checkPermPopUP = false;
+                showAdBeforeRunMacro();
             } else {
                 DialogInterface.OnClickListener click = (dialogInterface, i) -> {
                     dialogInterface.cancel();
@@ -697,7 +686,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 dialog.show();
             }
             isActionStart = false;
-        }, 1000);
+        }, 2000);
     }
 
     private void showAdBeforeRunMacro(){

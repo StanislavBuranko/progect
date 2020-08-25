@@ -100,4 +100,5 @@
     <string name="question_timer">Вкл. таймер</string>
     <string name="hide_share_button">Cкрыть кнопку поделится</string>
     <string name="key_preference_share_button_on" translatable="false">share_button_on</string>
+    <string name="link_app_play_market" translatable="false">https://play.google.com/store/apps/details?id=com.askerweb.autoclickerreplay</string>
 </resources>
