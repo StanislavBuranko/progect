@@ -31,13 +31,15 @@ import static com.askerweb.autoclickerreplay.ktExt.UtilsApp.yCutout;
 public class SimulateTouchAccessibilityService extends AccessibilityService {
 
     private static SimulateTouchAccessibilityService service;
-    static CountDownTimer countDownTimer;
-
-    Context appContext = App.appComponent.getAppContext();
-    ArrayList<Point> listCommand;
+    private static CountDownTimer countDownTimer;
+    private Context appContext = App.appComponent.getAppContext();
+    private ArrayList<Point> listCommand;
     public static boolean isPlaying = false;
     public static int willExec = 0;
-    int counterRepeatMacro=0;
+    private int counterRepeatMacro=0;
+    private static CountDownTimer countDownTimerTv;
+    private static int allMSPoint = 0;
+    private boolean isStartTimer = false;
 
     public final static String ACTION_COMPLETE = "ACTION_COMPLETE_POINT";
     public final static String KEY_LIST_COMMAND = "listCommand";
@@ -54,15 +56,22 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
         public void onCancelled(GestureDescription gestureDescription) {
             super.onCancelled(gestureDescription);
             p.setCounterRepeat(p.getCounterRepeat());
-            countDownTimerTv.cancel();
-            allMSPoint = 0;
-            if(AutoClickService.service != null)
-                for(int i = willExec; i < AutoClickService.getListPoint().size(); i++ ) {
-                    allMSPoint = Math.toIntExact(allMSPoint + AutoClickService.getListPoint().get(i).getDelay()
-                            + AutoClickService.getListPoint().get(i).getDuration() * AutoClickService.getListPoint().get(i).getRepeat());
-                }
-            int allMsPointTemp = allMSPoint;
-            if (SimulateTouchAccessibilityService.isPlaying())
+            updateTimerWhenCancelledGesture();
+            requestContinue();
+        }
+    };
+
+
+    public static void updateTimerWhenCancelledGesture(){
+        countDownTimerTv.cancel();
+        allMSPoint = 0;
+        if(AutoClickService.service != null)
+            for(int i = willExec; i < AutoClickService.getListPoint().size(); i++ ) {
+                allMSPoint = Math.toIntExact(allMSPoint + AutoClickService.getListPoint().get(i).getDelay()
+                        + AutoClickService.getListPoint().get(i).getDuration() * AutoClickService.getListPoint().get(i).getRepeat());
+            }
+        int allMsPointTemp = allMSPoint;
+        if (SimulateTouchAccessibilityService.isPlaying())
             countDownTimerTv = new CountDownTimer(allMsPointTemp, 100) {
 
                 public void onTick(long millisUntilFinished) {
@@ -80,9 +89,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                     AutoClickService.tvTimer.setText(AutoClickService.getTimeCountDownTimer(allMSPoint));
                 }
             }.start();
-            requestContinue();
-        }
-    };
+    }
 
 
 
@@ -113,10 +120,6 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                     startTimer();
                     isStartCounDownTimer = true;
                 }
-                if(command.getClass() == PathPoint.class) {
-                    Log.d("classCommand", "execCommand: "+true);
-                    ((PathPoint) command).getPath().offset(-getNavigationBar() - xCutoutPathHelper(), +yCutout());
-                }
             }
         }
     }
@@ -137,8 +140,7 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
 
         });
     }
-    static CountDownTimer countDownTimerTv;
-    static int allMSPoint = 0;
+
     private static void startTimer(){
         allMSPoint = 0;
         for (Point point : AutoClickService.getListPoint()) {
@@ -177,17 +179,16 @@ public class SimulateTouchAccessibilityService extends AccessibilityService {
                 .putExtra(KEY_LIST_COMMAND, (Serializable) list);
         service.getApplicationContext().startService(intent);
     }
+
     public static void requestStop(){
         requestAction(AutoClickService.ACTION_STOP);
     }
     public static void requestContinue() {
         requestAction(ACTION_COMPLETE);
     }
-
     public static boolean isPlaying() {
         return service != null && service.isPlaying;
     }
-    private boolean isStartTimer = false;
 
 
     @Override

@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.activity.TablePointsActivity
 import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.point.view.ExtendedViewHolder
@@ -133,6 +134,7 @@ class SwipePoint : Point {
             if(edXPoint.text.toString() == ""){
                 edXPoint.setText(super.params.x.toString())
             }
+            AutoClickService.getCanvas().invalidate()
         }
         edXPoint.addTextChangedListener{
             if(edXPoint.text.toString() != "") {
@@ -146,6 +148,7 @@ class SwipePoint : Point {
                 else {super.params.x = edXPoint.text.toString().toInt()}
                 AutoClickService.getWM().updateViewLayout(super.view, super.params)
             }
+            AutoClickService.getCanvas().invalidate()
         }
 
         val edYPoint = tr.findViewById<View>(R.id.yPoint) as EditText
@@ -154,7 +157,7 @@ class SwipePoint : Point {
             if(edYPoint.text.toString() == ""){
                 edYPoint.setText(super.y.toString())
             }
-
+            AutoClickService.getCanvas().invalidate()
         }
         edYPoint.addTextChangedListener{
             if(edYPoint.text.toString() != "") {
@@ -168,6 +171,7 @@ class SwipePoint : Point {
                 else {super.params.y = edYPoint.text.toString().toInt()}
                 AutoClickService.getWM().updateViewLayout(super.view, super.params)
             }
+            AutoClickService.getCanvas().invalidate()
         }
 
         val edDelayPoint = tr.findViewById<View>(R.id.delayPoint) as EditText
@@ -239,6 +243,7 @@ class SwipePoint : Point {
             if(edXPointEnd.text.toString() == ""){
                 edXPointEnd.setText(nextPoint.params.x.toString())
             }
+            AutoClickService.getCanvas().invalidate()
         }
         edXPointEnd.addTextChangedListener{
             if(edXPointEnd.text.toString() != "") {
@@ -252,6 +257,7 @@ class SwipePoint : Point {
                 else {nextPoint.params.x = edXPointEnd.text.toString().toInt()}
                 AutoClickService.getWM().updateViewLayout(nextPoint.view, nextPoint.params)
             }
+            AutoClickService.getCanvas().invalidate()
         }
 
         val edYPointEnd = trEnd.findViewById(R.id.yPoint) as EditText
@@ -260,6 +266,7 @@ class SwipePoint : Point {
             if(edYPointEnd.text.toString() == ""){
                 edYPointEnd.setText(nextPoint.params.y.toString())
             }
+            AutoClickService.getCanvas().invalidate()
         }
         edYPointEnd.addTextChangedListener{
             if(edYPointEnd.text.toString() != "") {
@@ -273,6 +280,7 @@ class SwipePoint : Point {
                 else {nextPoint.params.y = edYPointEnd.text.toString().toInt()}
                 AutoClickService.getWM().updateViewLayout(nextPoint.view, nextPoint.params)
             }
+            AutoClickService.getCanvas().invalidate()
         }
         trEnd.visibility = View.GONE
         tableLayout.addView(trEnd)
@@ -306,6 +314,37 @@ class SwipePoint : Point {
                 buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
         }
 
+        val buttonDown = tr.findViewById<View>(R.id.butttonDownPoint) as Button
+        buttonDown.setOnClickListener{
+            if (super.text > "0" && super.text.toInt() < AutoClickService.getListPoint().size){
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+                AutoClickService.getListPoint().set(tempTextPoint - 1, AutoClickService.getListPoint().get(super.text.toInt()))
+                AutoClickService.getListPoint().set(super.text.toInt(), tempPoint)
+                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
+                AutoClickService.getListPoint().get(super.text.toInt()).text = (super.text.toInt()+1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
+            true
+        }
+
+        val buttonUp = tr.findViewById<View>(R.id.butttonUpPoint) as Button
+        buttonUp.setOnClickListener{
+            AutoClickService.getListPoint().logd()
+            if (super.text > "1" && super.text.toInt() <= AutoClickService.getListPoint().size){
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+
+                AutoClickService.getListPoint().set(tempTextPoint-1, AutoClickService.getListPoint().get(super.text.toInt()-2))
+                AutoClickService.getListPoint().set(tempTextPoint-2, tempPoint)
+                AutoClickService.getListPoint().get(tempTextPoint-1).text = (super.text.toInt()).toString()
+                AutoClickService.getListPoint().get(tempTextPoint-2).text = (super.text.toInt()-1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
+            true
+        }
     }
 
     override fun setTouchable(touchable: Boolean, wm:WindowManager){

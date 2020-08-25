@@ -28,6 +28,7 @@ import com.askerweb.autoclickerreplay.service.AutoClickService;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.zip.Inflater;
 
 import butterknife.ButterKnife;
 
@@ -49,11 +50,7 @@ public class TablePointsActivity extends AppCompatActivity {
         int i = 1;
         TableLayout tableLayout = (TableLayout) findViewById(R.id.table);
         LayoutInflater inflater = LayoutInflater.from(this);
-        TableRow trHeading = (TableRow) inflater.inflate(R.layout.table_row_heading, null);
-        tableLayout.addView(trHeading);
-        for (Point point : listCommand) {
-            point.createTableView(tableLayout, inflater);
-        }
+        updateTable(tableLayout, inflater);
 
     }
 
@@ -71,5 +68,15 @@ public class TablePointsActivity extends AppCompatActivity {
             point.setTouchable(true, AutoClickService.getWM());
         });
         AutoClickService.getTvTimer().setText(AutoClickService.getTime());
+    }
+
+    public static void updateTable(TableLayout tableLayout, LayoutInflater inflater){
+        tableLayout.removeAllViews();
+        TableRow trHeading = (TableRow) inflater.inflate(R.layout.table_row_heading, null);
+        tableLayout.addView(trHeading);
+        for (Point point : AutoClickService.getListPoint()) {
+            point.setVisible(View.GONE);
+            point.createTableView(tableLayout, inflater);
+        }
     }
 }

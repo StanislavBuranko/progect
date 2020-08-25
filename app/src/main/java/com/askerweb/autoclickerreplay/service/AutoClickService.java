@@ -102,17 +102,17 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     public static AutoClickService service = null;
     
     static WindowManager wm = null;
-    Unbinder unbindControlPanel = null;
-    View controlPanel;
+    private Unbinder unbindControlPanel = null;
+    private View controlPanel;
     static View timerPanel;
     public static TextView tvTimer;
     public static View recordPanel;
     static PointCanvasView canvasView;
-    RecordPoints recordPoints;
+    private RecordPoints recordPoints;
 
     @BindView(R.id.group_control)
     View group_control;
-    @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.record_points_start_pause, R.id.setting_points, R.id.setting, R.id.close, R.id.shareApp})
+    @BindViews({R.id.start_pause, R.id.remove_point, R.id.add_point, R.id.record_points_start_pause, R.id.settings_table_points, R.id.setting, R.id.close, R.id.shareApp})
     List<View> controls;
 
     @Inject
@@ -127,9 +127,11 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     public Integer paramRepeatMacro;
     public Integer paramSizePoint;
     public Integer paramSizeControl;
-    Boolean openRecordPanel = false;
-    Integer allMSPoint = 0;
-    Boolean isInitalView = false;
+    private Boolean openRecordPanel = false;
+    private Integer allMSPoint = 0;
+    private Boolean isInitalView = false;
+    public static boolean checkPermPopUP = false;
+    private boolean isActionStart = false;
 
 
     public static final WindowManager.LayoutParams paramsTimerPanel =
@@ -188,9 +190,6 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
     @Override
     public void onCreate() {
-//        Rect windowInsets = new Rect();
-//        windowInsets.set(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom())
-
         lastOrientation = getResources().getConfiguration().orientation;
         Log.d("OverlayFlags", "onCreate: "+ getParamOverlayFlags());
         super.onCreate();
@@ -294,11 +293,16 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 min = "0"+min;
             if (Integer.parseInt(second) < 10)
                 second = "0"+second;
-            if (Integer.parseInt(ms) < 10)
-                ms = "0"+ms;
-            return min + ":" + second + ":" + ms;
+            if(Integer.parseInt(ms) > 10){
+                ms = Math.round(Integer.parseInt(ms)/10) + "";
+                if(Integer.parseInt(ms) == 10) {
+                    ms = "0";
+                    second = (Integer.parseInt(second)+1)+"";
+                }
+            }
+            return min + ":" + second + ":" + ms + "ms";
         }
-        return "00:00:00";
+        return "00:00:0 ms";
     }
 
     public static String getTimeCountDownTimer(int allMs){
@@ -310,11 +314,16 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 min = "0"+min;
             if (Integer.parseInt(second) < 10)
                 second = "0"+second;
-            if (Integer.parseInt(ms) < 10)
-                ms = "0"+ms;
-            return min + ":" + second + ":" + ms;
+            if(Integer.parseInt(ms) > 10){
+                ms = Math.round(Integer.parseInt(ms)/10) + "";
+                if(Integer.parseInt(ms) == 10) {
+                    ms = "0";
+                    second = (Integer.parseInt(second)+1)+"";
+                }
+            }
+            return min + ":" + second + ":" + ms + "ms";
         }
-        return "00:00:00";
+        return "00:00:0 ms";
     }
 
     public static void start(Context context){
@@ -358,13 +367,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     }
 
 
-    public static boolean getParamTimer(){
-        return Optional
-                .ofNullable(getSetting(KEY_TIMER_ON, defaultTimerOn))
-                .orElse(defaultTimerOn);
-    }
-
-
+    public static boolean getParamTimer(){ return service.paramTimerOn; }
 
     public static  TextView getTvTimer(){
         return tvTimer;
@@ -393,7 +396,6 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     public static WindowManager getWM(){
         return service.wm;
     }
-
 
     public static PointCanvasView getCanvas(){
         return service.canvasView;
@@ -523,7 +525,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         startActivity(intent);
     }
 
-    @OnClick(R.id.setting_points)
+    @OnClick(R.id.settings_table_points)
     public void showSettingPoints(){
         if(listCommands.size() != 0 ) {
             Intent intent = new Intent(ACTIVITY_SETTING_TABLE);
@@ -599,8 +601,6 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         canvasView.invalidate();
     }
 
-    public static boolean checkPermPopUP = false;
-    private boolean isActionStart = false;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(intent == null || intent.getAction() == null) return super.onStartCommand(intent, flags, startId);
@@ -615,14 +615,13 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 AutoClickService.getTvTimer().setText(AutoClickService.getTime());
                 SimulateTouchAccessibilityService.isStartCounDownTimer = false;
                 isActionStart = false;
-
                 break;
             case ACTION_START:
                 if(!isActionStart) {
                     inOpenStatusAndNavBarWidth();
                     isActionStart = true;
                     int startCount = incCounterRunMacro();
-                    if (/*App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2*/true) {
+                    if (App.isShowAd() && interstitialAd.isLoaded() && startCount >= 2) {
                         if (getMiuiVersion() != 0) {
                             ifMiui();
                         } else {
@@ -662,9 +661,9 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     }
 
     public void ifMiui(){
-        Intent intent1 = new Intent(this, CheckPermPopUp.class);
-        intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent1);
+        Intent intent = new Intent(this, CheckPermPopUp.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
 
         Handler handler = new Handler();
         handler.postDelayed(() -> {
@@ -696,6 +695,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         intent2.putExtra("ad_request", "true");
         startActivity(intent2);
     }
+
     private void runMacro(){
         listCommands.forEach((c)->c.setTouchable(false,wm));
         controlPanel.findViewById(R.id.start_pause)
@@ -712,7 +712,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         runMacro();
     }
 
-    private void duplicatePoint(Point point) {
+    private void duplicatePoint(Point point){
         point.setText(String.format("%s", listCommands.size() + 1));
         point.attachToWindow(wm, canvasView);
         updateTouchListenerPoint(point);
@@ -756,7 +756,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                 .ofNullable(getSetting(SettingExt.KEY_SHARE_BUTTON_ON, SettingExt.defaultShareButtonOn))
                 .orElse(SettingExt.defaultShareButtonOn);
 
-        if(isInitalView) {
+        if(isInitalView){
             AutoClickService.getListPoint().forEach(point ->{
                 point.updateParamsFlags();
             });
@@ -814,7 +814,6 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         intent.setAction(action);
         intent.putExtra(key, parcelable);
         context.startService(intent);
-
     }
 
     @OnClick(R.id.record_points_start_pause)
@@ -825,7 +824,6 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         else {
             cancelRecord();
         }
-
     }
 
 

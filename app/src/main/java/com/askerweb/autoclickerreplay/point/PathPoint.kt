@@ -2,8 +2,6 @@ package com.askerweb.autoclickerreplay.point
 
 import android.accessibilityservice.GestureDescription
 import android.content.Context
-import android.graphics.Matrix
-import android.graphics.Paint
 import android.graphics.Path
 import android.os.Parcel
 import android.os.Parcelable
@@ -13,25 +11,27 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.activity.TablePointsActivity
 import com.askerweb.autoclickerreplay.ktExt.*
-import com.askerweb.autoclickerreplay.point.view.*
+import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
+import com.askerweb.autoclickerreplay.point.view.ExtendedViewHolder
+import com.askerweb.autoclickerreplay.point.view.PathOnTouchListener
+import com.askerweb.autoclickerreplay.point.view.PointCanvasView
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.dialog_setting_point.*
 import java.util.*
-import kotlin.math.atan2
-import kotlin.math.ceil
-import kotlin.math.cos
-import kotlin.math.sin
 
 
 class PathPoint : Point {
 
+
     public var coordinateXMove: Array<Float> = arrayOf()
     public var coordinateYMove: Array<Float> = arrayOf()
-    var wasDraw = false
+    @kotlin.jvm.JvmField
+    public var wasDraw = false
 
     var path = Path()
     val endPoint = PointBuilder.invoke()
@@ -79,6 +79,14 @@ class PathPoint : Point {
                 path.lineTo(coordinateYMove[n].toFloat(), coordinateXMove[n].toFloat())
             }
         }
+        wasDraw = parcel.readBoolean()
+        pointLocateHelper()
+        x = coordinateXMove.first().toInt()  - pointLocateHelper +  xCutoutPathHelper()
+        y = coordinateYMove.first().toInt() - pointLocateHelper - yCutout()
+
+        endPoint.x = coordinateXMove.last().toInt() - pointLocateHelper + xCutoutPathHelper()
+        endPoint.y = coordinateYMove.last().toInt() - pointLocateHelper - yCutout()
+
     }
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {
@@ -86,6 +94,7 @@ class PathPoint : Point {
         dest?.writeArray(coordinateXMove)
         dest?.writeArray(coordinateYMove)
         dest?.writeBoolean(isFirstSwap)
+        dest?.writeBoolean(wasDraw)
     }
 
     constructor(json: JsonObject):super(json){
@@ -215,7 +224,13 @@ class PathPoint : Point {
         val l = PathOnTouchListener.create(this, wm, canvas, bounds);
         endPoint.view.setOnTouchListener(l);
         super.view.setOnTouchListener(l);
-        panel.setOnTouchListener(DrawPathOnTouchListener())
+        if(!wasDraw)
+            panel.setOnTouchListener(DrawPathOnTouchListener())
+    }
+
+    override fun setTouchable(touchable: Boolean, wm:WindowManager){
+        super.setTouchable(touchable, wm)
+        endPoint.setTouchable(touchable, wm)
     }
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
@@ -384,10 +399,41 @@ class PathPoint : Point {
         buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
         buttonShowHideRow.setOnClickListener {
             trEnd.visibility = if (trEnd.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            setVisible(if (super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(trEnd.visibility == View.VISIBLE)
                 buttonShowHideRow.setBackgroundResource(R.drawable.ic_open_minimal)
             else
                 buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
+        }
+
+        val buttonDown = tr.findViewById<View>(R.id.butttonDownPoint) as Button
+        buttonDown.setOnClickListener{
+            if (super.text > "0" && super.text.toInt() < AutoClickService.getListPoint().size){
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+                AutoClickService.getListPoint().set(tempTextPoint - 1, AutoClickService.getListPoint().get(super.text.toInt()))
+                AutoClickService.getListPoint().set(super.text.toInt(), tempPoint)
+                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
+                AutoClickService.getListPoint().get(super.text.toInt()).text = (super.text.toInt()+1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
+        }
+
+        val buttonUp = tr.findViewById<View>(R.id.butttonUpPoint) as Button
+        buttonUp.setOnClickListener{
+            AutoClickService.getListPoint().logd()
+            if (super.text > "1" && super.text.toInt() <= AutoClickService.getListPoint().size){
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+
+                AutoClickService.getListPoint().set(tempTextPoint-1, AutoClickService.getListPoint().get(super.text.toInt()-2))
+                AutoClickService.getListPoint().set(tempTextPoint-2, tempPoint)
+                AutoClickService.getListPoint().get(tempTextPoint-1).text = (super.text.toInt()).toString()
+                AutoClickService.getListPoint().get(tempTextPoint-2).text = (super.text.toInt()-1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
         }
     }
 
@@ -395,6 +441,7 @@ class PathPoint : Point {
         val builder = GestureDescription.Builder()
         path.offset(getNavigationBar().toFloat() + xCutoutPathHelper(), -yCutout().toFloat())
         builder.addStroke(GestureDescription.StrokeDescription(path, 0, super.duration))
+        path.offset(-getNavigationBar() - xCutoutPathHelper().toFloat(), +yCutout().toFloat())
         return builder.build()
     }
 
@@ -412,17 +459,20 @@ class PathPoint : Point {
 
     var pointLocateHelper  = 0 ;
 
+    fun pointLocateHelper(){
+        if(AutoClickService.getParamSizePoint() == context.resources.getStringArray(R.array.arr_size_point_values)[0].toInt())
+            pointLocateHelper = 37;
+        else if(AutoClickService.getParamSizePoint() == context.resources.getStringArray(R.array.arr_size_point_values)[1].toInt())
+            pointLocateHelper = 50;
+        else if(AutoClickService.getParamSizePoint() == context.resources.getStringArray(R.array.arr_size_point_values)[2].toInt())
+            pointLocateHelper = 75;
+    }
 
     inner class DrawPathOnTouchListener : View.OnTouchListener {
         override fun onTouch(v: View?, event: MotionEvent): Boolean {
             when(event.action and MotionEvent.ACTION_MASK){
                 MotionEvent.ACTION_DOWN->{
-                    if(AutoClickService.getParamSizePoint() == context.resources.getStringArray(R.array.arr_size_point_values)[0].toInt())
-                        pointLocateHelper = 37;
-                    else if(AutoClickService.getParamSizePoint() == context.resources.getStringArray(R.array.arr_size_point_values)[1].toInt())
-                        pointLocateHelper = 50;
-                    else if(AutoClickService.getParamSizePoint() == context.resources.getStringArray(R.array.arr_size_point_values)[2].toInt())
-                        pointLocateHelper = 75;
+                    pointLocateHelper()
                     x = event.getX().toInt() - pointLocateHelper +  xCutoutPathHelper()
                     y = event.getY().toInt() - pointLocateHelper - yCutout()
                     path.moveTo(event.getX(), event.getY())
@@ -484,7 +534,7 @@ class PathPoint : Point {
         init{
             btn_duplicate.setOnClickListener{
                 // Duplicate this point
-                wasDraw = true
+                point.wasDraw = true
                 AutoClickService.requestAction(point.appContext, AutoClickService.ACTION_DUPLICATE_POINT, AutoClickService.KEY_POINT, point)
                 dialog?.cancel()
             }

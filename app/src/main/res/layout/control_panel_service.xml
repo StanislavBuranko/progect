@@ -72,6 +72,14 @@
                 android:visibility="gone" />
 
             <Button
+                android:id="@+id/settings_table_points"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/ic_table_points"
+                android:visibility="gone" />
+
+            <Button
                 android:id="@+id/setting"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

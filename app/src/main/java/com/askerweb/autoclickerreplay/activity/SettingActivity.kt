@@ -6,20 +6,18 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.android.billingclient.api.Purchase
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
 import com.askerweb.autoclickerreplay.ktExt.loadMacroFromJson
-import com.askerweb.autoclickerreplay.ktExt.logd
 import com.askerweb.autoclickerreplay.ktExt.saveMacroToJson
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.google.android.gms.ads.AdRequest
-import kotlinx.android.synthetic.main.setting_layout.*;
+import kotlinx.android.synthetic.main.setting_layout.*
 import java.io.File
+import java.io.FilenameFilter
 
 class SettingActivity : AppCompatActivity() {
 
@@ -74,7 +72,10 @@ class SettingActivity : AppCompatActivity() {
             if(!isOpenLoadDialog) {
                 isOpenLoadDialog = true
                 AutoClickService.start(this)
-                val dir = mutableListOf<File>(*filesDir.listFiles()!!)
+                val dir = mutableListOf<File>(*filesDir.listFiles(FilenameFilter { file, s ->
+                    return@FilenameFilter s.toLowerCase().endsWith(".json")
+                }))
+                
                 if (dir.isNotEmpty()) {
                     AutoClickService.requestAction(this, AutoClickService.ACTION_HIDE_VIEWS)
                     val adapter = ScriptSavedAdapterFiles(dir, LayoutInflater.from(this))

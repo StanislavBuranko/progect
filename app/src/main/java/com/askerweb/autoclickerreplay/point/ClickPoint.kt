@@ -11,10 +11,13 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.core.widget.addTextChangedListener
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.activity.TablePointsActivity
+import com.askerweb.autoclickerreplay.activity.TablePointsActivity.updateTable
 import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.service.AutoClickService
 import com.askerweb.autoclickerreplay.service.AutoClickService.*
 import com.google.gson.JsonObject
+import kotlinx.android.synthetic.main.list_files.view.*
 import kotlin.math.log
 
 
@@ -144,9 +147,34 @@ class ClickPoint : Point {
         }
         tableLayout.addView(tr)
 
-        tr.setOnTouchListener{v, event->
+        val buttonDown = tr.findViewById<View>(R.id.butttonDownPoint) as Button
+        buttonDown.setOnClickListener{
+            if (super.text > "0" && super.text.toInt() < getListPoint().size){
+                val tempPoint = getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+                getListPoint().set(tempTextPoint - 1, getListPoint().get(super.text.toInt()))
+                getListPoint().set(super.text.toInt(), tempPoint)
+                getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
+                getListPoint().get(super.text.toInt()).text = (super.text.toInt()+1).toString()
 
-            true
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
+        }
+
+        val buttonUp = tr.findViewById<View>(R.id.butttonUpPoint) as Button
+        buttonUp.setOnClickListener{
+            getListPoint().logd()
+            if (super.text > "1" && super.text.toInt() <= getListPoint().size){
+                val tempPoint = getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+
+                getListPoint().set(tempTextPoint-1, getListPoint().get(super.text.toInt()-2))
+                getListPoint().set(tempTextPoint-2, tempPoint)
+                getListPoint().get(tempTextPoint-1).text = (super.text.toInt()).toString()
+                getListPoint().get(tempTextPoint-2).text = (super.text.toInt()-1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
         }
     }
 

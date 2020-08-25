@@ -89,8 +89,8 @@
     <string name="xPoint" translatable="false">X</string>
     <string name="yPoint" translatable="false">Y</string>
     <string name="delay">Задержка</string>
-    <string name="duration">Удерживание</string>
-    <string name="repeat">Повторений</string>
+    <string name="duration">Удерж.</string>
+    <string name="repeat">Повтор.</string>
     <string name="pointType">Тип</string>
     <string name="feature">Особенность</string>
     <string name="setting_points">"Настройка сценария"</string>

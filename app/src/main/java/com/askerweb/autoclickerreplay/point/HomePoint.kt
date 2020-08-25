@@ -21,6 +21,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.activity.TablePointsActivity
 import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.service.AutoClickService
@@ -73,7 +74,7 @@ class HomePoint : Point {
     override val drawableViewDefault = ContextCompat.getDrawable(App.appComponent.getAppContext(), R.drawable.draw_point_home)!!
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
-        val tr = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
+        val tr = inflater.inflate(R.layout.table_row_for_table_setting_points_home, null) as TableRow
 
         val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
         edXPoint.setText(super.x.toString())
@@ -148,12 +149,35 @@ class HomePoint : Point {
         val imageViewTypePoint = linearLayoutTypePoint.findViewById<View>(R.id.imageType) as ImageView
         imageViewTypePoint.setBackgroundResource(R.drawable.ic_home_point)
 
-        tr.removeAllViews()
-        tr.addView(linearLayoutHideShowRow)
-        tr.addView(linearLayoutTypePoint)
-        tr.addView(edXPoint)
-        tr.addView(edYPoint)
-        tr.addView(edDelayPoint)
+        val buttonDown = tr.findViewById<View>(R.id.butttonDownPoint) as Button
+        buttonDown.setOnClickListener{
+            if (super.text > "0" && super.text.toInt() < AutoClickService.getListPoint().size){
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+                AutoClickService.getListPoint().set(tempTextPoint - 1, AutoClickService.getListPoint().get(super.text.toInt()))
+                AutoClickService.getListPoint().set(super.text.toInt(), tempPoint)
+                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
+                AutoClickService.getListPoint().get(super.text.toInt()).text = (super.text.toInt()+1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
+        }
+
+        val buttonUp = tr.findViewById<View>(R.id.butttonUpPoint) as Button
+        buttonUp.setOnClickListener{
+            AutoClickService.getListPoint().logd()
+            if (super.text > "1" && super.text.toInt() <= AutoClickService.getListPoint().size){
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+
+                AutoClickService.getListPoint().set(tempTextPoint-1, AutoClickService.getListPoint().get(super.text.toInt()-2))
+                AutoClickService.getListPoint().set(tempTextPoint-2, tempPoint)
+                AutoClickService.getListPoint().get(tempTextPoint-1).text = (super.text.toInt()).toString()
+                AutoClickService.getListPoint().get(tempTextPoint-2).text = (super.text.toInt()-1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
+        }
         tableLayout.addView(tr)
     }
 
@@ -161,11 +185,11 @@ class HomePoint : Point {
         TODO("Not yet implemented")
     }
 
-    override open fun createHolderDialog(viewContent:View): AbstractViewHolderDialog {
+    override fun createHolderDialog(viewContent:View): AbstractViewHolderDialog {
         return PointHolderDialogEdit(viewContent, this)
     }
 
-    override open fun createViewDialog():View{
+    override fun createViewDialog():View{
         return LayoutInflater.from(ContextThemeWrapper(App.activityComponent.getActivityContext(), R.style.AppDialogGradient))
                 .inflate(R.layout.dialog_setting_home_point, null, false)
     }

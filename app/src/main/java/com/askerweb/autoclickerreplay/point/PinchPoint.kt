@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.activity.TablePointsActivity
 import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.point.view.*
 import com.askerweb.autoclickerreplay.service.AutoClickService
@@ -118,6 +119,7 @@ class PinchPoint:Point {
             if(edXPoint.text.toString() == "") {
                 edXPoint.setText(super.params.x.toString())
             }
+            AutoClickService.getCanvas().invalidate()
         }
         edXPoint.addTextChangedListener{
             if(edXPoint.text.toString() != "") {
@@ -131,6 +133,7 @@ class PinchPoint:Point {
                 else {super.params.x = edXPoint.text.toString().toInt()}
                 AutoClickService.getWM().updateViewLayout(super.view, super.params)
             }
+            AutoClickService.getCanvas().invalidate()
         }
 
         val edYPoint = tr.findViewById<View>(R.id.yPoint) as EditText
@@ -139,6 +142,7 @@ class PinchPoint:Point {
             if(edYPoint.text.toString() == ""){
                 edYPoint.setText(super.y.toString())
             }
+            AutoClickService.getCanvas().invalidate()
 
         }
         edYPoint.addTextChangedListener{
@@ -153,6 +157,7 @@ class PinchPoint:Point {
                 else {super.params.y = edYPoint.text.toString().toInt()}
                 AutoClickService.getWM().updateViewLayout(super.view, super.params)
             }
+            AutoClickService.getCanvas().invalidate()
         }
 
         val edDelayPoint = tr.findViewById<View>(R.id.delayPoint) as EditText
@@ -221,6 +226,7 @@ class PinchPoint:Point {
             if(edXPointFirst.text.toString() == ""){
                 edXPointFirst.setText(firstPoint.params.x.toString())
             }
+            AutoClickService.getCanvas().invalidate()
         }
         edXPointFirst.addTextChangedListener{
             if(edXPointFirst.text.toString() != "") {
@@ -234,6 +240,7 @@ class PinchPoint:Point {
                 else {firstPoint.params.x = edXPointFirst.text.toString().toInt()}
                 AutoClickService.getWM().updateViewLayout(firstPoint.view, firstPoint.params)
             }
+            AutoClickService.getCanvas().invalidate()
         }
 
         val edYPointFirst = trFirst.findViewById(R.id.yPoint) as EditText
@@ -242,6 +249,7 @@ class PinchPoint:Point {
             if(edYPointFirst.text.toString() == ""){
                 edYPointFirst.setText(firstPoint.params.y.toString())
             }
+            AutoClickService.getCanvas().invalidate()
         }
         edYPointFirst.addTextChangedListener{
             if(edYPointFirst.text.toString() != "") {
@@ -255,6 +263,7 @@ class PinchPoint:Point {
                 else {firstPoint.params.y = edYPointFirst.text.toString().toInt()}
                 AutoClickService.getWM().updateViewLayout(firstPoint.view, firstPoint.params)
             }
+            AutoClickService.getCanvas().invalidate()
         }
         trFirst.visibility = View.GONE
         tableLayout.addView(trFirst)
@@ -271,6 +280,7 @@ class PinchPoint:Point {
             if(edXPointSecond.text.toString() == ""){
                 edXPointSecond.setText(secondPoint.params.x.toString())
             }
+            AutoClickService.getCanvas().invalidate()
         }
         edXPointFirst.addTextChangedListener{
             if(edXPointFirst.text.toString() != "") {
@@ -284,6 +294,7 @@ class PinchPoint:Point {
                 else {secondPoint.params.x = edXPointSecond.text.toString().toInt()}
                 AutoClickService.getWM().updateViewLayout(secondPoint.view, secondPoint.params)
             }
+            AutoClickService.getCanvas().invalidate()
         }
 
         val edYPointSecond = trSecond.findViewById(R.id.yPoint) as EditText
@@ -292,6 +303,7 @@ class PinchPoint:Point {
             if(edYPointSecond.text.toString() == ""){
                 edYPointSecond.setText(secondPoint.params.y.toString())
             }
+            AutoClickService.getCanvas().invalidate()
         }
         edYPointSecond.addTextChangedListener{
             if(edYPointSecond.text.toString() != "") {
@@ -305,6 +317,7 @@ class PinchPoint:Point {
                 else {secondPoint.params.y = edYPointSecond.text.toString().toInt()}
                 AutoClickService.getWM().updateViewLayout(secondPoint.view, secondPoint.params)
             }
+            AutoClickService.getCanvas().invalidate()
         }
         trSecond.visibility = View.GONE
         tableLayout.addView(trSecond)
@@ -335,6 +348,38 @@ class PinchPoint:Point {
                 buttonShowHideRow.setBackgroundResource(R.drawable.ic_open_minimal)
             else
                 buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
+        }
+
+        val buttonDown = tr.findViewById<View>(R.id.butttonDownPoint) as Button
+        buttonDown.setOnClickListener{
+            if (super.text > "0" && super.text.toInt() < AutoClickService.getListPoint().size){
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+                AutoClickService.getListPoint().set(tempTextPoint - 1, AutoClickService.getListPoint().get(super.text.toInt()))
+                AutoClickService.getListPoint().set(super.text.toInt(), tempPoint)
+                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
+                AutoClickService.getListPoint().get(super.text.toInt()).text = (super.text.toInt()+1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
+            true
+        }
+
+        val buttonUp = tr.findViewById<View>(R.id.butttonUpPoint) as Button
+        buttonUp.setOnClickListener{
+            AutoClickService.getListPoint().logd()
+            if (super.text > "1" && super.text.toInt() <= AutoClickService.getListPoint().size){
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+
+                AutoClickService.getListPoint().set(tempTextPoint-1, AutoClickService.getListPoint().get(super.text.toInt()-2))
+                AutoClickService.getListPoint().set(tempTextPoint-2, tempPoint)
+                AutoClickService.getListPoint().get(tempTextPoint-1).text = (super.text.toInt()).toString()
+                AutoClickService.getListPoint().get(tempTextPoint-2).text = (super.text.toInt()-1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
+            true
         }
     }
 

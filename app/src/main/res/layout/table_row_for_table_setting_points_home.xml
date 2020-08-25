@@ -26,35 +26,29 @@
     <EditText android:id="@+id/xPoint" android:layout_column="2" android:inputType="number" android:textSize="18dp"/>
     <EditText android:id="@+id/yPoint" android:layout_column="3" android:inputType="number" android:textSize="18dp"/>
     <EditText android:id="@+id/delayPoint" android:layout_column="4" android:inputType="number" android:textSize="18dp"/>
-    <EditText android:id="@+id/durationPoint" android:layout_column="5" android:inputType="number" android:textSize="18dp"/>
 
-    <EditText
-        android:id="@+id/repeatPoint"
-        android:layout_column="6"
-        android:inputType="number"
-        android:textSize="18dp" />
     <LinearLayout android:gravity="center" android:layout_column="7" android:layout_marginLeft="5dp">
-    <Button
-        android:id="@+id/butttonUpPoint"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_column="7"
-        android:layout_marginTop="13dp"
-        android:layout_marginBottom="13dp"
-        android:width="30dp"
-        android:height="30dp"
-        android:background="@drawable/ic_arrow_up"></Button>
+        <Button
+            android:id="@+id/butttonUpPoint"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_column="7"
+            android:layout_marginTop="13dp"
+            android:layout_marginBottom="13dp"
+            android:width="30dp"
+            android:height="30dp"
+            android:background="@drawable/ic_arrow_up"></Button>
     </LinearLayout>
     <LinearLayout android:gravity="center" android:layout_column="8" android:layout_marginLeft="5dp">
-    <Button
-        android:id="@+id/butttonDownPoint"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_column="8"
-        android:layout_marginTop="13dp"
-        android:layout_marginBottom="13dp"
-        android:width="30dp"
-        android:height="30dp"
-        android:background="@drawable/ic_arrow_down"></Button>
+        <Button
+            android:id="@+id/butttonDownPoint"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_column="8"
+            android:layout_marginTop="13dp"
+            android:layout_marginBottom="13dp"
+            android:width="30dp"
+            android:height="30dp"
+            android:background="@drawable/ic_arrow_down"></Button>
     </LinearLayout>
 </TableRow>

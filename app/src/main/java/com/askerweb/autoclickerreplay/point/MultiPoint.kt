@@ -17,6 +17,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import com.askerweb.autoclickerreplay.App
 import com.askerweb.autoclickerreplay.R
+import com.askerweb.autoclickerreplay.activity.TablePointsActivity
 import com.askerweb.autoclickerreplay.ktExt.*
 import com.askerweb.autoclickerreplay.point.view.AbstractViewHolderDialog
 import com.askerweb.autoclickerreplay.point.view.ExtendedViewHolder
@@ -412,6 +413,36 @@ class MultiPoint: Point {
             }
         }
 
+        val buttonDown = tr.findViewById<View>(R.id.butttonDownPoint) as Button
+        buttonDown.setOnClickListener{
+            if (super.text > "0" && super.text.toInt() < AutoClickService.getListPoint().size){
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+                AutoClickService.getListPoint().set(tempTextPoint - 1, AutoClickService.getListPoint().get(super.text.toInt()))
+                AutoClickService.getListPoint().set(super.text.toInt(), tempPoint)
+                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
+                AutoClickService.getListPoint().get(super.text.toInt()).text = (super.text.toInt()+1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
+        }
+
+        val buttonUp = tr.findViewById<View>(R.id.butttonUpPoint) as Button
+        buttonUp.setOnClickListener{
+            AutoClickService.getListPoint().logd()
+            if (super.text > "1" && super.text.toInt() <= AutoClickService.getListPoint().size){
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+
+                AutoClickService.getListPoint().set(tempTextPoint-1, AutoClickService.getListPoint().get(super.text.toInt()-2))
+                AutoClickService.getListPoint().set(tempTextPoint-2, tempPoint)
+                AutoClickService.getListPoint().get(tempTextPoint-1).text = (super.text.toInt()).toString()
+                AutoClickService.getListPoint().get(tempTextPoint-2).text = (super.text.toInt()-1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
+        }
+
     }
 
     override fun getCommand(): GestureDescription? {
@@ -457,12 +488,10 @@ class MultiPoint: Point {
         init {
             multiPointDialogButtonPlus.setOnClickListener {
                 editNumbMultiPoint.setText((editNumbMultiPoint.text.toString().toInt() + 1).toString())
-                true
             }
 
             multiPointDialogButtonMinus.setOnClickListener {
                 editNumbMultiPoint.setText((editNumbMultiPoint.text.toString().toInt() - 1).toString())
-                true
             }
 
             editNumbMultiPoint.addTextChangedListener {

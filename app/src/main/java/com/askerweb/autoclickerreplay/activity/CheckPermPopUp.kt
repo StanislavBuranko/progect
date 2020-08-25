@@ -19,6 +19,7 @@ class CheckPermPopUp : AppCompatActivity() {
         val intent2 = Intent(this@CheckPermPopUp, MainActivity::class.java)
         intent2.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent2)
+
         checkPermPopUP = true; checkPermPopUP.logd("checkActivity")
     }
 
@@ -36,5 +37,6 @@ class CheckPermPopUp : AppCompatActivity() {
         super.onDestroy()
         checkPermPopUP = true; checkPermPopUP.logd("checkActivity")
     }
+
 
 }
