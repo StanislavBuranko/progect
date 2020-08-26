@@ -350,3 +350,9 @@ fun getNavBar(): Int {
     resources.getDimensionPixelSize(resourceId).logd("NavBAr")
     return resources.getDimensionPixelSize(resourceId)
 }
+
+fun randomizePoint() : Int {
+    if(AutoClickService.getParamRandomizePoint())
+        return (-10 until 10).random()
+    return 0
+}

@@ -134,19 +134,22 @@ class MultiPoint: Point {
 
     public fun setDelayRecord(delay: Int) {
         points.forEach { point ->
-            point.delay = delay.toLong();
+            super.delay = delay.toLong()
+            point.delay = delay.toLong()
         }
     }
 
     public fun setDurationRecord(duration: Int) {
         points.forEach { point ->
-            point.duration = duration.toLong();
+            super.duration = duration.toLong()
+            point.duration = duration.toLong()
         }
     }
 
     public fun setRepeatRecord(repeat: Int) {
         points.forEach { point ->
-            point.repeat = repeat;
+            super.repeat = repeat
+            point.repeat = repeat
         }
     }
 
@@ -189,10 +192,27 @@ class MultiPoint: Point {
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
         val tr = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
 
+        imageTypePoint(tr)
+        edX(tr)
+        edY(tr)
+        edDelay(tr)
+        edDuration(tr)
+        edRepeat(tr)
+        btnDown(tr, tableLayout, inflater)
+        btnUp(tr, tableLayout, inflater)
+        imageBtnDown(tr)
+        imageBtnUp(tr)
+        tableLayout.addView(tr)
+        minimalTableRow(tr, tableLayout, inflater)
+    }
+
+    fun imageTypePoint(tr: TableRow){
         val linearLayout = tr.findViewById<View>(R.id.linearLayoutTypePoint)
         val imageView = linearLayout.findViewById<View>(R.id.imageType) as ImageView
         imageView.setBackgroundResource(R.drawable.ic_multi_point)
+    }
 
+    fun edX(tr: TableRow) {
         val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
         edXPoint.setText(points[0].x.toString())
         edXPoint.setOnFocusChangeListener { view: View, b: Boolean ->
@@ -214,14 +234,15 @@ class MultiPoint: Point {
                 AutoClickService.getWM().updateViewLayout(points[0].view, points[0].params)
             }
         }
+    }
 
+    fun edY(tr: TableRow) {
         val edYPoint = tr.findViewById<View>(R.id.yPoint) as EditText
         edYPoint.setText(points[0].y.toString())
         edYPoint.setOnFocusChangeListener { view: View, b: Boolean ->
             if (edYPoint.text.toString() == "") {
                 edYPoint.setText(points[0].y.toString())
             }
-
         }
         edYPoint.addTextChangedListener {
             if (edYPoint.text.toString() != "") {
@@ -237,7 +258,9 @@ class MultiPoint: Point {
                 AutoClickService.getWM().updateViewLayout(points[0].view, points[0].params)
             }
         }
+    }
 
+    fun edDelay(tr: TableRow) {
         val edDelayPoint = tr.findViewById<View>(R.id.delayPoint) as EditText
         edDelayPoint.setText(points[0].delay.toString())
         edDelayPoint.setOnFocusChangeListener { view: View, b: Boolean ->
@@ -256,7 +279,9 @@ class MultiPoint: Point {
                 }
             }
         }
+    }
 
+    fun edDuration(tr: TableRow) {
         val edDurationPoint = tr.findViewById<View>(R.id.durationPoint) as EditText
         edDurationPoint.setText(super.duration.toString())
         edDurationPoint.setOnFocusChangeListener { view: View, b: Boolean ->
@@ -269,13 +294,15 @@ class MultiPoint: Point {
                 if (edDurationPoint.text.toString().toInt() >= 60001) {
                     edDurationPoint.setText("60000")
                     edDurationPoint.setSelection(edDurationPoint.text.length)
-                    setDurationRecord(edDelayPoint.text.toString().toInt())
+                    setDurationRecord(edDurationPoint.text.toString().toInt())
                 } else {
-                    setDurationRecord(edDelayPoint.text.toString().toInt())
+                    setDurationRecord(edDurationPoint.text.toString().toInt())
                 }
             }
         }
+    }
 
+    fun edRepeat(tr:TableRow) {
         val edRepeatPoint = tr.findViewById<View>(R.id.repeatPoint) as EditText
         edRepeatPoint.setText(points[0].repeat.toString())
         edRepeatPoint.setOnFocusChangeListener { view: View, b: Boolean ->
@@ -293,10 +320,58 @@ class MultiPoint: Point {
                     setRepeatRecord(edRepeatPoint.text.toString().toInt())
                 }
             }
-
         }
-        tableLayout.addView(tr)
+    }
 
+    fun btnDown(tr:TableRow, tableLayout: TableLayout, inflater: LayoutInflater) {
+        val buttonDown = tr.findViewById<View>(R.id.butttonDownPoint) as Button
+        buttonDown.setOnClickListener{
+            if (super.text > "0" && super.text.toInt() < AutoClickService.getListPoint().size){
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+                AutoClickService.getListPoint().set(tempTextPoint - 1, AutoClickService.getListPoint().get(super.text.toInt()))
+                AutoClickService.getListPoint().set(super.text.toInt(), tempPoint)
+                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
+                AutoClickService.getListPoint().get(super.text.toInt()).text = (super.text.toInt()+1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
+        }
+    }
+
+    fun btnUp(tr:TableRow , tableLayout: TableLayout, inflater: LayoutInflater) {
+        val buttonUp = tr.findViewById<View>(R.id.butttonUpPoint) as Button
+        buttonUp.setOnClickListener{
+            AutoClickService.getListPoint().logd()
+            if (super.text > "1" && super.text.toInt() <= AutoClickService.getListPoint().size){
+                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
+                val tempTextPoint = super.text.toInt()
+
+                AutoClickService.getListPoint().set(tempTextPoint-1, AutoClickService.getListPoint().get(super.text.toInt()-2))
+                AutoClickService.getListPoint().set(tempTextPoint-2, tempPoint)
+                AutoClickService.getListPoint().get(tempTextPoint-1).text = (super.text.toInt()).toString()
+                AutoClickService.getListPoint().get(tempTextPoint-2).text = (super.text.toInt()-1).toString()
+
+                TablePointsActivity.updateTable(tableLayout, inflater)
+            }
+        }
+    }
+
+    fun imageBtnDown(tr: TableRow) {
+        val linearLayoutButtonDown = tr.findViewById<View>(R.id.linerLayoutDownPoint)
+        val imageViewButtonDown = linearLayoutButtonDown.findViewById<View>(R.id.butttonDownPoint) as Button
+        if(super.text.toInt() == AutoClickService.getListPoint().size)
+            imageViewButtonDown.setBackgroundResource(R.drawable.ic_arrow_down_disable)
+    }
+
+    fun imageBtnUp(tr: TableRow) {
+        val linearLayoutButtonUp = tr.findViewById<View>(R.id.linerLayoutUpPoint)
+        val imageViewButtonUp = linearLayoutButtonUp.findViewById<View>(R.id.butttonUpPoint) as Button
+        if(super.text == "1")
+            imageViewButtonUp.setBackgroundResource(R.drawable.ic_arrow_up_disable)
+    }
+
+    fun minimalTableRow(tr: TableRow, tableLayout: TableLayout, inflater: LayoutInflater) {
         var tableRows: Array<TableRow> = arrayOf()
         for (i in 1..points.size - 1) {
             val trArray = inflater.inflate(R.layout.table_row_for_table_setting_points_minimal, null) as TableRow
@@ -412,44 +487,13 @@ class MultiPoint: Point {
                     buttonShowHideRow.setBackgroundResource(R.drawable.ic_close_minimal)
             }
         }
-
-        val buttonDown = tr.findViewById<View>(R.id.butttonDownPoint) as Button
-        buttonDown.setOnClickListener{
-            if (super.text > "0" && super.text.toInt() < AutoClickService.getListPoint().size){
-                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
-                val tempTextPoint = super.text.toInt()
-                AutoClickService.getListPoint().set(tempTextPoint - 1, AutoClickService.getListPoint().get(super.text.toInt()))
-                AutoClickService.getListPoint().set(super.text.toInt(), tempPoint)
-                AutoClickService.getListPoint().get(super.text.toInt()-1).text = tempTextPoint.toString()
-                AutoClickService.getListPoint().get(super.text.toInt()).text = (super.text.toInt()+1).toString()
-
-                TablePointsActivity.updateTable(tableLayout, inflater)
-            }
-        }
-
-        val buttonUp = tr.findViewById<View>(R.id.butttonUpPoint) as Button
-        buttonUp.setOnClickListener{
-            AutoClickService.getListPoint().logd()
-            if (super.text > "1" && super.text.toInt() <= AutoClickService.getListPoint().size){
-                val tempPoint = AutoClickService.getListPoint().get(super.text.toInt()-1)
-                val tempTextPoint = super.text.toInt()
-
-                AutoClickService.getListPoint().set(tempTextPoint-1, AutoClickService.getListPoint().get(super.text.toInt()-2))
-                AutoClickService.getListPoint().set(tempTextPoint-2, tempPoint)
-                AutoClickService.getListPoint().get(tempTextPoint-1).text = (super.text.toInt()).toString()
-                AutoClickService.getListPoint().get(tempTextPoint-2).text = (super.text.toInt()-1).toString()
-
-                TablePointsActivity.updateTable(tableLayout, inflater)
-            }
-        }
-
     }
 
     override fun getCommand(): GestureDescription? {
         val builder = GestureDescription.Builder()
         for (n in 0..points.size - 1) {
             val path = Path()
-            path.moveTo(points[n].xTouch.toFloat()+ getNavigationBar(), points[n].yTouch.toFloat())
+            path.moveTo(points[n].xTouch.toFloat()+ getNavigationBar()  + randomizePoint(), points[n].yTouch.toFloat()  + randomizePoint())
             builder.addStroke(GestureDescription.StrokeDescription(path, 0, points[n].duration))
         }
         return builder.build()

@@ -33,7 +33,7 @@
         android:layout_column="6"
         android:inputType="number"
         android:textSize="18dp" />
-    <LinearLayout android:gravity="center" android:layout_column="7" android:layout_marginLeft="5dp">
+    <LinearLayout android:gravity="center" android:layout_column="7" android:layout_marginLeft="5dp" android:id="@+id/linerLayoutUpPoint">
     <Button
         android:id="@+id/butttonUpPoint"
         android:layout_width="30dp"
@@ -45,7 +45,7 @@
         android:height="30dp"
         android:background="@drawable/ic_arrow_up"></Button>
     </LinearLayout>
-    <LinearLayout android:gravity="center" android:layout_column="8" android:layout_marginLeft="5dp">
+    <LinearLayout android:gravity="center" android:layout_column="8" android:layout_marginLeft="5dp" android:id="@+id/linerLayoutDownPoint">
     <Button
         android:id="@+id/butttonDownPoint"
         android:layout_width="30dp"

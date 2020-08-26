@@ -82,4 +82,5 @@
     <string name="numbPoints">Number of points:</string>
     <string name="question_timer">On timer</string>
     <string name="hide_share_button">Hide button share</string>
+    <string name="random_point">Randomize point clicks</string>
 </resources>

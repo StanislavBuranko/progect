@@ -127,6 +127,7 @@ public class AutoClickService extends Service implements View.OnTouchListener{
     public Integer paramRepeatMacro;
     public Integer paramSizePoint;
     public Integer paramSizeControl;
+    public Boolean paramRandomizePoint;
     private Boolean openRecordPanel = false;
     private Integer allMSPoint = 0;
     private Boolean isInitalView = false;
@@ -300,9 +301,9 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                     second = (Integer.parseInt(second)+1)+"";
                 }
             }
-            return min + ":" + second + ":" + ms + "ms";
+            return min + ":" + second + ":" + ms + " ms";
         }
-        return "00:00:0 ms";
+        return "00:00:00 ms";
     }
 
     public static String getTimeCountDownTimer(int allMs){
@@ -321,9 +322,9 @@ public class AutoClickService extends Service implements View.OnTouchListener{
                     second = (Integer.parseInt(second)+1)+"";
                 }
             }
-            return min + ":" + second + ":" + ms + "ms";
+            return min + ":" + second + ":" + ms + " ms";
         }
-        return "00:00:0 ms";
+        return "00:00:00 ms";
     }
 
     public static void start(Context context){
@@ -368,6 +369,8 @@ public class AutoClickService extends Service implements View.OnTouchListener{
 
 
     public static boolean getParamTimer(){ return service.paramTimerOn; }
+
+    public static boolean getParamRandomizePoint(){ return service.paramRandomizePoint; }
 
     public static  TextView getTvTimer(){
         return tvTimer;
@@ -755,6 +758,9 @@ public class AutoClickService extends Service implements View.OnTouchListener{
         paramHideShareButtonOn = Optional
                 .ofNullable(getSetting(SettingExt.KEY_SHARE_BUTTON_ON, SettingExt.defaultShareButtonOn))
                 .orElse(SettingExt.defaultShareButtonOn);
+        paramRandomizePoint = Optional
+                .ofNullable(getSetting(SettingExt.KEY_RANDOMIZE_POINT_ON, SettingExt.defaultRandomizeOn))
+                .orElse(SettingExt.defaultRandomizeOn);
 
         if(isInitalView){
             AutoClickService.getListPoint().forEach(point ->{

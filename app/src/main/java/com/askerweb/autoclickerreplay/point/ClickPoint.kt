@@ -31,7 +31,7 @@ class ClickPoint : Point {
 
     override fun getCommand():GestureDescription? {
         val path = Path()
-        path.moveTo(xTouch.toFloat() + getNavigationBar(), yTouch.toFloat())
+        path.moveTo(xTouch.toFloat() + getNavigationBar() + randomizePoint(), yTouch.toFloat() + randomizePoint())
         val builder = GestureDescription.Builder()
         return builder
                 .addStroke(GestureDescription.StrokeDescription(path, 0, duration))
@@ -40,59 +40,81 @@ class ClickPoint : Point {
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
         val tr = inflater.inflate(R.layout.table_row_for_table_setting_points, null) as TableRow
-        val linearLayout = tr.findViewById<View>(R.id.linearLayoutTypePoint)
-        val imageView = linearLayout.findViewById<View>(R.id.imageType) as ImageView
-        imageView.setBackgroundResource(R.drawable.ic_point)
+        imageTypePoint(tr)
+        edX(tr)
+        edY(tr)
+        edDelay(tr)
+        edDuration(tr)
+        edRepeat(tr)
+        btnDown(tr, tableLayout, inflater)
+        btnUp(tr, tableLayout, inflater)
+        imageBtnDown(tr)
+        imageBtnUp(tr)
+        tableLayout.addView(tr)
+    }
 
+    fun imageTypePoint(tr: TableRow){
+            val linearLayout = tr.findViewById<View>(R.id.linearLayoutTypePoint)
+            val imageView = linearLayout.findViewById<View>(R.id.imageType) as ImageView
+            imageView.setBackgroundResource(R.drawable.ic_point)
+    }
+
+    fun edX(tr: TableRow) {
         val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
         edXPoint.setText(super.x.toString())
-        edXPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            super.view.visibility = if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE
-            if(edXPoint.text.toString() == ""){
+        edXPoint.setOnFocusChangeListener { view: View, b: Boolean ->
+            setVisible(if (super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if (edXPoint.text.toString() == "") {
                 edXPoint.setText(super.params.x.toString())
                 edXPoint.setSelection(edXPoint.text.length)
             }
         }
-        edXPoint.addTextChangedListener{
-            if(edXPoint.text.toString() != "") {
+        edXPoint.addTextChangedListener {
+            if (edXPoint.text.toString() != "") {
                 val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
                 val display = wm.defaultDisplay
-                if(edXPoint.text.toString().toInt() > display.width) {
+                if (edXPoint.text.toString().toInt() > display.width) {
                     edXPoint.setText(display.width.toString())
                     super.params.x = edXPoint.text.toString().toInt()
+                } else {
+                    super.params.x = edXPoint.text.toString().toInt()
                 }
-                else {super.params.x = edXPoint.text.toString().toInt()}
                 getWM().updateViewLayout(super.view, super.params)
             }
         }
+    }
 
+    fun edY(tr: TableRow) {
         val edYPoint = tr.findViewById<View>(R.id.yPoint) as EditText
         edYPoint.setText(super.y.toString())
-        edYPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            super.view.visibility = if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE
-            if(edYPoint.text.toString() == "") {
+        edYPoint.setOnFocusChangeListener { view: View, b: Boolean ->
+            setVisible(if (super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
+            if (edYPoint.text.toString() == "") {
                 edYPoint.setText(super.y.toString())
-                edYPoint.setSelection(edXPoint.text.length)
+                edYPoint.setSelection(edYPoint.text.length)
             }
 
         }
-        edYPoint.addTextChangedListener{
-            if(edYPoint.text.toString() != "") {
+        edYPoint.addTextChangedListener {
+            if (edYPoint.text.toString() != "") {
                 val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
                 val display = wm.defaultDisplay
-                if(edYPoint.text.toString().toInt() > display.height) {
+                if (edYPoint.text.toString().toInt() > display.height) {
                     edYPoint.setText(display.height.toString())
                     super.params.y = edYPoint.text.toString().toInt()
+                } else {
+                    super.params.y = edYPoint.text.toString().toInt()
                 }
-                else {super.params.y = edYPoint.text.toString().toInt()}
                 getWM().updateViewLayout(super.view, super.params)
             }
         }
+    }
 
+    fun edDelay(tr: TableRow) {
         val edDelayPoint = tr.findViewById<View>(R.id.delayPoint) as EditText
         edDelayPoint.setText(super.delay.toString())
         edDelayPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            super.view.visibility = if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edDelayPoint.text.toString() == ""){
                 edDelayPoint.setText(super.delay.toString())
             }
@@ -107,11 +129,13 @@ class ClickPoint : Point {
                 else {super.delay = edDelayPoint.text.toString().toLong()}
             }
         }
+    }
 
+    fun edDuration(tr: TableRow) {
         val edDurationPoint = tr.findViewById<View>(R.id.durationPoint) as EditText
         edDurationPoint.setText(super.duration.toString())
         edDurationPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            super.view.visibility = if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edDurationPoint.text.toString() == ""){
                 edDurationPoint.setText(super.duration.toString())
                 edDurationPoint.setSelection(edDurationPoint.text.length)
@@ -126,11 +150,13 @@ class ClickPoint : Point {
                 else {super.duration = edDurationPoint.text.toString().toLong()}
             }
         }
+    }
 
+    fun edRepeat(tr:TableRow) {
         val edRepeatPoint = tr.findViewById<View>(R.id.repeatPoint) as EditText
         edRepeatPoint.setText(super.repeat.toString())
         edRepeatPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            super.view.visibility = if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edRepeatPoint.text.toString() == ""){
                 edRepeatPoint.setText(super.repeat.toString())
                 edRepeatPoint.setSelection(edRepeatPoint.text.length)
@@ -145,8 +171,9 @@ class ClickPoint : Point {
                 else { super.repeat = edRepeatPoint.text.toString().toInt()}
             }
         }
-        tableLayout.addView(tr)
+    }
 
+    fun btnDown(tr:TableRow, tableLayout: TableLayout, inflater: LayoutInflater) {
         val buttonDown = tr.findViewById<View>(R.id.butttonDownPoint) as Button
         buttonDown.setOnClickListener{
             if (super.text > "0" && super.text.toInt() < getListPoint().size){
@@ -160,7 +187,9 @@ class ClickPoint : Point {
                 TablePointsActivity.updateTable(tableLayout, inflater)
             }
         }
+    }
 
+    fun btnUp(tr:TableRow , tableLayout: TableLayout, inflater: LayoutInflater) {
         val buttonUp = tr.findViewById<View>(R.id.butttonUpPoint) as Button
         buttonUp.setOnClickListener{
             getListPoint().logd()
@@ -176,6 +205,20 @@ class ClickPoint : Point {
                 TablePointsActivity.updateTable(tableLayout, inflater)
             }
         }
+    }
+
+    fun imageBtnDown(tr: TableRow) {
+        val linearLayoutButtonDown = tr.findViewById<View>(R.id.linerLayoutDownPoint)
+        val imageViewButtonDown = linearLayoutButtonDown.findViewById<View>(R.id.butttonDownPoint) as Button
+        if(super.text.toInt() == AutoClickService.getListPoint().size)
+            imageViewButtonDown.setBackgroundResource(R.drawable.ic_arrow_down_disable)
+    }
+
+    fun imageBtnUp(tr: TableRow) {
+        val linearLayoutButtonUp = tr.findViewById<View>(R.id.linerLayoutUpPoint)
+        val imageViewButtonUp = linearLayoutButtonUp.findViewById<View>(R.id.butttonUpPoint) as Button
+        if(super.text == "1")
+            imageViewButtonUp.setBackgroundResource(R.drawable.ic_arrow_up_disable)
     }
 
     companion object CREATOR : Parcelable.Creator<Point> {

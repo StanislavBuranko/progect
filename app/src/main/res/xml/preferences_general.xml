@@ -43,6 +43,14 @@
         android:key="@string/key_preference_timer_on"
         android:title="@string/question_timer"
         app:iconSpaceReserved="false" />
+    <com.takisoft.preferencex.SwitchPreferenceCompat
+        android:id="@+id/switchTimer2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="false"
+        android:key="@string/key_preference_radomize_point_on"
+        android:title="@string/random_point"
+        app:iconSpaceReserved="false" />
     <CheckBoxPreference
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

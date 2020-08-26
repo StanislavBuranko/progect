@@ -48,6 +48,10 @@ class HomePoint : Point {
         //val drive: AndroidDriver = driver.pressKey(new KeyEvent(AndroidKey.BACK));
     }
 
+    init{
+        super.duration = 0
+    }
+
     companion object CREATOR : Parcelable.Creator<Point> {
         override fun createFromParcel(parcel: Parcel): Point {
             return PointBuilder.invoke().buildFrom(HomePoint::class.java, parcel)
@@ -75,11 +79,28 @@ class HomePoint : Point {
 
     override fun createTableView(tableLayout: TableLayout, inflater: LayoutInflater) {
         val tr = inflater.inflate(R.layout.table_row_for_table_setting_points_home, null) as TableRow
+        imageTypePoint(tr)
+        edX(tr)
+        edY(tr)
+        edDelay(tr)
+        btnDown(tr, tableLayout, inflater)
+        btnUp(tr, tableLayout, inflater)
+        imageBtnDown(tr)
+        imageBtnUp(tr)
+        tableLayout.addView(tr)
+    }
 
+    fun imageTypePoint(tr: TableRow){
+        val linearLayoutTypePoint = tr.findViewById<View>(R.id.linearLayoutTypePoint)
+        val imageViewTypePoint = linearLayoutTypePoint.findViewById<View>(R.id.imageType) as ImageView
+        imageViewTypePoint.setBackgroundResource(R.drawable.ic_home_point)
+    }
+
+    fun edX(tr: TableRow) {
         val edXPoint = tr.findViewById<View>(R.id.xPoint) as EditText
         edXPoint.setText(super.x.toString())
         edXPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            super.view.visibility = if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE
+            setVisible(if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edXPoint.text.toString() == ""){
                 edXPoint.setText(super.params.x.toString())
                 edXPoint.setSelection(edXPoint.text.length)
@@ -97,14 +118,16 @@ class HomePoint : Point {
                 AutoClickService.getWM().updateViewLayout(super.view, super.params)
             }
         }
+    }
 
+    fun edY(tr: TableRow) {
         val edYPoint = tr.findViewById<View>(R.id.yPoint) as EditText
         edYPoint.setText(super.y.toString())
         edYPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            super.view.visibility = if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE
+            setVisible(if (super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edYPoint.text.toString() == ""){
                 edYPoint.setText(super.y.toString())
-                edYPoint.setSelection(edXPoint.text.length)
+                edYPoint.setSelection(edYPoint.text.length)
             }
 
         }
@@ -120,11 +143,13 @@ class HomePoint : Point {
                 AutoClickService.getWM().updateViewLayout(super.view, super.params)
             }
         }
+    }
 
+    fun edDelay(tr: TableRow) {
         val edDelayPoint = tr.findViewById<View>(R.id.delayPoint) as EditText
         edDelayPoint.setText(super.delay.toString())
         edDelayPoint.setOnFocusChangeListener{ view: View, b: Boolean ->
-            super.view.visibility = if(super.view.visibility == View.GONE) View.VISIBLE else View.GONE
+            setVisible(if (super.view.visibility == View.GONE) View.VISIBLE else View.GONE)
             if(edDelayPoint.text.toString() == ""){
                 edDelayPoint.setText(super.delay.toString())
             }
@@ -139,16 +164,9 @@ class HomePoint : Point {
                 else {super.delay = edDelayPoint.text.toString().toLong()}
             }
         }
+    }
 
-
-        val linearLayoutHideShowRow = tr.findViewById<View>(R.id.linearLayoutButtonShowHideRow)
-        val imageViewHideShowRow = linearLayoutHideShowRow.findViewById<View>(R.id.butttonHideShowRow) as Button
-        imageViewHideShowRow.setBackgroundResource(R.drawable.ic_disable_minimal)
-
-        val linearLayoutTypePoint = tr.findViewById<View>(R.id.linearLayoutTypePoint)
-        val imageViewTypePoint = linearLayoutTypePoint.findViewById<View>(R.id.imageType) as ImageView
-        imageViewTypePoint.setBackgroundResource(R.drawable.ic_home_point)
-
+    fun btnDown(tr:TableRow, tableLayout: TableLayout, inflater: LayoutInflater) {
         val buttonDown = tr.findViewById<View>(R.id.butttonDownPoint) as Button
         buttonDown.setOnClickListener{
             if (super.text > "0" && super.text.toInt() < AutoClickService.getListPoint().size){
@@ -162,7 +180,9 @@ class HomePoint : Point {
                 TablePointsActivity.updateTable(tableLayout, inflater)
             }
         }
+    }
 
+    fun btnUp(tr:TableRow , tableLayout: TableLayout, inflater: LayoutInflater) {
         val buttonUp = tr.findViewById<View>(R.id.butttonUpPoint) as Button
         buttonUp.setOnClickListener{
             AutoClickService.getListPoint().logd()
@@ -178,7 +198,20 @@ class HomePoint : Point {
                 TablePointsActivity.updateTable(tableLayout, inflater)
             }
         }
-        tableLayout.addView(tr)
+    }
+
+    fun imageBtnDown(tr: TableRow) {
+        val linearLayoutButtonDown = tr.findViewById<View>(R.id.linerLayoutDownPoint)
+        val imageViewButtonDown = linearLayoutButtonDown.findViewById<View>(R.id.butttonDownPoint) as Button
+        if(super.text.toInt() == AutoClickService.getListPoint().size)
+            imageViewButtonDown.setBackgroundResource(R.drawable.ic_arrow_down_disable)
+    }
+
+    fun imageBtnUp(tr: TableRow) {
+        val linearLayoutButtonUp = tr.findViewById<View>(R.id.linerLayoutUpPoint)
+        val imageViewButtonUp = linearLayoutButtonUp.findViewById<View>(R.id.butttonUpPoint) as Button
+        if(super.text == "1")
+            imageViewButtonUp.setBackgroundResource(R.drawable.ic_arrow_up_disable)
     }
 
     override fun getCommand(): GestureDescription? {
